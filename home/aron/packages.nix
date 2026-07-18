@@ -1,0 +1,73 @@
+{
+  pkgs,
+  pkgsUnstable,
+  ...
+}:
+{
+  home.packages =
+    with pkgs;
+    [
+      # Daily desktop
+      evince
+      ffmpeg-full
+      file-roller
+      flameshot
+      gimp
+      handbrake
+      libreoffice
+      mediainfo
+      mpv
+      p7zip
+      pavucontrol
+      ranger
+      ristretto
+      strawberry
+      thunderbird
+      unrar
+      xfce4-clipman-plugin
+
+      # Development
+      bat
+      btop
+      cargo
+      curl
+      direnv
+      eza
+      fd
+      fzf
+      gcc
+      gh
+      git
+      gnumake
+      go
+      htop
+      jq
+      lazygit
+      neovim
+      nodejs_24
+      python3
+      ripgrep
+      rustc
+      tree
+      tree-sitter
+      unzip
+      uv
+      wget
+      xclip
+      xsel
+      yq-go
+      zip
+      zoxide
+    ]
+    ++ (with pkgsUnstable; [
+      brave
+      codex
+      davinci-resolve
+      discord
+      ghostty
+      obs-studio
+      pi-coding-agent
+      teams-for-linux
+      telegram-desktop
+    ]);
+}

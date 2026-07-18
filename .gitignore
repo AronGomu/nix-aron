@@ -1,0 +1,14 @@
+result
+result-*
+.direnv/
+*.qcow2
+*.iso
+
+# Credentials/runtime state must never enter this repo.
+**/auth.json
+**/*.sqlite*
+**/*.jsonl
+**/sessions/
+**/cache/
+**/log/
+**/tmp/
