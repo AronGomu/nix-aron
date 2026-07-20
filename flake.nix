@@ -30,26 +30,34 @@
         inherit system;
         config.allowUnfreePredicate = allowUnfree;
       };
+
+      # Shared HM + specialArgs wiring for every host.
+      mkNixos =
+        hostPath:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          specialArgs = {
+            inherit inputs pkgsUnstable allowUnfree;
+          };
+          modules = [
+            hostPath
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.backupFileExtension = "hm-backup";
+              home-manager.extraSpecialArgs = {
+                inherit inputs pkgsUnstable;
+              };
+              home-manager.users.aron = import ./home/aron;
+            }
+          ];
+        };
     in
     {
-      nixosConfigurations.nixos = nixpkgs.lib.nixosSystem {
-        inherit system;
-        specialArgs = {
-          inherit inputs pkgsUnstable allowUnfree;
-        };
-        modules = [
-          ./hosts/nixos
-          home-manager.nixosModules.home-manager
-          {
-            home-manager.useGlobalPkgs = true;
-            home-manager.useUserPackages = true;
-            home-manager.backupFileExtension = "hm-backup";
-            home-manager.extraSpecialArgs = {
-              inherit inputs pkgsUnstable;
-            };
-            home-manager.users.aron = import ./home/aron;
-          }
-        ];
+      nixosConfigurations = {
+        desk-main = mkNixos ./hosts/desk-main;
+        # laptop = mkNixos ./hosts/laptop;
       };
 
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;

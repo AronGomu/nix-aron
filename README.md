@@ -1,6 +1,18 @@
 # nix-aron
 
-Reproducible NixOS 26.05 daily-driver config for `nixos` / `aron`.
+Reproducible NixOS 26.05 daily-driver config for user `aron`.
+
+Hosts (one `main` branch, not per-machine branches):
+
+| Flake attr | Path | Notes |
+|---|---|---|
+| `desk-main` | `hosts/desk-main` | current desktop (ext4 now; Btrfs target in `storage.btrfs.nix`) |
+| — | `hosts/_template` | copy to add a machine |
+
+```bash
+sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main
+# alias after HM: rebuild
+```
 
 ## Design
 
@@ -67,9 +79,9 @@ git clone git@github.com:AronGomu/nix-aron.git /mnt/etc/nixos
 cd /mnt/etc/nixos
 
 # Replace generic HW scan. storage.nix remains authoritative for mount layout.
-nixos-generate-config --root /mnt --show-hardware-config > hosts/nixos/hardware-configuration.nix
+nixos-generate-config --root /mnt --show-hardware-config > hosts/desk-main/hardware-configuration.nix
 
-nixos-install --flake .#nixos
+nixos-install --flake .#desk-main
 nixos-enter --root /mnt -c 'passwd aron'
 reboot
 ```
@@ -100,7 +112,7 @@ Manual GUI setup:
 ## Rebuild/update
 
 ```bash
-sudo nixos-rebuild switch --flake ~/coding/nix-aron#nixos
+sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main
 nix flake update --flake ~/coding/nix-aron
 ```
 

@@ -14,7 +14,7 @@
       shellAliases = {
         cat = "bat";
         ll = "eza -lah --group-directories-first";
-        rebuild = "sudo nixos-rebuild switch --flake ~/coding/nix-aron#nixos";
+        rebuild = "sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main";
         update-system = "nix flake update --flake ~/coding/nix-aron";
       };
     };

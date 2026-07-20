@@ -143,15 +143,15 @@ cd /mnt/etc/nixos
 nixos-generate-config \
   --root /mnt \
   --show-hardware-config \
-  > hosts/nixos/hardware-configuration.nix
+  > hosts/desk-main/hardware-configuration.nix
 ```
 
-`hosts/nixos/storage.nix` remains authoritative for Btrfs labels, subvolumes, and mount options.
+`hosts/desk-main/storage.nix` remains authoritative for Btrfs labels, subvolumes, and mount options.
 
 Review generated hardware configuration:
 
 ```bash
-less hosts/nixos/hardware-configuration.nix
+less hosts/desk-main/hardware-configuration.nix
 ```
 
 ## 7. Optional pre-install evaluation
@@ -170,7 +170,7 @@ This validates the NixOS and Home Manager configuration without installing it.
 Run the installer:
 
 ```bash
-nixos-install --flake .#nixos
+nixos-install --flake .#desk-main
 ```
 
 The installer may request a root password. Set the `aron` user password before rebooting:
@@ -292,7 +292,7 @@ docker info
 Rebuild after configuration changes:
 
 ```bash
-sudo nixos-rebuild switch --flake ~/coding/nix-aron#nixos
+sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main
 ```
 
 Update pinned flake inputs manually:
@@ -300,7 +300,7 @@ Update pinned flake inputs manually:
 ```bash
 cd ~/coding/nix-aron
 nix flake update
-sudo nixos-rebuild switch --flake .#nixos
+sudo nixos-rebuild switch --flake .#desk-main
 ```
 
 The configuration runs weekly Nix garbage collection and removes generations older than 30 days.

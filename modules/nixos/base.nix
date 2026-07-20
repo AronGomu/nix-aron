@@ -19,6 +19,7 @@
       shell = pkgs.bashInteractive;
       openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGSCUB7DqYG3cmwY90/NYyscO6+wGA/VdcmP4ePPWY0c aron@aron"
+        "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILgCeud0RH93LSxI9DE0ZHb5LLyROwfJ3dagxUiNYjjF aron@nixos"
       ];
     };
   };
@@ -40,8 +41,9 @@
     blueman.enable = true;
     fstrim.enable = true;
     fwupd.enable = true;
+    # Enable after moving root to Btrfs (see hosts/desk-main/storage.btrfs.nix).
     btrfs.autoScrub = {
-      enable = true;
+      enable = false;
       interval = "monthly";
       fileSystems = [ "/" ];
     };
