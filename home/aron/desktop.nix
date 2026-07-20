@@ -54,6 +54,23 @@ in
     };
   };
 
+  # Hardest blue-light cut: night floor 1000K (redshift min).
+  services.redshift = {
+    enable = true;
+    provider = "manual";
+    latitude = "48.86";
+    longitude = "2.35";
+    temperature = {
+      day = 4500;
+      night = 1000;
+    };
+    brightness = {
+      day = "1.0";
+      night = "0.7";
+    };
+    tray = true;
+  };
+
   gtk = {
     enable = true;
     theme = {
