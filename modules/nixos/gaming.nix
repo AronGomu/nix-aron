@@ -1,18 +1,10 @@
-{ pkgs, ... }:
 {
-  programs = {
-    steam = {
-      enable = true;
-      gamescopeSession.enable = true;
-      remotePlay.openFirewall = false;
-      dedicatedServer.openFirewall = false;
-      localNetworkGameTransfers.openFirewall = false;
-    };
-    gamemode.enable = true;
+  # Steam desktop app only. No gamescope login session (that added a LightDM
+  # "Steam" entry and could soft-lock past XFCE).
+  programs.steam = {
+    enable = true;
+    remotePlay.openFirewall = false;
+    dedicatedServer.openFirewall = false;
+    localNetworkGameTransfers.openFirewall = false;
   };
-
-  environment.systemPackages = with pkgs; [
-    gamescope
-    mangohud
-  ];
 }

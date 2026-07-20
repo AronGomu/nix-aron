@@ -14,6 +14,8 @@
         enableScreensaver = true;
       };
     };
+    # Always land on XFCE (never Steam/gamescope session)
+    displayManager.defaultSession = "xfce";
     gvfs.enable = true;
     tumbler.enable = true;
     printing.enable = false;
@@ -22,6 +24,7 @@
   programs.xfconf.enable = true;
 
   environment.systemPackages = with pkgs; [
+    greybird
     thunar-archive-plugin
     thunar-volman
     xfce4-clipman-plugin

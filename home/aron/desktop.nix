@@ -46,10 +46,21 @@ in
       };
 
       xsettings = {
-        "Net/ThemeName" = "Adwaita-dark";
+        "Net/ThemeName" = "Greybird-dark";
         "Net/IconThemeName" = "Papirus-Dark";
         "Gtk/FontName" = "Noto Sans 10";
         "Gtk/MonospaceFontName" = "JetBrainsMono Nerd Font 10";
+        "Gtk/CursorThemeName" = "Adwaita";
+      };
+
+      # Window manager chrome (titlebars) — must match GTK dark theme
+      xfwm4 = {
+        "general/theme" = "Greybird-dark";
+        "general/button_layout" = "O|HMC";
+      };
+
+      thunar = {
+        "last-view" = "ThunarDetailsView";
       };
     };
   };
@@ -74,8 +85,8 @@ in
   gtk = {
     enable = true;
     theme = {
-      name = "Adwaita-dark";
-      package = pkgs.gnome-themes-extra;
+      name = "Greybird-dark";
+      package = pkgs.greybird;
     };
     iconTheme = {
       name = "Papirus-Dark";
@@ -85,6 +96,19 @@ in
       name = "Noto Sans";
       size = 10;
     };
+    gtk3.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
+    };
+    gtk4.extraConfig = {
+      gtk-application-prefer-dark-theme = true;
+    };
+  };
+
+  # Qt apps follow dark too
+  qt = {
+    enable = true;
+    platformTheme.name = "gtk";
+    style.name = "gtk2";
   };
 
   xdg = {
