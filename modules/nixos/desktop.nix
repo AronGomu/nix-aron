@@ -4,6 +4,9 @@
     xserver = {
       enable = true;
       xkb.layout = "us";
+      # delay ms before repeat; interval ms between repeats (~40/s)
+      autoRepeatDelay = 250;
+      autoRepeatInterval = 25;
       excludePackages = [ pkgs.xterm ];
       displayManager.lightdm.enable = true;
       desktopManager.xfce = {
