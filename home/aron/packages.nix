@@ -58,6 +58,7 @@ in
       flameshot
       mediainfo
       mpv
+      obsidian
       p7zip
       pavucontrol
       strawberry

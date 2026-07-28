@@ -6,6 +6,7 @@ builtins.elem (lib.getName pkg) [
   "discord"
   "nvidia-settings"
   "nvidia-x11"
+  "obsidian"
   "steam"
   "steam-original"
   "steam-run"
