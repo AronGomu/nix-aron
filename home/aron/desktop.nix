@@ -57,7 +57,7 @@ in
       # Applications
       bindsym $mod+Return exec --no-startup-id ${openTerminal}
       bindsym $mod+d exec ${pkgs.rofi}/bin/rofi -show drun
-      bindsym $mod+e exec dolphin
+      bindsym $mod+e exec nautilus
       bindsym $mod+b exec brave
       bindsym Print exec flameshot gui
       bindsym $mod+l exec ${pkgs.i3lock}/bin/i3lock -c 1d2021
@@ -238,7 +238,7 @@ in
         "audio/mpeg" = [ "org.strawberrymusicplayer.strawberry.desktop" ];
         "image/jpeg" = [ "org.gnome.Loupe.desktop" ];
         "image/png" = [ "org.gnome.Loupe.desktop" ];
-        "inode/directory" = [ "org.kde.dolphin.desktop" ];
+        "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
         "message/rfc822" = [ "thunderbird.desktop" ];
         "text/html" = [ "brave-browser.desktop" ];
         "video/mp4" = [ "mpv.desktop" ];
