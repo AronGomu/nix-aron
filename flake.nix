@@ -60,6 +60,14 @@
         # laptop = mkNixos ./hosts/laptop;
       };
 
+      homeConfigurations.desk-main = home-manager.lib.homeManagerConfiguration {
+        pkgs = pkgsUnstable;
+        extraSpecialArgs = {
+          inherit inputs pkgsUnstable;
+        };
+        modules = [ ./home/aron ];
+      };
+
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
     };
 }

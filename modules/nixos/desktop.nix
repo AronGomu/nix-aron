@@ -4,31 +4,24 @@
     xserver = {
       enable = true;
       xkb.layout = "us";
-      # delay ms before repeat; interval ms between repeats (~40/s)
+      # delay ms before repeat; interval ms between repeats (~58.8/s)
       autoRepeatDelay = 250;
-      autoRepeatInterval = 25;
+      autoRepeatInterval = 17;
       excludePackages = [ pkgs.xterm ];
-      displayManager.lightdm.enable = true;
-      desktopManager.xfce = {
-        enable = true;
-        enableScreensaver = true;
-      };
+      windowManager.i3.enable = true;
     };
-    # Always land on XFCE (never Steam/gamescope session)
-    displayManager.defaultSession = "xfce";
+    # Standalone i3 stays primary; GNOME Flashback provides familiar desktop.
+    displayManager.defaultSession = "none+i3";
+    displayManager.gdm.enable = true;
+    desktopManager.gnome = {
+      enable = true;
+      flashback.enableMetacity = true;
+    };
     gvfs.enable = true;
-    tumbler.enable = true;
     printing.enable = false;
   };
 
-  programs.xfconf.enable = true;
-
-  environment.systemPackages = with pkgs; [
-    greybird
-    thunar-archive-plugin
-    thunar-volman
-    xfce4-clipman-plugin
-  ];
+  security.polkit.enable = true;
 
   fonts.packages = with pkgs; [
     dejavu_fonts

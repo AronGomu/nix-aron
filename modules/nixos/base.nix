@@ -53,6 +53,54 @@
       alsa.support32Bit = true;
       pulse.enable = true;
       jack.enable = true;
+      wireplumber.extraConfig."51-audio-defaults" = {
+        "monitor.alsa.rules" = [
+          {
+            # ALC897 jack detect lies (all ports "unavailable") → WP refuses
+            # analog-stereo as default. pro-audio has no jack routes → works.
+            matches = [ { "device.name" = "alsa_card.pci-0000_0e_00.6"; } ];
+            actions = {
+              update-props = {
+                "device.profile" = "pro-audio";
+              };
+            };
+          }
+          {
+            # Q2U is a mic — never pick its playback path as default sink
+            matches = [
+              { "device.name" = "~alsa_card.usb-Samson_Technologies_Samson_Q2U.*"; }
+            ];
+            actions = {
+              update-props = {
+                "device.profile" = "input:analog-stereo";
+              };
+            };
+          }
+          {
+            # Prefer onboard Realtek over HDMI monitors
+            matches = [
+              { "node.name" = "~alsa_output.pci-0000_0e_00.6.*"; }
+            ];
+            actions = {
+              update-props = {
+                "priority.session" = 2000;
+                "priority.driver" = 2000;
+              };
+            };
+          }
+          {
+            matches = [
+              { "node.name" = "~alsa_output.*.hdmi.*"; }
+            ];
+            actions = {
+              update-props = {
+                "priority.session" = 100;
+                "priority.driver" = 100;
+              };
+            };
+          }
+        ];
+      };
     };
   };
 

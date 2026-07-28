@@ -2,6 +2,7 @@
   imports = [
     ./agents.nix
     ./desktop.nix
+    ./google-drive.nix
     ./packages.nix
     ./shell.nix
   ];

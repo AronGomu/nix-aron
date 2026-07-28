@@ -1,7 +1,32 @@
-{ inputs, ... }:
 {
+  config,
+  inputs,
+  lib,
+  pkgs,
+  ...
+}:
+let
+  nvimConfig = pkgs.runCommand "nvim-config" { } ''
+    cp -R ${inputs.nvim-config} $out
+    chmod -R u+w $out
+    cp ${../../dotfiles/nvim/treesitter.lua} $out/lua/plugins/treesitter.lua
+  '';
+in
+{
+  home.activation.migrateTreesitterMain = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    treesitter_dir="${config.home.homeDirectory}/.local/share/nvim/lazy/nvim-treesitter"
+    if [ -d "$treesitter_dir/.git" ] \
+      && [ "$(${pkgs.git}/bin/git -C "$treesitter_dir" branch --show-current)" != main ]; then
+      rm -rf "$treesitter_dir"
+    fi
+  '';
+
   home.file = {
-    ".config/nvim".source = inputs.nvim-config;
+    ".config/nvim".source = nvimConfig;
+    "NIX-CHEATSHEET.md" = {
+      source = ../../NIX-CHEATSHEET.md;
+      force = true;
+    };
 
     ".agents/skills" = {
       source = ../../dotfiles/agents/skills;

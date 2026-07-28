@@ -11,7 +11,7 @@ Hosts (one `main` branch, not per-machine branches):
 
 ```bash
 sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main
-# alias after HM: rebuild
+# after HM changes: home-manager switch --flake ~/coding/nix-aron#desk-main
 ```
 
 ## Design

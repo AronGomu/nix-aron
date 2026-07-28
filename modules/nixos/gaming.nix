@@ -1,6 +1,5 @@
 {
-  # Steam desktop app only. No gamescope login session (that added a LightDM
-  # "Steam" entry and could soft-lock past XFCE).
+  # Steam desktop app only. No gamescope login session; it can soft-lock login.
   programs.steam = {
     enable = true;
     remotePlay.openFirewall = false;

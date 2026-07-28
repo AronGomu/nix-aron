@@ -15,7 +15,9 @@
         cat = "bat";
         ll = "eza -lah --group-directories-first";
         rebuild = "sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main";
+        hm = "home-manager switch --flake ~/coding/nix-aron#desk-main";
         update-system = "nix flake update --flake ~/coding/nix-aron";
+        v = "nvim";
       };
     };
 
@@ -42,20 +44,6 @@
       enableBashIntegration = true;
     };
 
-    tmux = {
-      enable = true;
-      baseIndex = 1;
-      clock24 = true;
-      escapeTime = 0;
-      keyMode = "vi";
-      mouse = true;
-      terminal = "screen-256color";
-      extraConfig = ''
-        set -ga terminal-overrides ",xterm-ghostty:Tc"
-        set -g focus-events on
-        set -g history-limit 100000
-      '';
-    };
   };
 
   xdg.configFile."ghostty/config".text = ''
@@ -65,7 +53,9 @@
     window-decoration = true
     confirm-close-surface = false
     copy-on-select = clipboard
-    command = ${pkgs.tmux}/bin/tmux new-session -A -s main
     keybind = alt+backspace=text:\x1b\x7f
+    # free ctrl+enter for apps (pi newline); fullscreen on F11
+    keybind = ctrl+enter=unbind
+    keybind = f11=toggle_fullscreen
   '';
 }
