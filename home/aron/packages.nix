@@ -52,6 +52,9 @@ in
     [
       # Daily desktop
       copyq
+      kdePackages.dolphin
+      kdePackages.kio-extras
+      kdePackages.kio-fuse
       evince
       ffmpeg-full
       file-roller
