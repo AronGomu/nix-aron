@@ -44,7 +44,7 @@ let
 
   openTerminal = pkgs.writeShellScript "i3-open-terminal" ''
     ${pkgs.i3}/bin/i3-msg "workspace number 1" >/dev/null
-    ${pkgs.i3}/bin/i3-msg '[class="^com\.mitchellh\.ghostty$"] focus' >/dev/null 2>&1 || exec ghostty
+    ${pkgs.i3}/bin/i3-msg '[class="^com\.mitchellh\.ghostty$"] focus' >/dev/null 2>&1 || exec ghostty -e herdr
   '';
 in
 {
@@ -143,8 +143,11 @@ in
       }
       bindsym $mod+r mode "resize"
 
+      # Displays
+      exec_always --no-startup-id ${pkgs.xrandr}/bin/xrandr --output HDMI-0 --primary --mode 1920x1080 --rate 60 --pos 0x0 --output DP-3 --mode 1920x1080 --rate 60 --pos 1920x0
+
       # Startup applications
-      exec --no-startup-id ghostty
+      exec --no-startup-id ghostty -e herdr
       exec --no-startup-id brave
 
       # Standalone desktop services
@@ -231,6 +234,15 @@ in
 
   xdg = {
     enable = true;
+    desktopEntries.obsidian = {
+      name = "Obsidian";
+      comment = "Knowledge base";
+      exec = "${pkgs.obsidian}/bin/obsidian %U";
+      icon = "obsidian";
+      terminal = false;
+      categories = [ "Office" ];
+      mimeType = [ "x-scheme-handler/obsidian" ];
+    };
     mimeApps = {
       enable = true;
       defaultApplications = {

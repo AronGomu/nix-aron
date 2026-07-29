@@ -121,5 +121,6 @@
     restic
     vim
     wget
+    yt-dlp
   ];
 }

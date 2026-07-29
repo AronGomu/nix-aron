@@ -56,6 +56,7 @@ in
       ffmpeg-full
       file-roller
       flameshot
+      keepassxc
       mediainfo
       mpv
       obsidian

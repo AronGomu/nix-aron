@@ -1,5 +1,23 @@
 {
   "nodes": {
+    "end4": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1785144061,
+        "narHash": "sha256-zRzRiDx21X7xEaBmsdDOAFEJJSNGguP2H532PiTGPbE=",
+        "ref": "refs/heads/main",
+        "rev": "aed4d1ec63f584905c28d2a678db5845579fdafc",
+        "revCount": 6289,
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/end-4/dots-hyprland.git"
+      },
+      "original": {
+        "submodules": true,
+        "type": "git",
+        "url": "https://github.com/end-4/dots-hyprland.git"
+      }
+    },
     "home-manager": {
       "inputs": {
         "nixpkgs": [
@@ -69,12 +87,35 @@
         "type": "github"
       }
     },
+    "quickshell": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1773916211,
+        "narHash": "sha256-FyO/nPw2CZn35YL22Xl8V5qkTTANwKoNw2MIAIcmZH0=",
+        "owner": "quickshell-mirror",
+        "repo": "quickshell",
+        "rev": "7511545ee20664e3b8b8d3322c0ffe7567c56f7a",
+        "type": "github"
+      },
+      "original": {
+        "owner": "quickshell-mirror",
+        "repo": "quickshell",
+        "rev": "7511545ee20664e3b8b8d3322c0ffe7567c56f7a",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
+        "end4": "end4",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixpkgs-unstable": "nixpkgs-unstable",
-        "nvim-config": "nvim-config"
+        "nvim-config": "nvim-config",
+        "quickshell": "quickshell"
       }
     }
   },

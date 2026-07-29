@@ -4,6 +4,7 @@
     ./base.nix
     ./boot.nix
     ./desktop.nix
+    ./end4.nix
     ./nix.nix
     ./remote-access.nix
   ];

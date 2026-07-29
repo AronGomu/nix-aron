@@ -14,5 +14,7 @@
 
   networking.hostName = "desk-main";
 
+  desktop.end4.enable = true;
+
   system.stateVersion = "26.05";
 }

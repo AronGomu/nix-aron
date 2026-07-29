@@ -14,6 +14,16 @@
       url = "github:AronGomu/TRULY_CUSTOM_NVIM_WINDOWS_LINUX";
       flake = false;
     };
+
+    end4 = {
+      url = "git+https://github.com/end-4/dots-hyprland.git?submodules=1";
+      flake = false;
+    };
+
+    quickshell = {
+      url = "github:quickshell-mirror/quickshell/7511545ee20664e3b8b8d3322c0ffe7567c56f7a";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs =
