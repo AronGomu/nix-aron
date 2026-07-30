@@ -23,6 +23,8 @@
     options = [
       "nofail"
       "x-systemd.automount"
+      "x-gvfs-show"
+      "x-gvfs-name=Data"
       "uid=1000"
       "gid=100"
       "umask=0022"

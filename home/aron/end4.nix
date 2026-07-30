@@ -10,6 +10,7 @@ let
   system = pkgs.stdenv.hostPlatform.system;
   end4 = inputs.end4;
   qs = inputs.quickshell.packages.${system}.default;
+  wallpaper = ../../assets/wallpapers/green_landscape_weird.jpg;
   end4QuickshellConfig = pkgs.runCommand "end4-quickshell-config" { } ''
     cp -R --no-preserve=mode ${end4}/dots/.config/quickshell $out
     substituteInPlace $out/ii/services/Hyprsunset.qml \
@@ -53,6 +54,87 @@ let
       makeWrapper ${qs}/bin/qs $out/bin/qs \
         --prefix XDG_DATA_DIRS : ${pkgs.gsettings-desktop-schemas}/share/gsettings-schemas/${pkgs.gsettings-desktop-schemas.name}
       runHook postInstall
+    '';
+  };
+
+  smartRofi = pkgs.writeTextFile {
+    name = "rofi-smart-apps";
+    destination = "/bin/rofi-smart-apps";
+    executable = true;
+    text = ''
+      #!${pkgs.python3}/bin/python3
+      import base64
+      import configparser
+      import json
+      import os
+      import re
+      import subprocess
+      import sys
+      from pathlib import Path
+
+      hyprctl = "${pkgs.hyprland}/bin/hyprctl"
+      gio = "${pkgs.glib}/bin/gio"
+
+      if len(sys.argv) > 1:
+          info = os.environ.get("ROFI_INFO", "")
+          if not info:
+              raise SystemExit(0)
+          action = json.loads(base64.urlsafe_b64decode(info).decode())
+          if action[0] == "focus":
+              subprocess.Popen([hyprctl, "dispatch", "focuswindow", "address:" + action[1]])
+          else:
+              subprocess.Popen([gio, "launch", action[1]])
+          raise SystemExit(0)
+
+      def normalized(value):
+          return re.sub(r"[^a-z0-9]", "", value.lower())
+
+      clients = json.loads(subprocess.check_output([hyprctl, "clients", "-j"]))
+      windows = []
+      for client in clients:
+          keys = {
+              normalized(client.get("class", "")),
+              normalized(client.get("initialClass", "")),
+          }
+          windows.append((keys - {""}, client.get("address", "")))
+
+      data_dirs = [Path.home() / ".local/share"]
+      data_dirs += [Path(p) for p in os.environ.get("XDG_DATA_DIRS", "/usr/local/share:/usr/share").split(":")]
+      seen = set()
+      apps = []
+      for data_dir in data_dirs:
+          app_dir = data_dir / "applications"
+          if not app_dir.is_dir():
+              continue
+          for desktop_file in app_dir.rglob("*.desktop"):
+              desktop_id = str(desktop_file.relative_to(app_dir)).replace("/", "-")
+              if desktop_id in seen:
+                  continue
+              seen.add(desktop_id)
+              parser = configparser.ConfigParser(interpolation=None, strict=False)
+              try:
+                  parser.read(desktop_file, encoding="utf-8")
+                  entry = parser["Desktop Entry"]
+              except (KeyError, configparser.Error, UnicodeError):
+                  continue
+              if entry.get("Type") != "Application" or entry.getboolean("Hidden", fallback=False) or entry.getboolean("NoDisplay", fallback=False):
+                  continue
+              name = entry.get("Name", desktop_id.removesuffix(".desktop"))
+              icon = entry.get("Icon", "application-x-executable")
+              startup_class = entry.get("StartupWMClass", "")
+              executable = entry.get("Exec", "").split(maxsplit=1)[0].rsplit("/", 1)[-1]
+              match_keys = {
+                  normalized(startup_class),
+                  normalized(desktop_id.removesuffix(".desktop")),
+                  normalized(executable),
+              } - {""}
+              address = next((address for keys, address in windows if keys & match_keys), "")
+              action = ["focus", address] if address else ["launch", str(desktop_file)]
+              info = base64.urlsafe_b64encode(json.dumps(action).encode()).decode()
+              apps.append((name.casefold(), name, icon, info))
+
+      for _, name, icon, info in sorted(apps):
+          print(f"{name}\0icon\x1f{icon}\x1finfo\x1f{info}")
     '';
   };
 
@@ -111,6 +193,7 @@ in
       libnotify
       lxqt.pavucontrol-qt
       matugen
+      nautilus-python
       playerctl
       libqalculate
       slurp
@@ -159,11 +242,41 @@ in
       "hypr/custom/env.lua".text = ''
         hl.env("ILLOGICAL_IMPULSE_VIRTUAL_ENV", "${pythonEnv}")
       '';
+      "hypr/custom/general.lua".text = ''
+        hl.config({
+            general = {
+                gaps_in = 0,
+                gaps_out = 2,
+                border_size = 1,
+                col = {
+                    active_border = "rgba(00D9FFFF)"
+                }
+            },
+            decoration = {
+                rounding = 0
+            },
+            input = {
+                follow_mouse = 1
+            }
+        })
+      '';
       "hypr/custom/execs.lua".text = ''
         hl.on("hyprland.start", function ()
-            hl.exec_cmd("ghostty")
-            hl.exec_cmd("brave")
+            hl.exec_cmd("hyprctl dispatch exec '[workspace 1 silent] ghostty -e herdr'")
+            hl.exec_cmd("hyprctl dispatch exec '[workspace 2 silent] brave'")
         end)
+      '';
+      "hypr/custom/keybinds.lua".text = ''
+        hl.unbind("SUPER + A")
+        hl.unbind("SUPER + ALT + A")
+        hl.unbind("SUPER + B")
+        hl.unbind("SUPER + O")
+        hl.unbind("SUPER + P")
+        hl.unbind("SUPER + SHIFT + ALT + mouse:273")
+
+        hl.bind("SUPER + O", hl.dsp.exec_cmd("rofi -matching fuzzy -sorting-method fzf -drun-match-fields name -show drun"), { description = "Rofi: Launch new app window" })
+        hl.bind("SUPER + P", hl.dsp.exec_cmd("rofi -matching fuzzy -sorting-method fzf -show smart -modi 'smart:${smartRofi}/bin/rofi-smart-apps'"), { description = "Rofi: Focus existing app or launch" })
+        hl.bind("CTRL + Space", hl.dsp.exec_cmd("dbus-send --session --type=method_call --dest=com.openwhispr.App /com/openwhispr/App com.openwhispr.App.Toggle"), { description = "OpenWhispr: Toggle dictation" })
       '';
       "quickshell" = {
         source = end4QuickshellConfig;
@@ -171,7 +284,53 @@ in
       };
     };
 
-    # Seed writable shell prefs once; end-4 GUI owns later changes.
+    xdg.desktopEntries = {
+      youtube = {
+        name = "YouTube";
+        icon = "brave-browser";
+        exec = "brave https://www.youtube.com/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      linkedin = {
+        name = "link - LinkedIn";
+        icon = "brave-browser";
+        exec = "brave https://www.linkedin.com/feed/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      youtube-music = {
+        name = "YouTube Music";
+        icon = "brave-browser";
+        exec = "brave https://music.youtube.com/";
+        terminal = false;
+        categories = [ "AudioVideo" "Network" ];
+      };
+      youtube-studio = {
+        name = "YouTube Studio";
+        icon = "brave-browser";
+        exec = "brave https://studio.youtube.com/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      canva = {
+        name = "can - Canva";
+        icon = "brave-browser";
+        exec = "brave https://www.canva.com/";
+        terminal = false;
+        categories = [ "Graphics" "Network" ];
+      };
+    };
+
+    home.file.".local/share/nautilus/scripts/Copy Path" = {
+      executable = true;
+      text = ''
+        #!/usr/bin/env bash
+        printf '%s' "$NAUTILUS_SCRIPT_SELECTED_FILE_PATHS" | ${pkgs.gnused}/bin/sed '/^$/d' | ${pkgs.wl-clipboard}/bin/wl-copy
+      '';
+    };
+
+    # Seed writable shell prefs once; keep wallpaper declarative.
     home.activation.end4InitialConfig = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       config_dir="$HOME/.config/illogical-impulse"
       config_file="$config_dir/config.json"
@@ -193,6 +352,11 @@ in
       }
       JSON
       fi
+
+      tmp_file="$(${pkgs.coreutils}/bin/mktemp)"
+      ${pkgs.jq}/bin/jq --arg wallpaper "${wallpaper}" \
+        '.background.wallpaperPath = $wallpaper' "$config_file" > "$tmp_file"
+      ${pkgs.coreutils}/bin/mv "$tmp_file" "$config_file"
     '';
   };
 }

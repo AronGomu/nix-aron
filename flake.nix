@@ -20,6 +20,11 @@
       flake = false;
     };
 
+    herdr-src = {
+      url = "github:herdrdev/herdr/v0.7.5";
+      flake = false;
+    };
+
     quickshell = {
       url = "github:quickshell-mirror/quickshell/7511545ee20664e3b8b8d3322c0ffe7567c56f7a";
       inputs.nixpkgs.follows = "nixpkgs";

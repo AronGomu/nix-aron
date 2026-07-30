@@ -4,6 +4,13 @@
   i18n.defaultLocale = "en_US.UTF-8";
   console.keyMap = "us";
 
+  programs = {
+    zsh.enable = true;
+    ydotool.enable = true;
+  };
+
+  hardware.uinput.enable = true;
+
   users = {
     mutableUsers = true;
     users.aron = {
@@ -13,10 +20,12 @@
       extraGroups = [
         "audio"
         "networkmanager"
+        "uinput"
         "video"
         "wheel"
+        "ydotool"
       ];
-      shell = pkgs.bashInteractive;
+      shell = pkgs.zsh;
       openssh.authorizedKeys.keys = [
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIGSCUB7DqYG3cmwY90/NYyscO6+wGA/VdcmP4ePPWY0c aron@aron"
         "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAILgCeud0RH93LSxI9DE0ZHb5LLyROwfJ3dagxUiNYjjF aron@nixos"

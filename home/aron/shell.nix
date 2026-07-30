@@ -1,4 +1,16 @@
 { pkgs, ... }:
+let
+  shellAliases = {
+    cat = "bat";
+    gtbrain = "cd /home/aron/brain";
+    gtygocube = "cd /home/aron/projects/YGO-x-MTG";
+    ll = "eza -lah --group-directories-first";
+    rebuild = "sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main";
+    hm = "home-manager switch --flake ~/coding/nix-aron#desk-main";
+    update-system = "nix flake update --flake ~/coding/nix-aron";
+    v = "nvim";
+  };
+in
 {
   home.sessionVariables = {
     BROWSER = "brave";
@@ -11,14 +23,22 @@
     bash = {
       enable = true;
       enableCompletion = true;
-      shellAliases = {
-        cat = "bat";
-        ll = "eza -lah --group-directories-first";
-        rebuild = "sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main";
-        hm = "home-manager switch --flake ~/coding/nix-aron#desk-main";
-        update-system = "nix flake update --flake ~/coding/nix-aron";
-        v = "nvim";
-      };
+      inherit shellAliases;
+    };
+
+    zsh = {
+      enable = true;
+      enableCompletion = true;
+      autosuggestion.enable = true;
+      syntaxHighlighting.enable = true;
+      inherit shellAliases;
+      plugins = [
+        {
+          name = "zsh-autocomplete";
+          src = pkgs.zsh-autocomplete;
+          file = "share/zsh-autocomplete/zsh-autocomplete.plugin.zsh";
+        }
+      ];
     };
 
     direnv = {
@@ -42,6 +62,7 @@
     starship = {
       enable = true;
       enableBashIntegration = true;
+      enableZshIntegration = true;
     };
 
   };

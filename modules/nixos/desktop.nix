@@ -8,10 +8,7 @@
       autoRepeatDelay = 250;
       autoRepeatInterval = 17;
       excludePackages = [ pkgs.xterm ];
-      windowManager.i3.enable = true;
     };
-    # Standalone i3 stays primary; GNOME Flashback provides familiar desktop.
-    displayManager.defaultSession = "none+i3";
     displayManager.gdm.enable = true;
     desktopManager.gnome = {
       enable = true;

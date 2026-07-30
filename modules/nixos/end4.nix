@@ -18,7 +18,7 @@
       ydotool.enable = true;
     };
 
-    # Keep i3 and GNOME available in GDM while making Hyprland the default.
+    # Keep GNOME available in GDM while making Hyprland the default.
     services = {
       displayManager.defaultSession = lib.mkForce "hyprland";
       gnome.gnome-keyring.enable = true;
