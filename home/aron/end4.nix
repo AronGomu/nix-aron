@@ -345,6 +345,17 @@ in
         terminal = true;
         categories = [ "Development" ];
       };
+      ygo-mtg-mse-menu = {
+        name = "YGO x MTG — MSE Menu";
+        comment = "Open YGO x MTG projects in Magic Set Editor";
+        exec = "/home/aron/projects/YGO-x-MTG/launcher/mse_project_menu.pyw";
+        terminal = false;
+        categories = [ "Graphics" "Development" ];
+        startupNotify = true;
+        settings = {
+          Path = "/home/aron/projects/YGO-x-MTG";
+        };
+      };
       github-repos = {
         name = "github-repos";
         icon = "brave-browser";
@@ -373,10 +384,24 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      github-gones = {
+        name = "github-gones";
+        icon = "brave-browser";
+        exec = "brave https://github.com/AronGomu/gones";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       github-matt-pocock = {
         name = "github-matt-pocock";
         icon = "brave-browser";
         exec = "brave https://github.com/mattpocock/skills";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      github-agentsystemlabs-core = {
+        name = "github-agentsystemlabs-core";
+        icon = "brave-browser";
+        exec = "brave https://github.com/AgentSystemLabs/core";
         terminal = false;
         categories = [ "Network" ];
       };
