@@ -1,5 +1,5 @@
 ---
-name: research
+name: research-aron
 description: Investigate question against high-trust primary sources and capture findings in Markdown file and html doc in the repo.
 disable-model-invocation: true
 ---

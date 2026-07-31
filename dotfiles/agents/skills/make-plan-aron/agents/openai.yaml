@@ -1,0 +1,5 @@
+interface:
+  display_name: "Make Plan Aron"
+  short_description: "Goal → TDD ticket flowchart markdown plan"
+policy:
+  allow_implicit_invocation: false
