@@ -56,21 +56,32 @@ Stop ticket (mark `blocked_user`) when:
 
 Then report summary. Do not spin forever.
 
+## Plan checkboxes
+
+Before work + during:
+
+1. Open plan md. Every step/ticket action line → `- [ ]` if missing (Impl steps, Validation, ticket order work).
+2. Keep plan file source of truth. Edit plan in place — add boxes only, no rewrite scope.
+3. On each finish step/ticket slice → flip `- [ ]` → `- [x]` same commit as work when possible, else immediate follow-up commit on feature branch.
+4. Never mark `[x]` without validation evidence.
+5. Progress file mirrors ticket state; plan boxes mirror step completion. Both stay current each loop.
+
 ## Job — orchestrator (parent)
 
 ```
 1. Load plan. Parse tickets + deps.
-2. Ensure git clean enough start. Dirty unrelated → stash or stop only if cannot isolate.
-3. Create/checkout branch `plan/{slug}` from base. Push `-u` if new.
-4. Write/init progress file.
-5. Loop topo-serial:
+2. Ensure plan steps have `- [ ]` boxes; add if missing.
+3. Ensure git clean enough start. Dirty unrelated → stash or stop only if cannot isolate.
+4. Create/checkout branch `plan/{slug}` from base. Push `-u` if new.
+5. Write/init progress file.
+6. Loop topo-serial:
    a. Next ticket all Depends = done.
    b. None left unblocked → break.
    c. Launch **one** worker subagent (fresh). Wait finish.
-   d. Read worker report. Update progress.
+   d. Read worker report. Update progress. Check plan boxes for finished steps.
    e. Worker failed repairable → one parent-directed retry worker max.
    f. Still bad → mark blocked_user or failed; skip dependants as blocked_dep.
-6. Final summary → user. List done / blocked / branch / commits.
+7. Final summary → user. List done / blocked / branch / commits. Plan boxes = ground truth.
 ```
 
 Use **pi-subagents** single agent, `async:false` (or await), `context:fresh`. Parent never parallel writers same cwd.
@@ -107,21 +118,23 @@ Worker task prompt **must** include: branch name, plan path, full ticket body, D
 ```
 1. Checkout feature branch. git pull --ff-only if safe.
 2. Read ticket only + needed Inputs paths. No scope creep.
-3. Run **ship** (AgentSystemLabs/core):
+3. Ensure ticket Impl steps + Validation lines use `- [ ]`; add if missing (edit plan md).
+4. Run **ship** (AgentSystemLabs/core):
    - Invoke ship skill / `/ship` on ticket goal.
    - Pass ticket Requirements + TDD + Test plan + Impl steps as spec.
    - mode=balanced|production per rules.
    - Ship **never** commit/push (ship design). Worker does git after.
-4. TDD honor: red→green→refactor per ticket. Tests name from plan when given.
-5. Validate ticket Validation checklist. Run listed cmds. App still functional slice.
-6. If not locally-verified → repair once inside worker → re-validate.
-7. Still bad → report failed/blocked + evidence. **No commit.**
-8. Success:
+5. TDD honor: red→green→refactor per ticket. Tests name from plan when given.
+6. After each Impl step done → `- [x]` that step in plan. Continuous, not end-only.
+7. Validate ticket Validation checklist. Run listed cmds. App still functional slice. Check Validation boxes on pass.
+8. If not locally-verified → repair once inside worker → re-validate.
+9. Still bad → report failed/blocked + evidence. **No commit.** Leave failed steps unchecked.
+10. Success:
    - git status/diff review own files only
-   - stage relevant paths (no secrets, no .env)
+   - stage relevant paths + plan checkbox updates (no secrets, no .env)
    - commit msg = ticket draft or `feat({scope}): {commit outcome}`
    - `git push -u origin HEAD` feature branch
-   - report done + sha + files + cmds run
+   - report done + sha + files + cmds run + boxes checked
 ```
 
 ### Worker report (return to parent)
@@ -178,6 +191,7 @@ Worker task prompt **must** include: branch name, plan path, full ticket body, D
 - Open PR unasked
 - Ask user trivia / preference / style — auto-decide
 - Mark done without validate cmds
+- Skip plan checkboxes / batch-check only at end / `[x]` without evidence
 
 ```
 

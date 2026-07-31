@@ -62,6 +62,16 @@ Before work, write internal checklist (progress file):
 
 Done = every success check pass with evidence (cmd output, file exists, behavior observed). Claim without evidence = not done.
 
+## Plan checkboxes
+
+Before work + during:
+
+1. Open plan md (or draft `./.tmp/GOAL_PLAN_{slug}.md`). Every step/ticket action → `- [ ]` if missing (Impl steps, Validation, micro-plan work).
+2. Plan file = source of truth. Add boxes only; no silent scope rewrite.
+3. Finish step/slice → flip `- [ ]` → `- [x]` continuous (same commit as work when possible).
+4. Never `[x]` without validation evidence.
+5. Progress Success checks + plan boxes both stay current each loop.
+
 ## Job - Orchestrator mode
 
 Load **pi-subagents** skill before spawn. Parent never writes app code.
@@ -69,23 +79,24 @@ Load **pi-subagents** skill before spawn. Parent never writes app code.
 ```
 1. Load plan (or draft micro-plan tickets from goal → write ./.tmp/GOAL_PLAN_{slug}.md).
 2. Parse tickets + Depends + Validation.
-3. Init progress file. Branch per auto-decide.
-4. Topo-serial loop:
+3. Ensure plan steps have `- [ ]` boxes; add if missing.
+4. Init progress file. Branch per auto-decide.
+5. Topo-serial loop:
    a. Next ticket all Depends done.
    b. None left unblocked → break.
    c. Spawn ONE worker subagent, context fresh (or fork worker if session persisted + continuity helps).
    d. Wait finish (run-to-completion: await / subagent_wait — do not abandon).
-   e. Read report. Update progress.
+   e. Read report. Update progress. Check plan boxes for finished steps.
    f. Repairable fail → one parent-directed retry worker max.
    g. Still bad → blocked_user|failed; mark dependants blocked_dep.
-5. After all tickets terminal: fresh-context reviewer fanout on final diff (correctness + tests).
-6. Fix worth-now via one fix worker if reviewers find blockers inside scope.
-7. Parent final validate + summary.
+6. After all tickets terminal: fresh-context reviewer fanout on final diff (correctness + tests).
+7. Fix worth-now via one fix worker if reviewers find blockers inside scope.
+8. Parent final validate + summary. Plan boxes = ground truth.
 ```
 
 ### Worker launch rules
 
-- Task prompt **must** include: goal slug, branch, plan/ticket body, Depends outputs, success checks, validation cmds, commit policy, "no user ask — auto-decide + report"
+- Task prompt **must** include: goal slug, branch, plan/ticket body, Depends outputs, success checks, validation cmds, commit policy, checkbox duty (add `- [ ]` if missing; continuous `- [x]` per step), "no user ask — auto-decide + report"
 - Agent: `worker` (or impl agent if project defines). Skill passthrough only if needed (`ship` when ticket expects ship gates)
 - `async: true` OK only if parent keeps run-to-completion await before next writer
 - Acceptance: prefer `checked` / `verified` with cmds when ticket lists them
@@ -178,11 +189,12 @@ List agents first if unsure (`subagent({ action: "list" })`). Only run executabl
 ```
 while not done and not all_remaining_hard_stopped:
   pick next unblocked work
+  ensure step boxes exist on plan
   execute (parent direct | worker)
   validate with evidence
   if fail and repairs_left: repair; continue
-  if fail and no repairs: mark blocked; continue
-  mark done; update progress
+  if fail and no repairs: mark blocked; leave boxes unchecked; continue
+  mark done; check plan boxes; update progress
 report
 ```
 
@@ -210,6 +222,7 @@ No sleep-poll. No infinite repair. No abandon mid-goal without summary.
 - Expand scope "while here"
 - Silent ignore residual risk — log it
 - Stop because "might be wrong" without trying safest path
+- Skip plan checkboxes / batch-check only at end / `[x]` without evidence
 
 ## Done output (user)
 
