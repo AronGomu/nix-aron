@@ -285,6 +285,8 @@ in
       copyq
       evince
       ffmpeg-full
+      ffmpegthumbnailer # Nautilus video thumbs via share/thumbnailers
+      sushi # Nautilus Space quick preview (org.gnome.NautilusPreviewer)
       file-roller
       flameshot
       keepassxc
