@@ -65,6 +65,19 @@ in
       enableZshIntegration = true;
     };
 
+    yazi = {
+      enable = true;
+      enableBashIntegration = true;
+      enableZshIntegration = true;
+      settings.opener.edit = [
+        {
+          run = ''nvim "$@"'';
+          block = true;
+          desc = "Neovim";
+        }
+      ];
+    };
+
   };
 
   xdg.configFile."ghostty/config".text = ''

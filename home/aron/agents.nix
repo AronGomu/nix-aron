@@ -13,13 +13,33 @@ let
   '';
 in
 {
-  home.activation.migrateTreesitterMain = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
-    treesitter_dir="${config.home.homeDirectory}/.local/share/nvim/lazy/nvim-treesitter"
-    if [ -d "$treesitter_dir/.git" ] \
-      && [ "$(${pkgs.git}/bin/git -C "$treesitter_dir" branch --show-current)" != main ]; then
-      rm -rf "$treesitter_dir"
-    fi
-  '';
+  home.activation = {
+    migrateTreesitterMain = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      treesitter_dir="${config.home.homeDirectory}/.local/share/nvim/lazy/nvim-treesitter"
+      if [ -d "$treesitter_dir/.git" ] \
+        && [ "$(${pkgs.git}/bin/git -C "$treesitter_dir" branch --show-current)" != main ]; then
+        rm -rf "$treesitter_dir"
+      fi
+    '';
+
+    installMutablePiSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      settings_dir="${config.home.homeDirectory}/.pi/agent"
+      settings_file="$settings_dir/settings.json"
+      settings_tmp="$settings_dir/settings.json.tmp"
+      mkdir -p "$settings_dir"
+
+      if [ -e "$settings_file" ]; then
+        ${pkgs.jq}/bin/jq -s \
+          '.[0] * (.[1] | with_entries(select(.key == "defaultProvider" or .key == "defaultModel" or .key == "defaultThinkingLevel")))' \
+          ${../../dotfiles/pi/agent/settings.json} "$settings_file" > "$settings_tmp"
+      else
+        cp ${../../dotfiles/pi/agent/settings.json} "$settings_tmp"
+      fi
+
+      rm -f "$settings_file"
+      mv "$settings_tmp" "$settings_file"
+    '';
+  };
 
   home.file = {
     ".config/nvim".source = nvimConfig;
@@ -36,7 +56,6 @@ in
     ".pi/skills".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
     ".pi/agent/APPEND_SYSTEM.md".source = ../../dotfiles/pi/agent/APPEND_SYSTEM.md;
-    ".pi/agent/settings.json".source = ../../dotfiles/pi/agent/settings.json;
     ".pi/agent/keybindings.json".source = ../../dotfiles/pi/agent/keybindings.json;
     ".pi/agent/configs" = {
       source = ../../dotfiles/pi/agent/configs;

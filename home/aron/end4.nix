@@ -339,11 +339,11 @@ in
         categories = [ "Graphics" "Network" ];
       };
       github-ygo-x-mtg = {
-        name = "github-ygo-x-mtg";
-        icon = "brave-browser";
-        exec = "brave https://github.com/AronGomu/YGO-x-MTG";
-        terminal = false;
-        categories = [ "Network" ];
+        name = "YGO-X-MTG";
+        icon = "nvim";
+        exec = "nvim /home/aron/projects/YGO-x-MTG";
+        terminal = true;
+        categories = [ "Development" ];
       };
       github-repos = {
         name = "github-repos";
