@@ -1,12 +1,17 @@
 ---
 name: research
-description: Investigate a question against high-trust primary sources and capture the findings as a Markdown file in the repo. Use when the user wants a topic researched, docs or API facts gathered, or reading legwork delegated to a background agent.
+description: Investigate question against high-trust primary sources and capture findings in Markdown file and html doc in the repo.
+disable-model-invocation: true
 ---
 
-Spin up a **background agent** to do the research, so you keep working while it reads.
+Spin up **background agent** to do research. Keep working while it gather informations.
 
-Its job:
+Tasks:
 
-1. Investigate the question against **primary sources** — official docs, source code, specs, first-party APIs — not a secondary write-up of them. Follow every claim back to the source that owns it.
-2. Write the findings to a single Markdown file, citing each claim's source.
-3. Save it where the repo already keeps such notes; match the existing convention, and if there is none, put it somewhere sensible and say where.
+1. Investigate question against **primary sources** — official docs, source code, specs, first-party APIs — not secondary write-up of them.
+   Follow every claim back to owner source.
+2. Write findings to 1 Markdown file, cite each claim's source.
+3. Save markdown file to `./.tmp/RESEARCH_{title}.md`.
+4. Write findings in 1 report html doc. Must emphasis human readability. Heavy use of styling and graphs. Default to dark mode.
+5. Save html doc to `./.tmp/RESEARCH_REPORT_{title}.html`.
+6. Open html doc to default browser.

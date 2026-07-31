@@ -224,7 +224,21 @@ in
         recursive = true;
       };
       "hypr/hyprland.lua".source = "${end4}/dots/.config/hypr/hyprland.lua";
-      "hypr/hypridle.conf".source = "${end4}/dots/.config/hypr/hypridle.conf";
+      "hypr/hypridle.conf".text = ''
+        $lock_cmd = hyprctl dispatch 'hl.dsp.global("quickshell:lock")' & pidof qs quickshell hyprlock || hyprlock
+
+        general {
+            lock_cmd = $lock_cmd
+            before_sleep_cmd = loginctl lock-session
+            after_sleep_cmd = hyprctl dispatch 'hl.dsp.global("quickshell:lockFocus")'
+            inhibit_sleep = 3
+        }
+
+        listener {
+            timeout = 600 # 10mins
+            on-timeout = loginctl lock-session
+        }
+      '';
       "hypr/hyprlock.conf".source = "${end4}/dots/.config/hypr/hyprlock.conf";
       "hypr/hyprlock" = {
         source = "${end4}/dots/.config/hypr/hyprlock";
@@ -256,14 +270,18 @@ in
                 rounding = 0
             },
             input = {
-                follow_mouse = 1
+                follow_mouse = 1,
+                sensitivity = -0.6
+            },
+            cursor = {
+                no_hardware_cursors = false
             }
         })
       '';
       "hypr/custom/execs.lua".text = ''
         hl.on("hyprland.start", function ()
-            hl.exec_cmd("hyprctl dispatch exec '[workspace 1 silent] ghostty -e herdr'")
-            hl.exec_cmd("hyprctl dispatch exec '[workspace 2 silent] brave'")
+            hl.exec_cmd("ghostty -e herdr", { workspace = "1 silent" })
+            hl.exec_cmd("brave --new-window", { workspace = "2 silent" })
         end)
       '';
       "hypr/custom/keybinds.lua".text = ''
@@ -320,6 +338,48 @@ in
         terminal = false;
         categories = [ "Graphics" "Network" ];
       };
+      github-ygo-x-mtg = {
+        name = "github-ygo-x-mtg";
+        icon = "brave-browser";
+        exec = "brave https://github.com/AronGomu/YGO-x-MTG";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      github-repos = {
+        name = "github-repos";
+        icon = "brave-browser";
+        exec = "brave \"https://github.com/AronGomu?tab=repositories\"";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      github-nix-aron = {
+        name = "github-nix-aron";
+        icon = "brave-browser";
+        exec = "brave https://github.com/AronGomu/nix-aron";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      github-brain = {
+        name = "github-brain";
+        icon = "brave-browser";
+        exec = "brave https://github.com/AronGomu/brain";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      github-ygo-story = {
+        name = "github-ygo-story";
+        icon = "brave-browser";
+        exec = "brave https://github.com/AronGomu/ygo-story-duel-simulator";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      github-matt-pocock = {
+        name = "github-matt-pocock";
+        icon = "brave-browser";
+        exec = "brave https://github.com/mattpocock/skills";
+        terminal = false;
+        categories = [ "Network" ];
+      };
     };
 
     home.file.".local/share/nautilus/scripts/Copy Path" = {
@@ -339,7 +399,7 @@ in
         cat > "$config_file" <<'JSON'
       {
         "bar": {
-          "screenList": ["HDMI-A-2"]
+          "screenList": []
         },
         "light": {
           "night": {
@@ -355,7 +415,8 @@ in
 
       tmp_file="$(${pkgs.coreutils}/bin/mktemp)"
       ${pkgs.jq}/bin/jq --arg wallpaper "${wallpaper}" \
-        '.background.wallpaperPath = $wallpaper' "$config_file" > "$tmp_file"
+        'if .bar.screenList == ["HDMI-A-2"] then .bar.screenList = [] else . end
+        | .background.wallpaperPath = $wallpaper' "$config_file" > "$tmp_file"
       ${pkgs.coreutils}/bin/mv "$tmp_file" "$config_file"
     '';
   };

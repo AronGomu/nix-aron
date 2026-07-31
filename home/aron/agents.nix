@@ -33,10 +33,8 @@ in
       recursive = true;
     };
 
-    ".pi/skills" = {
-      source = ../../dotfiles/pi/skills;
-      recursive = true;
-    };
+    ".pi/skills".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
     ".pi/agent/APPEND_SYSTEM.md".source = ../../dotfiles/pi/agent/APPEND_SYSTEM.md;
     ".pi/agent/settings.json".source = ../../dotfiles/pi/agent/settings.json;
     ".pi/agent/keybindings.json".source = ../../dotfiles/pi/agent/keybindings.json;
@@ -59,9 +57,7 @@ in
       source = ../../dotfiles/codex/rules;
       recursive = true;
     };
-    ".codex/skills" = {
-      source = ../../dotfiles/codex/skills;
-      recursive = true;
-    };
+    ".codex/skills".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
   };
 }

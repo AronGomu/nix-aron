@@ -10,9 +10,9 @@
       day = 4500;
       night = 1000;
     };
-    brightness = {
-      day = "1.0";
-      night = "0.7";
+    settings.redshift = {
+      brightness-day = "1.0";
+      brightness-night = "0.7";
     };
     tray = true;
   };
