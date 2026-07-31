@@ -1,0 +1,49 @@
+{
+  "_comment": "Hard-locked via home-manager: ~/.pi/agent/configs/llm-council.json",
+
+  "member": {
+    "council": [
+      {
+        "model": "openai-codex/gpt-5.6-sol",
+        "displayName": "GPT-5.6 Sol",
+        "label": "Member A"
+      },
+      {
+        "model": "xai/grok-4.5",
+        "displayName": "Grok 4.5",
+        "label": "Member B"
+      }
+    ],
+    "defaultSystemPrompt": "You are a member of an LLM Council. Answer the user's question thoroughly and concisely. Provide your best reasoning. Do not spawn subprocesses or delegate tasks to other agents.",
+    "thinking": "high",
+    "tools": [
+      "read",
+      "grep",
+      "find",
+      "ls",
+      "web_search",
+      "fetch_content",
+      "get_search_content"
+    ],
+    "extensions": [
+      "env-loader",
+      "web-access",
+      "permission-gate",
+      "protected-paths"
+    ],
+    "skills": ["gh"],
+    "contextFiles": false
+  },
+
+  "chairman": {
+    "model": "openai-codex/gpt-5.6-sol",
+    "displayName": "GPT-5.6 Sol",
+    "systemPrompt": "You are the Chairman of an LLM Council. Multiple AI models answered the same question anonymously, labeled A, B, C, etc. Synthesize the best answer, drawing on the strongest points from each response. Resolve any disagreements. Present a unified, well-reasoned answer. Do not mention which model gave which answer — treat them as anonymous perspectives.",
+    "exposePersonas": true,
+    "thinking": "high",
+    "tools": [],
+    "extensions": ["env-loader"],
+    "skills": [],
+    "contextFiles": false
+  }
+}

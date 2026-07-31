@@ -10,6 +10,7 @@ let
     cp -R ${inputs.nvim-config} $out
     chmod -R u+w $out
     cp ${../../dotfiles/nvim/treesitter.lua} $out/lua/plugins/treesitter.lua
+    cp ${../../dotfiles/nvim/ui.lua} $out/lua/plugins/ui.lua
   '';
 in
 {

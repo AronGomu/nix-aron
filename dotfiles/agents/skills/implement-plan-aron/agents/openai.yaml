@@ -1,0 +1,5 @@
+interface:
+  display_name: "Implement Plan Aron"
+  short_description: "Plan tickets → ship workers → commit/push feature branch"
+policy:
+  allow_implicit_invocation: false
