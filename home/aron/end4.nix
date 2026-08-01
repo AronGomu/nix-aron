@@ -186,7 +186,10 @@ in
       imagemagick
       kdePackages.bluedevil
       kdePackages.dolphin
+      kdePackages.ffmpegthumbs # Dolphin video thumbs
+      kdePackages.kdegraphics-thumbnailers # PDF/image thumbs
       kdePackages.kconfig
+      kdePackages.kio-extras # previews, network, thumbnails
       kdePackages.plasma-nm
       kdePackages.systemsettings
       libcava
@@ -250,7 +253,7 @@ in
       };
       "hypr/custom/variables.lua".text = ''
         terminal = "ghostty"
-        fileManager = "nautilus"
+        fileManager = "dolphin"
         browser = "brave"
       '';
       "hypr/custom/env.lua".text = ''

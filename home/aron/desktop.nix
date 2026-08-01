@@ -56,7 +56,7 @@
         "audio/mpeg" = [ "org.strawberrymusicplayer.strawberry.desktop" ];
         "image/jpeg" = [ "org.gnome.Loupe.desktop" ];
         "image/png" = [ "org.gnome.Loupe.desktop" ];
-        "inode/directory" = [ "org.gnome.Nautilus.desktop" ];
+        "inode/directory" = [ "org.kde.dolphin.desktop" ];
         "message/rfc822" = [ "thunderbird.desktop" ];
         "text/html" = [ "brave-browser.desktop" ];
         "video/mp4" = [ "mpv.desktop" ];
