@@ -408,6 +408,27 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      gones-local = {
+        name = "Gones - http://localhost:4200";
+        icon = "brave-browser";
+        exec = "brave http://localhost:4200";
+        terminal = false;
+        categories = [ "Development" "Network" ];
+      };
+      essentia-local = {
+        name = "Essentia - http://localhost:4201";
+        icon = "brave-browser";
+        exec = "brave http://localhost:4201";
+        terminal = false;
+        categories = [ "Development" "Network" ];
+      };
+      ascensio-local = {
+        name = "Ascensio - http://localhost:4202";
+        icon = "brave-browser";
+        exec = "brave http://localhost:4202";
+        terminal = false;
+        categories = [ "Development" "Network" ];
+      };
     };
 
     home.file.".local/share/nautilus/scripts/Copy Path" = {
