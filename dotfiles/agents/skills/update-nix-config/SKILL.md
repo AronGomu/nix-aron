@@ -1,0 +1,147 @@
+---
+name: update-nix-config
+description: >
+  Apply one change request to active NixOS/Home Manager config repo:
+  add, remove, or update packages/modules/settings. Grill if unclear.
+  When clear: edit, commit, push, then ask user to rebuild.
+argument-hint: "Prompt: what to add, remove, or change in nix config/system"
+disable-model-invocation: true
+---
+
+# update-nix-config
+
+One prompt in → clear change on active nix config → commit → push → **ask** rebuild.
+
+## Fixed context
+
+Read and obey `/home/aron/AGENTS.md` plus repo `NIX-CHEATSHEET.md`.
+
+| Fact | Value |
+| ---- | ----- |
+| Repo | `/home/aron/coding/nix-aron` |
+| Host flake | `desk-main` |
+| HM user flake | check `home-manager` / flake outputs (often `#aron` or `#desk-main` — verify `flake.nix` before cmds) |
+| Active source | this flake only |
+| Legacy | `/etc/nixos/configuration.nix` — **never** edit for system changes |
+| Rebuild (system) | `sudo nixos-rebuild switch --flake /home/aron/coding/nix-aron#desk-main` |
+| Branch | work on `main` unless user said otherwise |
+
+## Input
+
+**Arg1 = prompt** (required). Natural language: add / remove / change package, service, module, dotfile wiring, gsettings, desktop default, etc.
+
+STOP if prompt empty. Ask for prompt only.
+
+## Job
+
+```
+1. Parse prompt → intended end state (add | remove | change | multi).
+2. Explore repo. Find real files/modules. Prefer existing patterns (home/aron/*.nix, hosts/desk-main, modules/nixos, dotfiles/).
+3. Clarity gate:
+   - Unclear / multi-way choice / destructive / security-sensitive / irreversible
+     → run **grill-me-aron** until shared understanding. Do not edit yet.
+   - Clear enough for one safe implementation path
+     → proceed. Log brief Assumptions if tiny defaults taken.
+4. Implement surgical edit(s) only. Match repo style. No drive-by refactors.
+5. Sanity check when cheap: `nix flake check` and/or evaluate touched attr if practical.
+   Fail → fix or hard-stop with evidence. Do not push broken obvious syntax.
+6. Git on repo root:
+   - status / diff / log style
+   - stage only intentional paths (no secrets, no .env, no .tmp junk, no .pi-subagents)
+   - new .nix files **must** `git add` (flake ignores untracked)
+   - commit message: conventional, why-focused
+     e.g. `feat(hm): add foo` / `fix(nixos): ...` / `chore(nix): ...`
+   - `git push` to `origin` current branch
+7. **Do not rebuild.** Ask user to rebuild. Offer exact cmd(s).
+```
+
+## Clarity gate (when to grill)
+
+Use **grill-me-aron** when any true:
+
+- Prompt names goal but not which host/user/package/module
+- Multiple reasonable impls (systemPackage vs HM, module vs overlay, enable flag vs package only)
+- Remove/disable may break login, network, boot, disk, GPU, display manager
+- Secrets, keys, tokens, password hashes, Wi‑Fi PSKs
+- Flake input bumps / nixpkgs channel jumps with wide blast radius
+- User intent could mean HM-only **or** NixOS-only and both exist
+
+Skip grill when:
+
+- Single obvious package pin/add/remove in existing list
+- Flip existing option already patterned in repo
+- User pasted exact package/module/file + action
+
+After grill rounds finish and user confirms shared understanding → continue from step 4.
+
+## Impl rules
+
+- **Surgical:** touch only files required by prompt.
+- **Prefer existing modules** over new top-level sprawl.
+- **HM vs NixOS:** GUI user apps/dotfiles → often `home/aron/`; system services, boot, hardware, system-wide → `hosts/` + `modules/nixos/`.
+- **Desktop stack:** end4/Hyprland bits live in `home/aron/end4.nix` and related; do not fight that layout.
+- **No legacy `/etc/nixos` edits.**
+- **No secrets in git.** Point to sops/agenix/existing secret pattern if repo has one; else hard-stop and ask.
+- **Do not** run `nixos-rebuild` / `home-manager switch` in this skill. User confirms rebuild.
+- **Do not** open PR unless user asked. Push branch only.
+- Unrelated dirty tree: commit only your files; leave other dirty files unstaged. If dirty overlap blocks safe edit → stop and report.
+
+## Commit / push rules
+
+- Repo cwd: `/home/aron/coding/nix-aron`
+- No force-push. No `--no-verify` unless user said.
+- No amend of others' commits. No rewrite published history.
+- Scan diff for secrets before commit.
+- Push fail network → retry once. Auth/protected → hard-stop, show state.
+- If nothing to change after investigation → say so; no empty commit.
+
+## Rebuild ask (mandatory end)
+
+After successful push (or "no change needed"), tell user:
+
+```text
+state: pushed | no-change | blocked
+branch: {branch}
+remote: origin
+commit: {sha|—}
+files: ...
+assumptions: ...   # if any
+residual-risk: ...
+
+Rebuild when ready (I did not run it):
+
+  sudo nixos-rebuild switch --flake /home/aron/coding/nix-aron#desk-main
+
+# If change was HM-only and you normally use HM separately, also/alternate:
+  home-manager switch --flake /home/aron/coding/nix-aron#<user-or-output>
+```
+
+Pick the accurate rebuild line(s) from what you changed. Prefer full `nixos-rebuild switch` when both system + HM wired through NixOS; mention HM-only when that is truly enough.
+
+**Wait for user** to approve/run rebuild. Do not run sudo rebuild yourself unless user explicitly orders rebuild in a later message.
+
+## Hard stop
+
+Stop + report when:
+
+- Grill unfinished / user did not confirm understanding on ambiguous change
+- Need secret or external account user must supply
+- Push rejected with no safe fix
+- Edit would touch boot/disk/network critically and user did not clearly accept risk
+- Flake/eval broken after edit and one repair pass failed
+
+## Anti-patterns
+
+- Silent assume on multi-path nix design
+- Edit `/etc/nixos/configuration.nix`
+- Rebuild without asking
+- Empty commit / commit unrelated junk / commit `.tmp`
+- Broad reformat of nix files
+- Scope creep "while here"
+- Force-push main
+
+## Done when
+
+- Prompt satisfied in config **or** blocked with clear reason
+- If changes: committed + pushed
+- User has exact rebuild command and explicit ask to run it
