@@ -12,6 +12,8 @@ usage() {
   echo "  noise_db         silence threshold (default: -40dB)" >&2
   echo "  --keep-silence SEC  retain SEC total silence around each cut" >&2
   echo "  --audio-fade SEC    fade audio at joins inside retained silence" >&2
+  echo "  --transcript-json FILE  protect transcript word intervals" >&2
+  echo "  --word-padding SEC  pad protected words (default: 0.080 with transcript)" >&2
   echo "  --cut-map FILE      write JSON cut timeline" >&2
   exit 1
 }
@@ -26,6 +28,8 @@ shift 3
 NOISE=-40dB
 KEEP_SILENCE=0
 AUDIO_FADE=0
+TRANSCRIPT_JSON=
+WORD_PADDING=
 CUT_MAP=
 LEGACY_MODE=1
 
@@ -54,15 +58,23 @@ PY
 
 while [[ $# -gt 0 ]]; do
   case $1 in
-    --keep-silence|--audio-fade)
+    --keep-silence|--audio-fade|--word-padding)
       option=$1
       [[ $# -ge 2 && $2 != --* ]] || { echo "error: $option requires SEC" >&2; exit 1; }
       validate_seconds "$option" "$2"
       if [[ $option == --keep-silence ]]; then
         KEEP_SILENCE=$2
-      else
+      elif [[ $option == --audio-fade ]]; then
         AUDIO_FADE=$2
+      else
+        WORD_PADDING=$2
       fi
+      LEGACY_MODE=0
+      shift 2
+      ;;
+    --transcript-json)
+      [[ $# -ge 2 && $2 != --* ]] || { echo "error: --transcript-json requires FILE" >&2; exit 1; }
+      TRANSCRIPT_JSON=$2
       LEGACY_MODE=0
       shift 2
       ;;
@@ -81,6 +93,13 @@ done
 
 [[ -f "$IN" ]] || { echo "error: input not found: $IN" >&2; exit 1; }
 [[ "$MAX_SEC" =~ ^[0-9]+([.][0-9]+)?$ ]] || { echo "error: max_silence_sec must be number" >&2; exit 1; }
+if [[ -n $TRANSCRIPT_JSON ]]; then
+  [[ -f $TRANSCRIPT_JSON ]] || { echo "error: transcript not found: $TRANSCRIPT_JSON" >&2; exit 1; }
+  WORD_PADDING=${WORD_PADDING:-0.080}
+elif [[ -n $WORD_PADDING ]]; then
+  echo "error: --word-padding requires --transcript-json" >&2
+  exit 1
+fi
 
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
@@ -94,8 +113,9 @@ ffmpeg -hide_banner -nostats -i "$IN" \
   -af "silencedetect=noise=${NOISE}:d=${MAX_SEC}" \
   -f null - 2>"$TMP/detect.log" || true
 
-python3 - "$TMP" "$DUR" "$KEEP_SILENCE" "$AUDIO_FADE" "$CUT_MAP" "$LEGACY_MODE" <<'PY'
+python3 - "$TMP" "$DUR" "$KEEP_SILENCE" "$AUDIO_FADE" "$CUT_MAP" "$LEGACY_MODE" "$TRANSCRIPT_JSON" "$WORD_PADDING" <<'PY'
 import json
+import math
 import re
 import sys
 from pathlib import Path
@@ -106,6 +126,56 @@ keep_silence = float(sys.argv[3])
 audio_fade = float(sys.argv[4])
 cut_map = sys.argv[5]
 legacy_mode = sys.argv[6] == "1"
+transcript_json = sys.argv[7]
+word_padding = float(sys.argv[8]) if transcript_json else None
+
+
+def transcript_error(message):
+    print(f"error: invalid transcript JSON: {message}", file=sys.stderr)
+    sys.exit(2)
+
+
+transcript_model = None
+words = []
+if transcript_json:
+    try:
+        transcript = json.loads(Path(transcript_json).read_text())
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        transcript_error(str(error))
+    if not isinstance(transcript, dict):
+        transcript_error("root must be an object")
+    transcript_model = transcript.get("model")
+    if not isinstance(transcript_model, str) or not transcript_model:
+        transcript_error("model must be a non-empty string")
+    raw_words = transcript.get("words")
+    if not isinstance(raw_words, list):
+        transcript_error("words must be an array")
+    previous_start = None
+    for index, raw_word in enumerate(raw_words):
+        if not isinstance(raw_word, dict):
+            transcript_error(f"words[{index}] must be an object")
+        if not isinstance(raw_word.get("word"), str):
+            transcript_error(f"words[{index}].word must be a string")
+        start = raw_word.get("start")
+        end = raw_word.get("end")
+        if (isinstance(start, bool) or not isinstance(start, (int, float)) or
+                isinstance(end, bool) or not isinstance(end, (int, float))):
+            transcript_error(f"words[{index}] timestamps must be numbers")
+        start = float(start)
+        end = float(end)
+        if not math.isfinite(start) or not math.isfinite(end):
+            transcript_error(f"words[{index}] timestamps must be finite")
+        if start < 0 or end < 0 or end < start:
+            transcript_error(f"words[{index}] timestamps must satisfy 0 <= start <= end")
+        if previous_start is not None and start < previous_start:
+            transcript_error("words must be sorted by start timestamp")
+        words.append({"start": start, "end": end, "word": raw_word["word"]})
+        previous_start = start
+
+protected_words = [
+    (max(0.0, word["start"] - word_padding), word["end"] + word_padding, word)
+    for word in words
+]
 log = (tmp / "detect.log").read_text(errors="replace")
 
 starts = [float(x) for x in re.findall(r"silence_start:\s*([0-9.]+)", log)]
@@ -122,8 +192,14 @@ for s in starts:
     else:
         pairs.append((s, duration))
 
+def intervals_overlap(start_a, end_a, start_b, end_b):
+    epsilon = 0.001
+    return start_a <= end_b + epsilon and end_a >= start_b - epsilon
+
+
 min_keep = 0.05
 cuts = []
+decisions = []
 removed_before = 0.0
 for s, e in pairs:
     handle = 0.0 if legacy_mode else keep_silence / 2
@@ -131,6 +207,24 @@ for s, e in pairs:
     remove_end = e - handle
     remove_duration = remove_end - remove_start
     if remove_duration <= 0 or (not legacy_mode and remove_duration <= min_keep):
+        continue
+    matching_words = [
+        word for protected_start, protected_end, word in protected_words
+        if intervals_overlap(remove_start, remove_end, protected_start, protected_end)
+    ]
+    decision = {
+        "source_interval": [s, e],
+        "proposed_removed_interval": [remove_start, remove_end],
+        "decision": "vetoed" if matching_words else "accepted",
+        "reason": (
+            "word_overlap" if matching_words else
+            "no_word_overlap" if transcript_json else
+            "transcript_not_provided"
+        ),
+        "matching_words": matching_words,
+    }
+    decisions.append(decision)
+    if matching_words:
         continue
     cuts.append({
         "source_start": s,
@@ -177,13 +271,20 @@ if cut_map:
             },
             "output_offset": cut["output_offset"],
         })
-    Path(cut_map).write_text(json.dumps({
+    map_data = {
         "source_duration": duration,
         "output_duration": keep_dur,
         "keep_silence": keep_silence,
         "audio_fade": audio_fade,
         "cuts": mapped_cuts,
-    }, indent=2, sort_keys=True) + "\n")
+    }
+    if transcript_json:
+        map_data.update({
+            "transcript_model": transcript_model,
+            "word_padding": word_padding,
+            "decisions": decisions,
+        })
+    Path(cut_map).write_text(json.dumps(map_data, indent=2, sort_keys=True) + "\n")
 
 if not cuts:
     (tmp / "nosilence").write_text("1")

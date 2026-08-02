@@ -4,6 +4,7 @@ set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/../../../.." && pwd)
 CUT_SILENCE="$ROOT/home/aron/scripts/cut-silence.sh"
+FIXTURES="$ROOT/home/aron/scripts/tests/fixtures"
 TMP=$(mktemp -d)
 trap 'rm -rf "$TMP"' EXIT
 
@@ -192,11 +193,121 @@ PY
   pass "cut_map_matches_rendered_duration"
 }
 
+word_inside_silence_vetoes_cut() {
+  local input="$TMP/inside-input.mp4" output="$TMP/inside-output.mp4"
+  make_fixture "$input" 1
+  bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+    --keep-silence 0.300 \
+    --transcript-json "$FIXTURES/transcript-word-in-gap.json" >"$TMP/inside.log" 2>&1
+  assert_close "$(duration "$output")" "$(duration "$input")" 0.001 "word-overlap cut was not vetoed"
+  pass "word_inside_silence_vetoes_cut"
+}
+
+word_padding_vetoes_near_boundary_cut() {
+  local input="$TMP/padding-input.mp4" output="$TMP/padding-output.mp4"
+  make_fixture "$input" 1
+  bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+    --keep-silence 0.300 \
+    --transcript-json "$FIXTURES/transcript-word-near-gap.json" >"$TMP/padding.log" 2>&1
+  assert_close "$(duration "$output")" "$(duration "$input")" 0.001 "padded word-overlap cut was not vetoed"
+  pass "word_padding_vetoes_near_boundary_cut"
+}
+
+word_outside_silence_allows_cut() {
+  local input="$TMP/outside-input.mp4" output="$TMP/outside-output.mp4"
+  make_fixture "$input" 1
+  bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+    --keep-silence 0.300 \
+    --transcript-json "$FIXTURES/transcript-word-outside-gap.json" >"$TMP/outside.log" 2>&1
+  assert_close "$(duration "$output")" 2.327 0.040 "outside word vetoed cut"
+  pass "word_outside_silence_allows_cut"
+}
+
+transcript_absent_keeps_t1_behavior() {
+  local input="$TMP/absent-input.mp4" output="$TMP/absent-output.mp4" map="$TMP/absent-map.json"
+  make_fixture "$input" 1
+  bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+    --keep-silence 0.300 --audio-fade 0.008 \
+    --cut-map "$map" >"$TMP/absent.log" 2>&1
+  assert_close "$(duration "$output")" 2.327 0.040 "transcript-absent output changed"
+  python3 - "$map" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+keys = set(json.loads(Path(sys.argv[1]).read_text()))
+expected = {"source_duration", "output_duration", "keep_silence", "audio_fade", "cuts"}
+if keys != expected:
+    raise SystemExit(f"transcript-absent cut-map schema changed: {sorted(keys)!r}")
+PY
+  pass "transcript_absent_keeps_t1_behavior"
+}
+
+malformed_transcript_fails_before_encode() {
+  local input="$TMP/malformed-input.mp4" output fixture log
+  make_fixture "$input" 1
+  for fixture in \
+    transcript-malformed-missing-end.json \
+    transcript-negative.json \
+    transcript-unsorted.json \
+    transcript-nonfinite.json; do
+    output="$TMP/${fixture%.json}-output.mp4"
+    log="$TMP/${fixture%.json}.log"
+    if bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+      --keep-silence 0.300 --transcript-json "$FIXTURES/$fixture" >"$log" 2>&1; then
+      fail "malformed_transcript_fails_before_encode" "$fixture succeeded"
+    fi
+    [[ ! -e $output ]] || fail "malformed_transcript_fails_before_encode" "output created for $fixture"
+    grep -q '^error: invalid transcript JSON:' "$log" || \
+      fail "malformed_transcript_fails_before_encode" "unexpected error for $fixture"
+    ! grep -q '^==> encode' "$log" || \
+      fail "malformed_transcript_fails_before_encode" "encode started for $fixture"
+  done
+  pass "malformed_transcript_fails_before_encode"
+}
+
+cut_map_records_veto_reason() {
+  local input="$TMP/veto-map-input.mp4" output="$TMP/veto-map-output.mp4" map="$TMP/veto-map.json"
+  make_fixture "$input" 1 2
+  bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+    --keep-silence 0.300 \
+    --transcript-json "$FIXTURES/transcript-word-in-gap.json" \
+    --cut-map "$map" >"$TMP/veto-map.log" 2>&1
+  python3 - "$map" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+data = json.loads(Path(sys.argv[1]).read_text())
+decisions = data["decisions"]
+if [decision["decision"] for decision in decisions] != ["vetoed", "accepted"]:
+    raise SystemExit(f"unexpected decisions: {decisions!r}")
+veto = decisions[0]
+if veto["reason"] != "word_overlap":
+    raise SystemExit(f"unexpected veto reason: {veto['reason']!r}")
+if veto["matching_words"] != [{"start": 1.4, "end": 1.5, "word": "quiet"}]:
+    raise SystemExit(f"unexpected matching words: {veto['matching_words']!r}")
+accepted = decisions[1]
+if accepted["reason"] != "no_word_overlap" or accepted["matching_words"]:
+    raise SystemExit(f"unexpected accepted audit: {accepted!r}")
+if len(data["cuts"]) != 1:
+    raise SystemExit(f"expected one rendered cut, got {len(data['cuts'])}")
+PY
+  assert_close "$(duration "$output")" 4.327 0.040 "mixed veto output duration"
+  pass "cut_map_records_veto_reason"
+}
+
 legacy_invocation_removes_full_detected_silence
 keep_silence_retains_requested_total_gap
 audio_fade_preserves_expected_duration
 short_gap_is_not_cut
 invalid_new_flag_fails_without_output
 cut_map_matches_rendered_duration
+word_inside_silence_vetoes_cut
+word_padding_vetoes_near_boundary_cut
+word_outside_silence_allows_cut
+transcript_absent_keeps_t1_behavior
+malformed_transcript_fails_before_encode
+cut_map_records_veto_reason
 
 echo "1..$pass_count"
