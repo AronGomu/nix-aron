@@ -5,6 +5,12 @@ approval_policy = "on-request"
 [features]
 collaboration_modes = false
 
+[projects."/home/aron"]
+trust_level = "trusted"
+
+[projects."/home/aron/brain"]
+trust_level = "trusted"
+
 [projects."/home/aron/coding"]
 trust_level = "trusted"
 
