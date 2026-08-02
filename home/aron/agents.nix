@@ -84,5 +84,9 @@ in
     # Claude Code reads ~/.claude/skills; share same hub as pi/codex.
     ".claude/skills".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
+
+    # Writable: Claude Code rewrites settings.json at runtime (/config, /model).
+    ".claude/settings.json".source =
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/coding/nix-aron/dotfiles/claude/settings.json";
   };
 }
