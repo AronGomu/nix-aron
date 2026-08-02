@@ -67,7 +67,8 @@ in
       recursive = true;
     };
 
-    ".codex/config.toml".source = ../../dotfiles/codex/config.toml;
+    # Writable: Codex TUI writes project trust into config.toml at runtime.
+    ".codex/config.toml".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/coding/nix-aron/dotfiles/codex/config.toml";
     ".codex/caveman.config.toml".source = ../../dotfiles/codex/caveman.config.toml;
     ".codex/prompts" = {
       source = ../../dotfiles/codex/prompts;
