@@ -235,6 +235,16 @@ let
       chmod 755 $out/bin/openwhispr
     '';
   };
+  cut-silence = pkgs.writeShellApplication {
+    name = "cut-silence";
+    runtimeInputs = [
+      pkgs.bash
+      pkgs.coreutils
+      pkgs.ffmpeg-full
+      pkgs.python3
+    ];
+    text = builtins.readFile ./scripts/cut-silence.sh;
+  };
 in
 {
   home.packages =
@@ -299,6 +309,7 @@ in
       herdr
       openwhispr
       grokImagine
+      cut-silence
     ]
     ++ (with pkgsUnstable; [
       codex
