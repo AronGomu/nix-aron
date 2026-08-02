@@ -88,6 +88,6 @@ Before merge:
 - Assert no transcript dependency when `--transcript-json` absent.
 - Rebuild `desk-main`; resolve installed path to new Nix store output.
 
-## Worktree warning
+## Worktree preflight
 
-At plan time, `home/aron/packages.nix` has staged + unstaged user changes. `home/aron/scripts/cut-silence.sh` is staged as new. Execution must preserve ownership; never reset/stash/delete silently.
+Cutter + ADR baseline landed in commit `905a374` during planning. Current observed plan-completion `HEAD` = `ef86346`; relevant paths were clean. Execution must recheck `HEAD` + path status, preserve ownership, never reset/stash/delete silently.

@@ -6,6 +6,7 @@
     ./brave-policies.nix
     ./desktop.nix
     ./end4.nix
+    ./mullvad.nix
     ./nix.nix
     ./remote-access.nix
   ];
