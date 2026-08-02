@@ -64,13 +64,38 @@ PY
     -c:a aac -b:a 128k -shortest "$output"
 }
 
+make_edge_fixture() {
+  local output=$1 position=$2 total=2 filter
+  case $position in
+    leading)
+      filter='anullsrc=r=48000:cl=mono:d=1[s];sine=frequency=440:sample_rate=48000:duration=1[t];[s][t]concat=n=2:v=0:a=1[a]'
+      ;;
+    trailing)
+      filter='sine=frequency=440:sample_rate=48000:duration=1[t];anullsrc=r=48000:cl=mono:d=1[s];[t][s]concat=n=2:v=0:a=1[a]'
+      ;;
+    all)
+      total=1
+      filter='anullsrc=r=48000:cl=mono:d=1[a]'
+      ;;
+    *) fail "make_edge_fixture" "unknown position: $position" ;;
+  esac
+  ffmpeg -hide_banner -loglevel error -y \
+    -f lavfi -i "color=c=black:s=160x90:r=25:d=${total}" \
+    -filter_complex "$filter" -map 0:v -map '[a]' \
+    -c:v libx264 -preset ultrafast -crf 30 -pix_fmt yuv420p \
+    -c:a aac -b:a 128k -shortest "$output"
+}
+
 legacy_invocation_removes_full_detected_silence() {
-  local input="$TMP/legacy-input.mp4" output="$TMP/legacy-output.mp4" default_output="$TMP/legacy-default-output.mp4"
+  local input="$TMP/legacy-input.mp4" output="$TMP/legacy-output.mp4"
+  local default_output="$TMP/legacy-default-output.mp4" amplitude_output="$TMP/legacy-amplitude-output.mp4"
   make_fixture "$input" 1
   bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB >"$TMP/legacy.log" 2>&1
   assert_close "$(duration "$output")" 2.027 0.040 "legacy output duration"
   bash "$CUT_SILENCE" "$input" "$default_output" 0.45 >"$TMP/legacy-default.log" 2>&1
   assert_close "$(duration "$default_output")" "$(duration "$output")" 0.040 "default-noise legacy duration"
+  bash "$CUT_SILENCE" "$input" "$amplitude_output" 0.45 0.0178 >"$TMP/legacy-amplitude.log" 2>&1
+  assert_close "$(duration "$amplitude_output")" "$(duration "$output")" 0.040 "numeric-amplitude legacy duration"
   pass "legacy_invocation_removes_full_detected_silence"
 }
 
@@ -266,6 +291,148 @@ malformed_transcript_fails_before_encode() {
   pass "malformed_transcript_fails_before_encode"
 }
 
+path_collisions_fail_without_destruction() {
+  local original="$TMP/collision-original.mp4" input="$TMP/collision-input.mp4"
+  local transcript="$TMP/collision-transcript.json" log source_hash transcript_hash
+  make_fixture "$original" 1
+  cp "$original" "$input"
+  cp "$FIXTURES/transcript-word-outside-gap.json" "$transcript"
+  source_hash=$(sha256sum "$input" | cut -d' ' -f1)
+  transcript_hash=$(sha256sum "$transcript" | cut -d' ' -f1)
+
+  expect_collision() {
+    local name=$1 output=$2 transcript_arg=$3 map=$4
+    local args=(bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB --keep-silence 0.300)
+    [[ -z $transcript_arg ]] || args+=(--transcript-json "$transcript_arg")
+    [[ -z $map ]] || args+=(--cut-map "$map")
+    log="$TMP/collision-${name}.log"
+    if "${args[@]}" >"$log" 2>&1; then
+      fail "path_collisions_fail_without_destruction" "$name succeeded"
+    fi
+    grep -q '^error: path collision:' "$log" || \
+      fail "path_collisions_fail_without_destruction" "$name did not report collision"
+    [[ $(sha256sum "$input" | cut -d' ' -f1) == "$source_hash" ]] || \
+      fail "path_collisions_fail_without_destruction" "$name changed source"
+    [[ $(sha256sum "$transcript" | cut -d' ' -f1) == "$transcript_hash" ]] || \
+      fail "path_collisions_fail_without_destruction" "$name changed transcript"
+  }
+
+  expect_collision input-output "$input" "" ""
+  ln -s "$input" "$TMP/collision-source-link"
+  expect_collision input-map "$TMP/collision-output-1.mp4" "" "$TMP/collision-source-link"
+  expect_collision input-transcript "$TMP/collision-output-2.mp4" "$TMP/collision-source-link" ""
+  ln "$input" "$TMP/collision-source-hardlink.mp4"
+  expect_collision input-output-inode "$TMP/collision-source-hardlink.mp4" "" ""
+  ln -s "$transcript" "$TMP/collision-transcript-link"
+  expect_collision transcript-output "$TMP/collision-transcript-link" "$transcript" ""
+  expect_collision transcript-map "$TMP/collision-output-3.mp4" "$transcript" "$TMP/collision-transcript-link"
+  expect_collision output-map "$TMP/collision-shared-path.mp4" "$transcript" "$TMP/collision-shared-path.mp4"
+  pass "path_collisions_fail_without_destruction"
+}
+
+cut_map_publishes_only_after_successful_render() {
+  local input="$TMP/publish-input.mp4" output="$TMP/publish-output.invalid"
+  local existing_map="$TMP/publish-existing.json" new_map="$TMP/publish-new.json"
+  make_fixture "$input" 1
+  printf '%s\n' 'authoritative-old-map' >"$existing_map"
+  if bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+    --keep-silence 0.300 --cut-map "$existing_map" >"$TMP/publish-existing.log" 2>&1; then
+    fail "cut_map_publishes_only_after_successful_render" "invalid render succeeded"
+  fi
+  [[ $(cat "$existing_map") == authoritative-old-map ]] || \
+    fail "cut_map_publishes_only_after_successful_render" "existing map was clobbered"
+  if bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+    --keep-silence 0.300 --cut-map "$new_map" >"$TMP/publish-new.log" 2>&1; then
+    fail "cut_map_publishes_only_after_successful_render" "second invalid render succeeded"
+  fi
+  [[ ! -e $new_map ]] || \
+    fail "cut_map_publishes_only_after_successful_render" "new map was published"
+  pass "cut_map_publishes_only_after_successful_render"
+}
+
+silence_intervals_are_clamped_to_duration() {
+  local position input output map
+  for position in leading trailing all; do
+    input="$TMP/${position}-input.mp4"
+    output="$TMP/${position}-output.mp4"
+    map="$TMP/${position}-map.json"
+    make_edge_fixture "$input" "$position"
+    bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+      --keep-silence 0.300 --cut-map "$map" >"$TMP/${position}.log" 2>&1
+    python3 - "$map" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+data = json.loads(Path(sys.argv[1]).read_text())
+duration = data["source_duration"]
+intervals = []
+for cut in data["cuts"]:
+    intervals.extend([
+        cut["source_interval"],
+        cut["removed_interval"],
+        cut["retained_handles"]["before"],
+        cut["retained_handles"]["after"],
+    ])
+for decision in data.get("decisions", []):
+    intervals.extend([decision["source_interval"], decision["proposed_removed_interval"]])
+for interval in intervals:
+    if not 0 <= interval[0] <= interval[1] <= duration:
+        raise SystemExit(f"interval outside [0, {duration}]: {interval}")
+PY
+  done
+  pass "silence_intervals_are_clamped_to_duration"
+}
+
+short_retained_gap_never_removes_everything() {
+  local input="$TMP/short-retain-input.mp4" output="$TMP/short-retain-output.mp4" map="$TMP/short-retain-map.json"
+  make_edge_fixture "$input" all
+  bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
+    --keep-silence 0.080 --cut-map "$map" >"$TMP/short-retain.log" 2>&1
+  python3 - "$(duration "$input")" "$(duration "$output")" "$map" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+source_duration = float(sys.argv[1])
+output_duration = float(sys.argv[2])
+data = json.loads(Path(sys.argv[3]).read_text())
+if output_duration < 0.070 and abs(output_duration - source_duration) > 0.040:
+    raise SystemExit(f"unsafe short-retain duration: {output_duration}")
+if data["output_duration"] <= 0:
+    raise SystemExit("map planned empty output")
+PY
+  pass "short_retained_gap_never_removes_everything"
+}
+
+invalid_noise_threshold_fails_without_artifacts() {
+  local input="$TMP/noise-input.mp4" output map value log
+  make_fixture "$input" 1
+  for value in garbage NaN Infinity 2dBx; do
+    output="$TMP/noise-${value}.mp4"
+    map="$TMP/noise-${value}.json"
+    log="$TMP/noise-${value}.log"
+    if bash "$CUT_SILENCE" "$input" "$output" 0.45 "$value" \
+      --keep-silence 0.300 --cut-map "$map" >"$log" 2>&1; then
+      fail "invalid_noise_threshold_fails_without_artifacts" "$value succeeded"
+    fi
+    [[ ! -e $output ]] || fail "invalid_noise_threshold_fails_without_artifacts" "$value created output"
+    [[ ! -e $map ]] || fail "invalid_noise_threshold_fails_without_artifacts" "$value created map"
+    grep -Fxq 'error: noise_db must be finite numeric amplitude or numeric dB' "$log" || \
+      fail "invalid_noise_threshold_fails_without_artifacts" "unexpected error for $value"
+  done
+
+  output="$TMP/noise-detector-failure.mp4"
+  map="$TMP/noise-detector-failure.json"
+  if bash "$CUT_SILENCE" "$input" "$output" 0.45 -1 \
+    --keep-silence 0.300 --cut-map "$map" >"$TMP/noise-detector-failure.log" 2>&1; then
+    fail "invalid_noise_threshold_fails_without_artifacts" "detector failure was suppressed"
+  fi
+  [[ ! -e $output ]] || fail "invalid_noise_threshold_fails_without_artifacts" "detector failure created output"
+  [[ ! -e $map ]] || fail "invalid_noise_threshold_fails_without_artifacts" "detector failure created map"
+  pass "invalid_noise_threshold_fails_without_artifacts"
+}
+
 cut_map_records_veto_reason() {
   local input="$TMP/veto-map-input.mp4" output="$TMP/veto-map-output.mp4" map="$TMP/veto-map.json"
   make_fixture "$input" 1 2
@@ -309,5 +476,10 @@ word_outside_silence_allows_cut
 transcript_absent_keeps_t1_behavior
 malformed_transcript_fails_before_encode
 cut_map_records_veto_reason
+path_collisions_fail_without_destruction
+cut_map_publishes_only_after_successful_render
+silence_intervals_are_clamped_to_duration
+short_retained_gap_never_removes_everything
+invalid_noise_threshold_fails_without_artifacts
 
 echo "1..$pass_count"

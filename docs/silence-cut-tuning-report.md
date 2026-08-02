@@ -14,12 +14,12 @@ Recommended winner: `B_n37_s060_p080`. Objective gates pass; final copied automa
 - Cuts: 4 accepted; 25 transcript-vetoed
 - Removed duration: `2.324501 s` from cut map
 - Duration: sample `180.000000 s`; final container `177.700000 s`
-- Transcript gate: zero join-local deletion/substitution; 27 remote ASR deletions/substitutions reported
-- Retained gaps: all `0.300000 s`; max error `1.14e-14 s`
+- Transcript evidence: evaluator found zero baseline deletion/substitution within its ±0.5 s join windows; 27 remote ASR deletions/substitutions remain. ASR supports review; it does not prove speech preservation.
+- Retained-gap plan: cut-map arithmetic gives `0.300000 s` for all four joins (max floating-point error `1.14e-14 s`). Aggregate rendered duration supports the planned removed total; no independent per-join MP4 gap measurement was made.
 
 ## Selection
 
-Ranking order: transcript safety → 300 ms adherence → removed duration → fewer vetoes/jarring joins. All retained candidates passed binary transcript/gap gates. Winner removed most (`2.324501 s`) with four cuts. `B_n37_s060_p060` rendered byte-identical media, but 80 ms padding gives larger protection margin. At `-37dB`, `0.50 s` produced same media with more vetoes; `0.70 s` removed less; 100 ms padding removed less. Neighbor thresholds `-35dB` plus Phase-A `-40dB` removed less. No tested in-grid neighbor improved safety/pacing rank → Phase B stopped.
+Ranking order: transcript safety → 300 ms adherence → removed duration → fewer vetoes/jarring joins. All retained candidates passed evaluator join-window checks plus cut-map-planned gap arithmetic. Winner removed most (`2.324501 s`) with four cuts. `B_n37_s060_p060` rendered byte-identical media, but 80 ms padding gives larger protection margin. At `-37dB`, `0.50 s` produced same media with more vetoes; `0.70 s` removed less; 100 ms padding removed less. Neighbor thresholds `-35dB` plus Phase-A `-40dB` removed less. No tested in-grid neighbor improved safety/pacing rank → Phase B stopped.
 
 Initial no-VAD baseline produced repeated hallucination after ~134 s. That baseline could not safely protect words near late cuts. It plus first Phase-A outputs remain under `/home/aron/.tmp/silence-cut-tuning/superseded-no-vad/` as audit evidence only. Final sweep reran baseline plus every candidate with fixed VAD config below.
 
@@ -96,7 +96,7 @@ bash /home/aron/coding/nix-aron/home/aron/scripts/cut-silence.sh /home/aron/.tmp
 
 Exact saved command: `/home/aron/.tmp/silence-cut-tuning/candidates/B_n37_s060_p080/render-command.txt`. Cut map: `/home/aron/.tmp/silence-cut-tuning/candidates/B_n37_s060_p080/B_n37_s060_p080.cut-map.json`.
 
-| Join | Source silence | Removed source interval | Output time | Retained gap (s) |
+| Join | Source silence | Removed source interval | Output time | Planned retained gap (s) |
 |---:|---:|---:|---:|---:|
 | 1 | 50.261104–51.557146 | 50.411104–51.407146 | 50.411104 | 0.300000 |
 | 2 | 54.462896–55.436125 | 54.612896–55.286125 | 53.616854 | 0.300000 |
@@ -139,7 +139,7 @@ Phase A covered required 3×3 grid. Phase B evaluated ten unique neighbor config
 
 Evaluator: `/home/aron/.tmp/silence-cut-tuning/evaluator.py`. Normalization uses Unicode NFKC + case-folding + Unicode punctuation/symbol removal only. Raw transcript text/JSON stays unchanged. Alignment ratio: `0.936221420`; baseline words `416`; winner words `415`.
 
-Join-local loss: none. Remote ASR loss/substitution report: `application`@33.99–34.81 (delete), `that`@60.61–60.83 (delete), `that`@65.22–65.36 (replace), `well`@71.14–71.70 (replace), `it's`@72.26–72.74 (replace), `it's`@77.22–77.42 (replace), `it's`@84.56–86.24 (replace), `more`@86.24–86.26 (replace), `timux`@93.30–96.06 (replace), `timux`@99.01–100.03 (replace), `and`@104.43–104.65 (replace), `order`@104.65–106.19 (replace), `stuff`@137.44–137.60 (replace), `did`@166.99–167.07 (replace), `like`@167.21–167.31 (replace), `it`@168.67–168.79 (replace), `may`@168.79–168.99 (replace), `be`@168.99–169.23 (replace), `do`@172.53–172.53 (replace), `not`@173.39–173.99 (replace), `did`@176.07–176.17 (replace), `not`@176.17–176.33 (replace), `did`@177.11–177.21 (replace), `not`@177.21–177.37 (replace), `did`@178.99–179.03 (replace), `not`@179.03–179.23 (replace), `bar`@179.85–179.93 (delete)
+Within evaluator ±0.5 s join windows, baseline deletion/substitution count: zero. This fixed-config ASR comparison is supporting evidence, not proof that speech was preserved. Remote ASR loss/substitution count: 27. Report: `application`@33.99–34.81 (delete), `that`@60.61–60.83 (delete), `that`@65.22–65.36 (replace), `well`@71.14–71.70 (replace), `it's`@72.26–72.74 (replace), `it's`@77.22–77.42 (replace), `it's`@84.56–86.24 (replace), `more`@86.24–86.26 (replace), `timux`@93.30–96.06 (replace), `timux`@99.01–100.03 (replace), `and`@104.43–104.65 (replace), `order`@104.65–106.19 (replace), `stuff`@137.44–137.60 (replace), `did`@166.99–167.07 (replace), `like`@167.21–167.31 (replace), `it`@168.67–168.79 (replace), `may`@168.79–168.99 (replace), `be`@168.99–169.23 (replace), `do`@172.53–172.53 (replace), `not`@173.39–173.99 (replace), `did`@176.07–176.17 (replace), `not`@176.17–176.33 (replace), `did`@177.11–177.21 (replace), `not`@177.21–177.37 (replace), `did`@178.99–179.03 (replace), `not`@179.03–179.23 (replace), `bar`@179.85–179.93 (delete)
 
 Normalized alignment changes:
 
@@ -182,7 +182,7 @@ Full evidence: `/home/aron/.tmp/silence-cut-tuning/metrics/B_n37_s060_p080.json`
 
 ## Every-join waveform/energy inspection
 
-Decoded winner MP4 to mono 16 kHz signed-16 PCM. Checked exact cut-map output offset for each join. Boundary-step gate: `≤0.005 FS` (`-46.02 dBFS`). Recorded 8 ms pre/post RMS plus ±20 ms peak. All four gap/click gates passed; max boundary step `0.000030518 FS`. Waveform PNGs: `/home/aron/.tmp/silence-cut-tuning/join-checks/B_n37_s060_p080-join-1.png` through `-join-4.png`. Numeric evidence: `/home/aron/.tmp/silence-cut-tuning/join-checks/B_n37_s060_p080.json`.
+Decoded winner MP4 to mono 16 kHz signed-16 PCM. Checked exact cut-map output offset for each join. Boundary-step gate: `≤0.005 FS` (`-46.02 dBFS`). Recorded 8 ms pre/post RMS plus ±20 ms peak. All four boundary-step/fade-handle checks passed; max boundary step `0.000030518 FS`. Waveform PNGs: `/home/aron/.tmp/silence-cut-tuning/join-checks/B_n37_s060_p080-join-1.png` through `-join-4.png`. Numeric evidence: `/home/aron/.tmp/silence-cut-tuning/join-checks/B_n37_s060_p080.json`.
 
 | Join | Output time | Step dBFS | Pre-fade RMS dBFS | Post-fade RMS dBFS | ±20 ms peak dBFS | Raw ASR context baseline → winner | Gate |
 |---:|---:|---:|---:|---:|---:|---|:---:|

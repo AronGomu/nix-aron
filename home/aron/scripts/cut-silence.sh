@@ -56,6 +56,24 @@ PY
   fi
 }
 
+validate_noise() {
+  if ! python3 - "$1" <<'PY'
+import math
+import re
+import sys
+
+value = sys.argv[1]
+match = re.fullmatch(r"([+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?)(?:dB)?", value)
+if not match:
+    raise SystemExit(1)
+raise SystemExit(0 if math.isfinite(float(match.group(1))) else 1)
+PY
+  then
+    echo "error: noise_db must be finite numeric amplitude or numeric dB" >&2
+    exit 1
+  fi
+}
+
 while [[ $# -gt 0 ]]; do
   case $1 in
     --keep-silence|--audio-fade|--word-padding)
@@ -93,6 +111,7 @@ done
 
 [[ -f "$IN" ]] || { echo "error: input not found: $IN" >&2; exit 1; }
 [[ "$MAX_SEC" =~ ^[0-9]+([.][0-9]+)?$ ]] || { echo "error: max_silence_sec must be number" >&2; exit 1; }
+validate_noise "$NOISE"
 if [[ -n $TRANSCRIPT_JSON ]]; then
   [[ -f $TRANSCRIPT_JSON ]] || { echo "error: transcript not found: $TRANSCRIPT_JSON" >&2; exit 1; }
   WORD_PADDING=${WORD_PADDING:-0.080}
@@ -101,8 +120,36 @@ elif [[ -n $WORD_PADDING ]]; then
   exit 1
 fi
 
+python3 - "$IN" "$OUT" "$TRANSCRIPT_JSON" "$CUT_MAP" <<'PY'
+import itertools
+import os
+import sys
+from pathlib import Path
+
+paths = [
+    ("input", sys.argv[1]),
+    ("output", sys.argv[2]),
+    ("transcript JSON", sys.argv[3]),
+    ("cut map", sys.argv[4]),
+]
+paths = [(label, path) for label, path in paths if path]
+for (label_a, path_a), (label_b, path_b) in itertools.combinations(paths, 2):
+    canonical_collision = Path(path_a).resolve(strict=False) == Path(path_b).resolve(strict=False)
+    try:
+        inode_collision = os.path.samefile(path_a, path_b)
+    except (FileNotFoundError, OSError):
+        inode_collision = False
+    if canonical_collision or inode_collision:
+        raise SystemExit(f"error: path collision: {label_a} and {label_b}")
+PY
+
 TMP=$(mktemp -d)
-trap 'rm -rf "$TMP"' EXIT
+MAP_PUBLISH_TMP=
+cleanup() {
+  rm -rf "$TMP"
+  [[ -z $MAP_PUBLISH_TMP ]] || rm -f -- "$MAP_PUBLISH_TMP"
+}
+trap cleanup EXIT
 
 echo "==> probe duration"
 DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$IN")
@@ -111,9 +158,11 @@ echo "    ${DUR}s"
 echo "==> detect silence >= ${MAX_SEC}s (noise=${NOISE})"
 ffmpeg -hide_banner -nostats -i "$IN" \
   -af "silencedetect=noise=${NOISE}:d=${MAX_SEC}" \
-  -f null - 2>"$TMP/detect.log" || true
+  -f null - 2>"$TMP/detect.log"
 
-python3 - "$TMP" "$DUR" "$KEEP_SILENCE" "$AUDIO_FADE" "$CUT_MAP" "$LEGACY_MODE" "$TRANSCRIPT_JSON" "$WORD_PADDING" <<'PY'
+MAP_PLAN=
+[[ -z $CUT_MAP ]] || MAP_PLAN="$TMP/cut-map.json"
+python3 - "$TMP" "$DUR" "$KEEP_SILENCE" "$AUDIO_FADE" "$MAP_PLAN" "$LEGACY_MODE" "$TRANSCRIPT_JSON" "$WORD_PADDING" <<'PY'
 import json
 import math
 import re
@@ -178,19 +227,27 @@ protected_words = [
 ]
 log = (tmp / "detect.log").read_text(errors="replace")
 
-starts = [float(x) for x in re.findall(r"silence_start:\s*([0-9.]+)", log)]
-ends = [float(x) for x in re.findall(r"silence_end:\s*([0-9.]+)", log)]
+number = r"([-+]?(?:[0-9]+(?:\.[0-9]*)?|\.[0-9]+))"
+starts = [float(x) for x in re.findall(rf"silence_start:\s*{number}", log)]
+ends = [float(x) for x in re.findall(rf"silence_end:\s*{number}", log)]
 
-pairs = []
+raw_pairs = []
 i_e = 0
 for s in starts:
     while i_e < len(ends) and ends[i_e] <= s:
         i_e += 1
     if i_e < len(ends):
-        pairs.append((s, ends[i_e]))
+        raw_pairs.append((s, ends[i_e]))
         i_e += 1
     else:
-        pairs.append((s, duration))
+        raw_pairs.append((s, duration))
+
+pairs = []
+for s, e in raw_pairs:
+    s = min(duration, max(0.0, s))
+    e = min(duration, max(0.0, e))
+    if e > s:
+        pairs.append((s, e))
 
 def intervals_overlap(start_a, end_a, start_b, end_b):
     epsilon = 0.001
@@ -240,10 +297,10 @@ keeps = []
 t = 0.0
 for cut in cuts:
     end_keep = max(t, cut["remove_start"])
-    if end_keep - t > min_keep:
+    if end_keep > t:
         keeps.append((t, end_keep))
     t = cut["remove_end"]
-if duration - t > min_keep:
+if duration > t:
     keeps.append((t, duration))
 
 if not keeps:
@@ -328,4 +385,12 @@ else
 fi
 
 OUT_DUR=$(ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$OUT")
+if [[ -n $CUT_MAP ]]; then
+  map_dir=$(dirname -- "$CUT_MAP")
+  map_base=$(basename -- "$CUT_MAP")
+  MAP_PUBLISH_TMP=$(mktemp "$map_dir/.${map_base}.tmp.XXXXXX")
+  cat "$MAP_PLAN" >"$MAP_PUBLISH_TMP"
+  mv -fT -- "$MAP_PUBLISH_TMP" "$CUT_MAP"
+  MAP_PUBLISH_TMP=
+fi
 echo "==> done: $OUT (${OUT_DUR}s)"
