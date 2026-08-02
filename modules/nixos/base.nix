@@ -120,6 +120,9 @@
 
   programs.nix-ld.enable = true;
 
+  hardware.graphics.extraPackages = with pkgs; [ vulkan-loader ];
+  environment.variables.SDL_VULKAN_LIBRARY = "/run/opengl-driver/lib/libvulkan.so.1";
+
   virtualisation.docker.rootless = {
     enable = true;
     setSocketVariable = true;
