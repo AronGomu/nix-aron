@@ -88,5 +88,13 @@ in
     # Writable: Claude Code rewrites settings.json at runtime (/config, /model).
     ".claude/settings.json".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/coding/nix-aron/dotfiles/claude/settings.json";
+
+    # Global memory: caveman ultra active by default in every Claude session.
+    ".claude/CLAUDE.md".source = ../../dotfiles/claude/CLAUDE.md;
+    # Slash commands, e.g. /caveman on|off to toggle caveman mode.
+    ".claude/commands" = {
+      source = ../../dotfiles/claude/commands;
+      recursive = true;
+    };
   };
 }
