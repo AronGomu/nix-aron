@@ -185,12 +185,16 @@ in
       hyprsunset
       imagemagick
       kdePackages.bluedevil
+      kdePackages.breeze
+      kdePackages.breeze-icons
       kdePackages.dolphin
       kdePackages.ffmpegthumbs # Dolphin video thumbs
       kdePackages.kdegraphics-thumbnailers # PDF/image thumbs
       kdePackages.kconfig
       kdePackages.kio-extras # previews, network, thumbnails
+      kdePackages.plasma-integration
       kdePackages.plasma-nm
+      kdePackages.qqc2-breeze-style
       kdePackages.systemsettings
       libcava
       libnotify
@@ -285,6 +289,7 @@ in
         hl.on("hyprland.start", function ()
             hl.exec_cmd("ghostty -e herdr", { workspace = "1 silent" })
             hl.exec_cmd("brave --new-window", { workspace = "2 silent" })
+            hl.exec_cmd("openwhispr")
         end)
       '';
       "hypr/custom/keybinds.lua".text = ''

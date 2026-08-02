@@ -31,11 +31,11 @@
     };
   };
 
-  # Qt apps follow dark too
+  # KDE/Qt apps (Dolphin) on Hyprland: Breeze, not broken gtk2 bridge
   qt = {
     enable = true;
-    platformTheme.name = "gtk";
-    style.name = "gtk2";
+    platformTheme.name = "kde";
+    style.name = "breeze";
   };
 
   xdg = {
@@ -69,6 +69,19 @@
     configFile = {
       "xdg-terminals.list".text = ''
         com.mitchellh.ghostty.desktop
+      '';
+      kdeglobals.text = ''
+        [General]
+        ColorScheme=BreezeDark
+
+        [Icons]
+        Theme=breeze-dark
+
+        [KDE]
+        LookAndFeelPackage=org.kde.breezedark.desktop
+
+        [UiSettings]
+        ColorScheme=*Dark*
       '';
     };
   };
