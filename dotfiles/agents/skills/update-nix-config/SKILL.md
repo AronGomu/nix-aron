@@ -1,10 +1,9 @@
 ---
 name: update-nix-config
 description: >
-  Apply one change request to active NixOS/Home Manager config repo:
+  Apply change to NixOS/Home Manager config repo:
   add, remove, or update packages/modules/settings. Grill if unclear.
   When clear: edit, commit, push, then ask user to rebuild.
-argument-hint: "Prompt: what to add, remove, or change in nix config/system"
 disable-model-invocation: true
 ---
 
@@ -16,15 +15,15 @@ One prompt in → clear change on active nix config → commit → push → **as
 
 Read and obey `/home/aron/AGENTS.md` plus repo `NIX-CHEATSHEET.md`.
 
-| Fact | Value |
-| ---- | ----- |
-| Repo | `/home/aron/coding/nix-aron` |
-| Host flake | `desk-main` |
-| HM user flake | check `home-manager` / flake outputs (often `#aron` or `#desk-main` — verify `flake.nix` before cmds) |
-| Active source | this flake only |
-| Legacy | `/etc/nixos/configuration.nix` — **never** edit for system changes |
-| Rebuild (system) | `sudo nixos-rebuild switch --flake /home/aron/coding/nix-aron#desk-main` |
-| Branch | work on `main` unless user said otherwise |
+| Fact             | Value                                                                                                 |
+| ---------------- | ----------------------------------------------------------------------------------------------------- |
+| Repo             | `/home/aron/coding/nix-aron`                                                                          |
+| Host flake       | `desk-main`                                                                                           |
+| HM user flake    | check `home-manager` / flake outputs (often `#aron` or `#desk-main` — verify `flake.nix` before cmds) |
+| Active source    | this flake only                                                                                       |
+| Legacy           | `/etc/nixos/configuration.nix` — **never** edit for system changes                                    |
+| Rebuild (system) | `sudo nixos-rebuild switch --flake /home/aron/coding/nix-aron#desk-main`                              |
+| Branch           | work on `main` unless user said otherwise                                                             |
 
 ## Input
 

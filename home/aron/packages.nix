@@ -16,49 +16,8 @@ let
         --unset QT_QPA_PLATFORMTHEME
     '';
   };
-  herdrTerminalsPatch = pkgs.writeText "herdr-terminals.patch" ''
-    diff --git a/src/ui/sidebar.rs b/src/ui/sidebar.rs
-    index 0ecfb65..a75d792 100644
-    --- a/src/ui/sidebar.rs
-    +++ b/src/ui/sidebar.rs
-    @@ -130,6 +130,7 @@ fn agent_panel_entries_with_runtimes(
-     ) -> Vec<AgentPanelEntry> {
-         let mut entries = collect_agent_panel_entries_with_runtimes(app, terminal_runtimes);
-         crate::app::agent_view::apply_agent_view(app, &mut entries);
-    +    entries.sort_by_key(|entry| entry.agent.is_some());
-         entries
-     }
-
-    @@ -1327,7 +1328,7 @@ fn render_agent_detail(
-
-         frame.render_widget(
-             Paragraph::new(Line::from(vec![Span::styled(
-    -            " agents",
-    +            " terminals / agents",
-                 Style::default().fg(p.overlay0).add_modifier(Modifier::BOLD),
-             )])),
-             Rect::new(area.x, area.y + 1, area.width, 1),
-    diff --git a/src/workspace/aggregate.rs b/src/workspace/aggregate.rs
-    index 79b5a02..4f6c28a 100644
-    --- a/src/workspace/aggregate.rs
-    +++ b/src/workspace/aggregate.rs
-    @@ -50,7 +50,8 @@ impl Tab {
-                     let fallback_agent_label = terminal
-                         .agent_name
-                         .as_deref()
-    -                    .or(agent_kind_label.as_deref())?
-    +                    .or(agent_kind_label.as_deref())
-    +                    .unwrap_or("terminal")
-                         .to_string();
-                     let agent_label = terminal
-                         .effective_display_agent()
-  '';
-  herdrSource = pkgs.applyPatches {
-    name = "herdr-0.7.5-terminals-source";
-    src = inputs.herdr-src;
-    patches = [ herdrTerminalsPatch ];
-  };
-  herdr = pkgs.callPackage "${herdrSource}/nix/package.nix" { };
+  herdr = pkgs.callPackage "${inputs.herdr-src}/nix/package.nix" { };
+  grokImagine = pkgs.callPackage ../../pkgs/grok-imagine.nix { };
   openwhisprHyprlandCancelPatch = pkgs.writeText "openwhispr-hyprland-cancel.patch" ''
     diff --git a/src/helpers/hotkeyManager.js b/src/helpers/hotkeyManager.js
     index 6931e82..abab7d1 100644
@@ -303,6 +262,7 @@ in
       bat
       btop
       cargo
+      clippy
       curl
       direnv
       eza
@@ -323,6 +283,7 @@ in
       ripgrep
       rofi
       rustc
+      rustfmt
       tree
       tree-sitter
       unzip
@@ -337,10 +298,12 @@ in
       davinciResolve
       herdr
       openwhispr
+      grokImagine
     ]
     ++ (with pkgsUnstable; [
       codex
       ghostty
+      grok-cli
       obs-studio
       pi-coding-agent
     ]);
