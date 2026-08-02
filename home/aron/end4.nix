@@ -357,7 +357,7 @@ in
       ygo-mtg-mse-menu = {
         name = "YGO X MTG: Essentia - MSE Menu";
         comment = "Open Essentia projects in Magic Set Editor";
-        exec = "${pkgs.coreutils}/bin/env MSE_PROJECTS_DIR=/home/aron/projects/essentia/cards_mse /home/aron/projects/essentia/launcher/mse_project_menu.pyw";
+        exec = "${pkgs.coreutils}/bin/env MSE_PROJECTS_DIR=/home/aron/projects/essentia/cards_mse MSE_LIBRARY_PATH=${pkgs.wxwidgets_3_2}/lib /home/aron/projects/essentia/launcher/mse_project_menu.pyw";
         terminal = false;
         categories = [ "Graphics" "Development" ];
         startupNotify = true;
