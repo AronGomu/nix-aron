@@ -4,7 +4,8 @@ let
     cat = "bat";
     gtbrain = "cd /home/aron/brain";
     gtnixconfig = "cd /home/aron/coding/nix-aron";
-    gtygocube = "cd /home/aron/projects/YGO-x-MTG";
+    gtygocube = "cd /home/aron/projects/essentia";
+    gtessentia = "cd /home/aron/projects/essentia";
     gtygostory = "cd /home/aron/coding/ygo-story-duel-simulator";
     ll = "eza -lah --group-directories-first";
     rebuild = "sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main";

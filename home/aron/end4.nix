@@ -347,22 +347,22 @@ in
         terminal = false;
         categories = [ "Graphics" "Network" ];
       };
-      github-ygo-x-mtg = {
-        name = "YGO-X-MTG";
+      github-essentia = {
+        name = "Essentia";
         icon = "nvim";
-        exec = "nvim /home/aron/projects/YGO-x-MTG";
+        exec = "nvim /home/aron/projects/essentia";
         terminal = true;
         categories = [ "Development" ];
       };
       ygo-mtg-mse-menu = {
-        name = "YGO x MTG — MSE Menu";
-        comment = "Open YGO x MTG projects in Magic Set Editor";
-        exec = "/home/aron/projects/YGO-x-MTG/launcher/mse_project_menu.pyw";
+        name = "YGO X MTG: Essentia - MSE Menu";
+        comment = "Open Essentia projects in Magic Set Editor";
+        exec = "${pkgs.coreutils}/bin/env MSE_PROJECTS_DIR=/home/aron/projects/essentia/cards_mse /home/aron/projects/essentia/launcher/mse_project_menu.pyw";
         terminal = false;
         categories = [ "Graphics" "Development" ];
         startupNotify = true;
         settings = {
-          Path = "/home/aron/projects/YGO-x-MTG";
+          Path = "/home/aron/projects/essentia";
         };
       };
       github-repos = {
