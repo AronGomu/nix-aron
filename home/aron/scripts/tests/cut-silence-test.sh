@@ -86,24 +86,65 @@ make_edge_fixture() {
     -c:a aac -b:a 128k -shortest "$output"
 }
 
-legacy_invocation_removes_full_detected_silence() {
-  local input="$TMP/legacy-input.mp4" output="$TMP/legacy-output.mp4"
-  local default_output="$TMP/legacy-default-output.mp4" amplitude_output="$TMP/legacy-amplitude-output.mp4"
-  make_fixture "$input" 1
-  bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB >"$TMP/legacy.log" 2>&1
-  assert_close "$(duration "$output")" 2.027 0.040 "legacy output duration"
-  bash "$CUT_SILENCE" "$input" "$default_output" 0.45 >"$TMP/legacy-default.log" 2>&1
-  assert_close "$(duration "$default_output")" "$(duration "$output")" 0.040 "default-noise legacy duration"
-  bash "$CUT_SILENCE" "$input" "$amplitude_output" 0.45 0.0178 >"$TMP/legacy-amplitude.log" 2>&1
-  assert_close "$(duration "$amplitude_output")" "$(duration "$output")" 0.040 "numeric-amplitude legacy duration"
-  pass "legacy_invocation_removes_full_detected_silence"
+positional_overrides_remain_supported() {
+  local input="$TMP/positional-input.mp4" output="$TMP/positional-output.mp4"
+  local amplitude_output="$TMP/positional-amplitude-output.mp4"
+  make_fixture "$input" 0.5
+  bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB --no-transcript >"$TMP/positional.log" 2>&1
+  assert_close "$(duration "$output")" 2.327 0.040 "positional override output duration"
+  bash "$CUT_SILENCE" "$input" "$amplitude_output" 0.45 0.0178 --no-transcript >"$TMP/positional-amplitude.log" 2>&1
+  assert_close "$(duration "$amplitude_output")" "$(duration "$output")" 0.040 "numeric-amplitude override duration"
+  pass "positional_overrides_remain_supported"
+}
+
+minimal_call_uses_tuned_defaults() {
+  local input="$TMP/default-input.mp4" output="$TMP/default-output.mp4" map="$TMP/default-map.json"
+  make_fixture "$input" 1 1 0.01
+  bash "$CUT_SILENCE" "$input" "$output" --no-transcript --cut-map "$map" >"$TMP/default.log" 2>&1
+  assert_close "$(duration "$output")" 2.327 0.040 "tuned-default output duration"
+  grep -Fq 'detect silence >= 0.60s (noise=-37dB)' "$TMP/default.log" || \
+    fail "minimal_call_uses_tuned_defaults" "tuned detector defaults missing"
+  python3 - "$map" <<'PY'
+import json
+import sys
+from pathlib import Path
+
+data = json.loads(Path(sys.argv[1]).read_text())
+if data["keep_silence"] != 0.3:
+    raise SystemExit(f"keep_silence default was {data['keep_silence']!r}")
+if data["audio_fade"] != 0.008:
+    raise SystemExit(f"audio_fade default was {data['audio_fade']!r}")
+if len(data["cuts"]) != 1:
+    raise SystemExit(f"expected one default cut, got {len(data['cuts'])}")
+PY
+  ffmpeg -hide_banner -loglevel error -y -i "$output" -map 0:a:0 \
+    -ac 1 -ar 48000 -c:a pcm_s16le "$TMP/default.wav"
+  python3 - "$TMP/default.wav" <<'PY'
+import struct
+import sys
+import wave
+
+with wave.open(sys.argv[1], "rb") as wav:
+    rate = wav.getframerate()
+    samples = struct.unpack("<" + "h" * wav.getnframes(), wav.readframes(wav.getnframes()))
+
+def mean_abs(start, end):
+    values = samples[int(start * rate):int(end * rate)]
+    return sum(abs(value) for value in values) / len(values)
+
+near = (mean_abs(1.146, 1.150) + mean_abs(1.150, 1.154)) / 2
+far = (mean_abs(1.125, 1.133) + mean_abs(1.167, 1.175)) / 2
+if not near < far * 0.80:
+    raise SystemExit(f"default fade ramp not visible: near={near:.8f}, far={far:.8f}")
+PY
+  pass "minimal_call_uses_tuned_defaults"
 }
 
 keep_silence_retains_requested_total_gap() {
   local input="$TMP/keep-input.mp4" output="$TMP/keep-output.mp4"
   make_fixture "$input" 1
   bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
-    --keep-silence 0.300 >"$TMP/keep.log" 2>&1
+    --keep-silence 0.300 --no-transcript >"$TMP/keep.log" 2>&1
   assert_close "$(duration "$output")" 2.327 0.040 "retained-gap output duration"
   pass "keep_silence_retains_requested_total_gap"
 }
@@ -112,9 +153,9 @@ audio_fade_preserves_expected_duration() {
   local input="$TMP/fade-input.mp4" plain="$TMP/fade-plain.mp4" faded="$TMP/fade-output.mp4"
   make_fixture "$input" 1 1 0.01
   bash "$CUT_SILENCE" "$input" "$plain" 0.45 -35dB \
-    --keep-silence 0.300 >"$TMP/fade-plain.log" 2>&1
+    --keep-silence 0.300 --no-transcript >"$TMP/fade-plain.log" 2>&1
   bash "$CUT_SILENCE" "$input" "$faded" 0.45 -35dB \
-    --keep-silence 0.300 --audio-fade 0.008 >"$TMP/fade.log" 2>&1
+    --keep-silence 0.300 --audio-fade 0.008 --no-transcript >"$TMP/fade.log" 2>&1
   assert_close "$(duration "$faded")" "$(duration "$plain")" 0.025 "fade changed duration"
 
   ffmpeg -hide_banner -loglevel error -y -i "$faded" -map 0:a:0 \
@@ -144,7 +185,7 @@ short_gap_is_not_cut() {
   local input="$TMP/short-input.mp4" output="$TMP/short-output.mp4"
   make_fixture "$input" 0.2
   bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
-    --keep-silence 0.300 >"$TMP/short.log" 2>&1
+    --keep-silence 0.300 --no-transcript >"$TMP/short.log" 2>&1
   assert_close "$(duration "$output")" "$(duration "$input")" 0.001 "short gap was cut"
   pass "short_gap_is_not_cut"
 }
@@ -156,7 +197,7 @@ invalid_new_flag_fails_without_output() {
     read -r option value <<<"$case"
     output="$TMP/invalid-${option#--}-${value}.mp4"
     log="$TMP/invalid-${option#--}-${value}.log"
-    if bash "$CUT_SILENCE" "$input" "$output" 0.45 "$option" "$value" >"$log" 2>&1; then
+    if bash "$CUT_SILENCE" "$input" "$output" 0.45 "$option" "$value" --no-transcript >"$log" 2>&1; then
       fail "invalid_new_flag_fails_without_output" "$option $value succeeded"
     fi
     [[ ! -e $output ]] || fail "invalid_new_flag_fails_without_output" "output created for $option $value"
@@ -166,7 +207,7 @@ invalid_new_flag_fails_without_output() {
   done
 
   output="$TMP/invalid-missing.mp4"
-  if bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB --audio-fade \
+  if bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB --no-transcript --audio-fade \
     >"$TMP/invalid-missing.log" 2>&1; then
     fail "invalid_new_flag_fails_without_output" "missing value succeeded"
   fi
@@ -180,7 +221,8 @@ cut_map_matches_rendered_duration() {
   local input="$TMP/map-input.mp4" output="$TMP/map-output.mp4" map="$TMP/cut-map.json"
   make_fixture "$input" 1 2
   bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
-    --keep-silence 0.300 --audio-fade 0.008 --cut-map "$map" >"$TMP/map.log" 2>&1
+    --keep-silence 0.300 --audio-fade 0.008 --no-transcript \
+    --cut-map "$map" >"$TMP/map.log" 2>&1
   local streams
   streams=$(ffprobe -v error -show_entries stream=codec_type -of csv=p=0 "$output")
   [[ $(grep -c '^video$' <<<"$streams") -eq 1 ]] || fail "cut_map_matches_rendered_duration" "expected one video stream"
@@ -252,7 +294,7 @@ transcript_absent_keeps_t1_behavior() {
   local input="$TMP/absent-input.mp4" output="$TMP/absent-output.mp4" map="$TMP/absent-map.json"
   make_fixture "$input" 1
   bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
-    --keep-silence 0.300 --audio-fade 0.008 \
+    --keep-silence 0.300 --audio-fade 0.008 --no-transcript \
     --cut-map "$map" >"$TMP/absent.log" 2>&1
   assert_close "$(duration "$output")" 2.327 0.040 "transcript-absent output changed"
   python3 - "$map" <<'PY'
@@ -303,7 +345,11 @@ path_collisions_fail_without_destruction() {
   expect_collision() {
     local name=$1 output=$2 transcript_arg=$3 map=$4
     local args=(bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB --keep-silence 0.300)
-    [[ -z $transcript_arg ]] || args+=(--transcript-json "$transcript_arg")
+    if [[ -n $transcript_arg ]]; then
+      args+=(--transcript-json "$transcript_arg")
+    else
+      args+=(--no-transcript)
+    fi
     [[ -z $map ]] || args+=(--cut-map "$map")
     log="$TMP/collision-${name}.log"
     if "${args[@]}" >"$log" 2>&1; then
@@ -336,13 +382,15 @@ cut_map_publishes_only_after_successful_render() {
   make_fixture "$input" 1
   printf '%s\n' 'authoritative-old-map' >"$existing_map"
   if bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
-    --keep-silence 0.300 --cut-map "$existing_map" >"$TMP/publish-existing.log" 2>&1; then
+    --keep-silence 0.300 --no-transcript \
+    --cut-map "$existing_map" >"$TMP/publish-existing.log" 2>&1; then
     fail "cut_map_publishes_only_after_successful_render" "invalid render succeeded"
   fi
   [[ $(cat "$existing_map") == authoritative-old-map ]] || \
     fail "cut_map_publishes_only_after_successful_render" "existing map was clobbered"
   if bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
-    --keep-silence 0.300 --cut-map "$new_map" >"$TMP/publish-new.log" 2>&1; then
+    --keep-silence 0.300 --no-transcript \
+    --cut-map "$new_map" >"$TMP/publish-new.log" 2>&1; then
     fail "cut_map_publishes_only_after_successful_render" "second invalid render succeeded"
   fi
   [[ ! -e $new_map ]] || \
@@ -358,7 +406,7 @@ silence_intervals_are_clamped_to_duration() {
     map="$TMP/${position}-map.json"
     make_edge_fixture "$input" "$position"
     bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
-      --keep-silence 0.300 --cut-map "$map" >"$TMP/${position}.log" 2>&1
+      --keep-silence 0.300 --no-transcript --cut-map "$map" >"$TMP/${position}.log" 2>&1
     python3 - "$map" "$position" <<'PY'
 import json
 import sys
@@ -397,7 +445,7 @@ short_retained_gap_never_removes_everything() {
   local input="$TMP/short-retain-input.mp4" output="$TMP/short-retain-output.mp4" map="$TMP/short-retain-map.json"
   make_edge_fixture "$input" all
   bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
-    --keep-silence 0.080 --cut-map "$map" >"$TMP/short-retain.log" 2>&1
+    --keep-silence 0.080 --no-transcript --cut-map "$map" >"$TMP/short-retain.log" 2>&1
   python3 - "$(duration "$output")" "$map" <<'PY'
 import json
 import sys
@@ -423,7 +471,7 @@ invalid_noise_threshold_fails_without_artifacts() {
     map="$TMP/noise-${value}.json"
     log="$TMP/noise-${value}.log"
     if bash "$CUT_SILENCE" "$input" "$output" 0.45 "$value" \
-      --keep-silence 0.300 --cut-map "$map" >"$log" 2>&1; then
+      --keep-silence 0.300 --no-transcript --cut-map "$map" >"$log" 2>&1; then
       fail "invalid_noise_threshold_fails_without_artifacts" "$value succeeded"
     fi
     [[ ! -e $output ]] || fail "invalid_noise_threshold_fails_without_artifacts" "$value created output"
@@ -435,12 +483,102 @@ invalid_noise_threshold_fails_without_artifacts() {
   output="$TMP/noise-detector-failure.mp4"
   map="$TMP/noise-detector-failure.json"
   if bash "$CUT_SILENCE" "$input" "$output" 0.45 -1 \
-    --keep-silence 0.300 --cut-map "$map" >"$TMP/noise-detector-failure.log" 2>&1; then
+    --keep-silence 0.300 --no-transcript \
+    --cut-map "$map" >"$TMP/noise-detector-failure.log" 2>&1; then
     fail "invalid_noise_threshold_fails_without_artifacts" "detector failure was suppressed"
   fi
   [[ ! -e $output ]] || fail "invalid_noise_threshold_fails_without_artifacts" "detector failure created output"
   [[ ! -e $map ]] || fail "invalid_noise_threshold_fails_without_artifacts" "detector failure created map"
   pass "invalid_noise_threshold_fails_without_artifacts"
+}
+
+explicit_modes_skip_prompt() {
+  local input="$TMP/explicit-input.mp4" audio_output="$TMP/explicit-audio.mp4"
+  local transcript_output="$TMP/explicit-transcript.mp4"
+  make_fixture "$input" 1
+  bash "$CUT_SILENCE" "$input" "$audio_output" --no-transcript >"$TMP/explicit-audio.log" 2>&1
+  ! grep -Fq 'Use transcript JSON' "$TMP/explicit-audio.log" || \
+    fail "explicit_modes_skip_prompt" "--no-transcript prompted"
+  assert_close "$(duration "$audio_output")" 2.327 0.040 "explicit audio-only duration"
+
+  bash "$CUT_SILENCE" "$input" "$transcript_output" \
+    --transcript-json "$FIXTURES/transcript-word-in-gap.json" >"$TMP/explicit-transcript.log" 2>&1
+  ! grep -Fq 'Use transcript JSON' "$TMP/explicit-transcript.log" || \
+    fail "explicit_modes_skip_prompt" "--transcript-json prompted"
+  assert_close "$(duration "$transcript_output")" "$(duration "$input")" 0.001 \
+    "explicit transcript did not veto cut"
+  pass "explicit_modes_skip_prompt"
+}
+
+transcript_mode_conflict_fails_without_artifacts() {
+  local input="$TMP/conflict-input.mp4" output="$TMP/conflict-output.mp4" map="$TMP/conflict-map.json"
+  make_fixture "$input" 1
+  if bash "$CUT_SILENCE" "$input" "$output" --no-transcript \
+    --transcript-json "$FIXTURES/transcript-word-in-gap.json" \
+    --cut-map "$map" >"$TMP/conflict.log" 2>&1; then
+    fail "transcript_mode_conflict_fails_without_artifacts" "conflicting modes succeeded"
+  fi
+  grep -Fxq 'error: --transcript-json and --no-transcript cannot be used together' "$TMP/conflict.log" || \
+    fail "transcript_mode_conflict_fails_without_artifacts" "unexpected conflict error"
+  [[ ! -e $output && ! -e $map ]] || \
+    fail "transcript_mode_conflict_fails_without_artifacts" "conflict created artifacts"
+
+  if bash "$CUT_SILENCE" "$input" "$output" --no-transcript \
+    --word-padding 0.1 >"$TMP/no-transcript-padding.log" 2>&1; then
+    fail "transcript_mode_conflict_fails_without_artifacts" "audio-only word padding succeeded"
+  fi
+  grep -Fxq 'error: --word-padding requires --transcript-json' "$TMP/no-transcript-padding.log" || \
+    fail "transcript_mode_conflict_fails_without_artifacts" "word-padding requirement changed"
+  pass "transcript_mode_conflict_fails_without_artifacts"
+}
+
+non_tty_omission_fails_without_artifacts() {
+  local input="$TMP/non-tty-input.mp4" output="$TMP/non-tty-output.mp4" map="$TMP/non-tty-map.json"
+  make_fixture "$input" 1
+  if bash "$CUT_SILENCE" "$input" "$output" --cut-map "$map" \
+    </dev/null >"$TMP/non-tty.log" 2>&1; then
+    fail "non_tty_omission_fails_without_artifacts" "mode omission succeeded"
+  fi
+  grep -Fxq 'error: stdin is not a TTY; pass --transcript-json FILE or --no-transcript' "$TMP/non-tty.log" || \
+    fail "non_tty_omission_fails_without_artifacts" "required automation hint missing"
+  [[ ! -e $output && ! -e $map ]] || \
+    fail "non_tty_omission_fails_without_artifacts" "mode omission created artifacts"
+  ! grep -q '^==> probe duration' "$TMP/non-tty.log" || \
+    fail "non_tty_omission_fails_without_artifacts" "media mutation path started"
+  pass "non_tty_omission_fails_without_artifacts"
+}
+
+pseudo_tty_prompt_paths() {
+  local input="$TMP/pty-input.mp4" no_output="$TMP/pty-no-output.mp4"
+  local empty_output="$TMP/pty-empty-output.mp4" yes_output="$TMP/pty-yes-output.mp4" command
+  make_fixture "$input" 1
+
+  printf -v command '%q ' bash "$CUT_SILENCE" "$input" "$no_output"
+  printf 'n\n' | script -qefc "$command" /dev/null >"$TMP/pty-no.log" 2>&1
+  grep -Fq 'Use transcript JSON to protect spoken words? [y/N]' "$TMP/pty-no.log" || \
+    fail "pseudo_tty_prompt_paths" "yes/no prompt missing"
+  ! grep -Fq 'Transcript JSON path:' "$TMP/pty-no.log" || \
+    fail "pseudo_tty_prompt_paths" "no path requested after no"
+  assert_close "$(duration "$no_output")" 2.327 0.040 "PTY no output duration"
+
+  printf -v command '%q ' bash "$CUT_SILENCE" "$input" "$empty_output"
+  printf '\n' | script -qefc "$command" /dev/null >"$TMP/pty-empty.log" 2>&1
+  grep -Fq 'Use transcript JSON to protect spoken words? [y/N]' "$TMP/pty-empty.log" || \
+    fail "pseudo_tty_prompt_paths" "yes/no prompt missing on empty path"
+  ! grep -Fq 'Transcript JSON path:' "$TMP/pty-empty.log" || \
+    fail "pseudo_tty_prompt_paths" "empty answer requested path"
+  assert_close "$(duration "$empty_output")" 2.327 0.040 "PTY empty output duration"
+
+  printf -v command '%q ' bash "$CUT_SILENCE" "$input" "$yes_output"
+  printf 'yes\n%s\n' "$FIXTURES/transcript-word-in-gap.json" | \
+    script -qefc "$command" /dev/null >"$TMP/pty-yes.log" 2>&1
+  grep -Fq 'Use transcript JSON to protect spoken words? [y/N]' "$TMP/pty-yes.log" || \
+    fail "pseudo_tty_prompt_paths" "yes/no prompt missing on yes path"
+  grep -Fq 'Transcript JSON path:' "$TMP/pty-yes.log" || \
+    fail "pseudo_tty_prompt_paths" "transcript path prompt missing"
+  assert_close "$(duration "$yes_output")" "$(duration "$input")" 0.001 \
+    "PTY transcript did not veto cut"
+  pass "pseudo_tty_prompt_paths"
 }
 
 cut_map_records_veto_reason() {
@@ -474,7 +612,8 @@ PY
   pass "cut_map_records_veto_reason"
 }
 
-legacy_invocation_removes_full_detected_silence
+positional_overrides_remain_supported
+minimal_call_uses_tuned_defaults
 keep_silence_retains_requested_total_gap
 audio_fade_preserves_expected_duration
 short_gap_is_not_cut
@@ -485,6 +624,10 @@ word_padding_vetoes_near_boundary_cut
 word_outside_silence_allows_cut
 transcript_absent_keeps_t1_behavior
 malformed_transcript_fails_before_encode
+explicit_modes_skip_prompt
+transcript_mode_conflict_fails_without_artifacts
+non_tty_omission_fails_without_artifacts
+pseudo_tty_prompt_paths
 cut_map_records_veto_reason
 path_collisions_fail_without_destruction
 cut_map_publishes_only_after_successful_render

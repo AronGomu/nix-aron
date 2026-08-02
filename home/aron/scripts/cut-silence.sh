@@ -1,38 +1,48 @@
 # cut-silence — remove silence stretches longer than MAX_SEC from video
-# Usage: cut-silence <input> <output> <max_silence_sec> [noise_db] [options]
-# Example: cut-silence talk.mp4 talk-tight.mp4 1.5
-#          cut-silence talk.mp4 talk-tight.mp4 1.5 -40dB
-#          cut-silence talk.mp4 talk-tight.mp4 1.5 --keep-silence 0.300 --audio-fade 0.008
+# Usage: cut-silence INPUT OUTPUT [max_silence_sec] [noise_db] [options]
+# Examples: cut-silence talk.mp4 talk-tight.mp4
+#           cut-silence talk.mp4 talk-tight.mp4 --no-transcript
+#           cut-silence talk.mp4 talk-tight.mp4 --transcript-json words.json
 
 set -euo pipefail
 
 usage() {
-  echo "Usage: cut-silence <input> <output> <max_silence_sec> [noise_db] [options]" >&2
-  echo "  max_silence_sec  drop any silence longer than this (e.g. 1.5)" >&2
-  echo "  noise_db         silence threshold (default: -40dB)" >&2
-  echo "  --keep-silence SEC  retain SEC total silence around each cut" >&2
-  echo "  --audio-fade SEC    fade audio at joins inside retained silence" >&2
-  echo "  --transcript-json FILE  protect transcript word intervals" >&2
+  echo "Usage: cut-silence INPUT OUTPUT [max_silence_sec] [noise_db] [options]" >&2
+  echo "  max_silence_sec     drop silence longer than SEC (default: 0.60)" >&2
+  echo "  noise_db            silence threshold (default: -37dB)" >&2
+  echo "  --keep-silence SEC  retain SEC total silence around each cut (default: 0.300)" >&2
+  echo "  --audio-fade SEC    fade audio at joins inside retained silence (default: 0.008)" >&2
+  echo "  --transcript-json FILE  protect transcript word intervals; automation mode" >&2
+  echo "  --no-transcript     use audio-only silence detection; automation mode" >&2
   echo "  --word-padding SEC  pad protected words (default: 0.080 with transcript)" >&2
   echo "  --cut-map FILE      write JSON cut timeline" >&2
+  echo "Examples:" >&2
+  echo "  cut-silence talk.mp4 talk-tight.mp4" >&2
+  echo "  cut-silence talk.mp4 talk-tight.mp4 --no-transcript" >&2
+  echo "  cut-silence talk.mp4 talk-tight.mp4 --transcript-json words.json" >&2
   exit 1
 }
 
-[[ $# -ge 3 ]] || usage
+[[ $# -ge 2 ]] || usage
 
 IN=$1
 OUT=$2
-MAX_SEC=$3
-shift 3
+shift 2
 
-NOISE=-40dB
-KEEP_SILENCE=0
-AUDIO_FADE=0
+MAX_SEC=0.60
+NOISE=-37dB
+KEEP_SILENCE=0.300
+AUDIO_FADE=0.008
 TRANSCRIPT_JSON=
+NO_TRANSCRIPT=0
 WORD_PADDING=
 CUT_MAP=
-LEGACY_MODE=1
+LEGACY_MODE=0
 
+if [[ $# -gt 0 && $1 != --* ]]; then
+  MAX_SEC=$1
+  shift
+fi
 if [[ $# -gt 0 && $1 != --* ]]; then
   NOISE=$1
   shift
@@ -96,6 +106,10 @@ while [[ $# -gt 0 ]]; do
       LEGACY_MODE=0
       shift 2
       ;;
+    --no-transcript)
+      NO_TRANSCRIPT=1
+      shift
+      ;;
     --cut-map)
       [[ $# -ge 2 && $2 != --* ]] || { echo "error: --cut-map requires FILE" >&2; exit 1; }
       CUT_MAP=$2
@@ -108,6 +122,27 @@ while [[ $# -gt 0 ]]; do
       ;;
   esac
 done
+
+if [[ -n $TRANSCRIPT_JSON && $NO_TRANSCRIPT == 1 ]]; then
+  echo "error: --transcript-json and --no-transcript cannot be used together" >&2
+  exit 1
+fi
+if [[ -z $TRANSCRIPT_JSON && $NO_TRANSCRIPT == 0 ]]; then
+  if [[ ! -t 0 ]]; then
+    echo "error: stdin is not a TTY; pass --transcript-json FILE or --no-transcript" >&2
+    exit 1
+  fi
+  printf 'Use transcript JSON to protect spoken words? [y/N] ' >&2
+  read -r transcript_reply
+  case $transcript_reply in
+    y|Y|yes|Yes|YES)
+      printf 'Transcript JSON path: ' >&2
+      read -r TRANSCRIPT_JSON
+      [[ -n $TRANSCRIPT_JSON ]] || { echo "error: --transcript-json requires FILE" >&2; exit 1; }
+      ;;
+    *) NO_TRANSCRIPT=1 ;;
+  esac
+fi
 
 [[ -f "$IN" ]] || { echo "error: input not found: $IN" >&2; exit 1; }
 [[ "$MAX_SEC" =~ ^[0-9]+([.][0-9]+)?$ ]] || { echo "error: max_silence_sec must be number" >&2; exit 1; }
