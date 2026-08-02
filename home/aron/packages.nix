@@ -354,6 +354,7 @@ in
       { id = "mnjggcdmjocbbbhaepdhchncahnbgone"; } # SponsorBlock
       { id = "ponfpcnoihfmfllpaingbgckeeldkhle"; } # Enhancer for YouTube
       { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # Dark Reader
+      { id = "fnaicdffflnofjppbagibeoednhnbjhg"; } # Floccus — bookmark sync (git/WebDAV)
     ];
   };
 }

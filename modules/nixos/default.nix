@@ -3,6 +3,7 @@
   imports = [
     ./base.nix
     ./boot.nix
+    ./brave-policies.nix
     ./desktop.nix
     ./end4.nix
     ./nix.nix
