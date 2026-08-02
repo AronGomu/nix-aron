@@ -14,6 +14,9 @@ trust_level = "trusted"
 [projects."/home/aron/coding"]
 trust_level = "trusted"
 
+[projects."/home/aron/coding/nix-aron"]
+trust_level = "trusted"
+
 [tui]
 status_line = ["model-with-reasoning", "current-dir", "context-remaining", "context-used", "five-hour-limit", "weekly-limit", "used-tokens", "total-input-tokens", "total-output-tokens"]
 status_line_use_colors = true
@@ -21,3 +24,9 @@ theme = "catppuccin-mocha"
 
 [mcp_servers.openaiDeveloperDocs]
 url = "https://developers.openai.com/mcp"
+
+[hooks.state]
+
+[hooks.state."/home/aron/.codex/hooks.json:session_start:0:0"]
+trusted_hash = "sha256:8e07c68ddd2ac2545e4268205ab4264176675e12bb6ded5475bf0a04c3786627"
+enabled = true
