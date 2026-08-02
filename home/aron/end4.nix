@@ -10,7 +10,7 @@ let
   system = pkgs.stdenv.hostPlatform.system;
   end4 = inputs.end4;
   qs = inputs.quickshell.packages.${system}.default;
-  wallpaper = ../../assets/wallpapers/green_landscape_weird.jpg;
+  wallpaper = ../../assets/wallpapers/black-hole-interstellar.png;
   end4QuickshellConfig = pkgs.runCommand "end4-quickshell-config" { } ''
     cp -R --no-preserve=mode ${end4}/dots/.config/quickshell $out
     substituteInPlace $out/ii/services/Hyprsunset.qml \
@@ -189,6 +189,7 @@ in
       kdePackages.breeze-icons
       kdePackages.dolphin
       kdePackages.ffmpegthumbs # Dolphin video thumbs
+      kdePackages.kde-cli-tools # kioclient/kde-open for Dolphin open-with
       kdePackages.kdegraphics-thumbnailers # PDF/image thumbs
       kdePackages.kconfig
       kdePackages.kio-extras # previews, network, thumbnails

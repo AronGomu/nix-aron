@@ -40,14 +40,53 @@
 
   xdg = {
     enable = true;
-    desktopEntries.obsidian = {
-      name = "Obsidian";
-      comment = "Knowledge base";
-      exec = "${pkgs.obsidian}/bin/obsidian %U";
-      icon = "obsidian";
-      terminal = false;
-      categories = [ "Office" ];
-      mimeType = [ "x-scheme-handler/obsidian" ];
+    desktopEntries = {
+      obsidian = {
+        name = "Obsidian";
+        comment = "Knowledge base";
+        exec = "${pkgs.obsidian}/bin/obsidian %U";
+        icon = "obsidian";
+        terminal = false;
+        categories = [ "Office" ];
+        mimeType = [ "x-scheme-handler/obsidian" ];
+      };
+      # Absolute Exec: Dolphin/KIO on NixOS often resolves bare `mpv` → /usr/bin/mpv (missing).
+      mpv = {
+        name = "mpv Media Player";
+        genericName = "Multimedia player";
+        comment = "Play movies and songs";
+        exec = "${pkgs.mpv}/bin/mpv --player-operation-mode=pseudo-gui -- %U";
+        icon = "mpv";
+        terminal = false;
+        categories = [
+          "AudioVideo"
+          "Audio"
+          "Video"
+          "Player"
+        ];
+        mimeType = [
+          "video/mp4"
+          "video/x-matroska"
+          "video/webm"
+          "video/quicktime"
+          "video/x-msvideo"
+          "video/x-ms-wmv"
+          "video/mpeg"
+          "video/ogg"
+          "video/mp2t"
+          "video/3gpp"
+          "video/x-flv"
+          "audio/mpeg"
+          "audio/flac"
+          "audio/ogg"
+          "audio/mp4"
+          "audio/x-wav"
+        ];
+        settings = {
+          StartupWMClass = "mpv";
+          TryExec = "${pkgs.mpv}/bin/mpv";
+        };
+      };
     };
     mimeApps = {
       enable = true;
@@ -60,6 +99,11 @@
         "message/rfc822" = [ "thunderbird.desktop" ];
         "text/html" = [ "brave-browser.desktop" ];
         "video/mp4" = [ "mpv.desktop" ];
+        "video/x-matroska" = [ "mpv.desktop" ];
+        "video/webm" = [ "mpv.desktop" ];
+        "video/quicktime" = [ "mpv.desktop" ];
+        "video/x-msvideo" = [ "mpv.desktop" ];
+        "video/mpeg" = [ "mpv.desktop" ];
         "x-scheme-handler/http" = [ "brave-browser.desktop" ];
         "x-scheme-handler/https" = [ "brave-browser.desktop" ];
         "x-scheme-handler/mailto" = [ "thunderbird.desktop" ];
