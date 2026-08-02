@@ -339,10 +339,21 @@ in
       openwhispr
     ]
     ++ (with pkgsUnstable; [
-      brave
       codex
       ghostty
       obs-studio
       pi-coding-agent
     ]);
+
+  # Brave + Chrome Web Store extensions (auto-install on launch)
+  programs.brave = {
+    enable = true;
+    package = pkgsUnstable.brave;
+    extensions = [
+      { id = "khncfooichmfjbepaaaebmommgaepoid"; } # Unhook — kill YT distractions
+      { id = "mnjggcdmjocbbbhaepdhchncahnbgone"; } # SponsorBlock
+      { id = "ponfpcnoihfmfllpaingbgckeeldkhle"; } # Enhancer for YouTube
+      { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # Dark Reader
+    ];
+  };
 }
