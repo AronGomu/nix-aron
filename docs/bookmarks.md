@@ -24,17 +24,28 @@ Restart Brave. You should see a **Nix** bookmarks folder (managed).
 
 ### 2. One-time Floccus + git backend
 
-1. Create **private** GitHub repo, e.g. `AronGomu/bookmarks` (empty is fine).
-2. GitHub → Settings → Developer settings → Personal access tokens  
-   Fine-grained token: Contents read/write on that repo only.
-3. Brave → Floccus → Add account → **Git**
+Local seed already at `/home/aron/coding/bookmarks` (`bookmarks.xbel` + README).
+
+Create private GitHub remote (needs `gh auth` once):
+
+```bash
+gh auth login   # if gh not logged in
+cd /home/aron/coding/bookmarks
+gh repo create bookmarks --private --source=. --remote=origin --push
+```
+
+Then:
+
+1. GitHub → Settings → Developer settings → Personal access tokens  
+   Fine-grained token: Contents read/write on `bookmarks` only.
+2. Brave → Floccus → Add account → **Git**
    - Repo URL: `https://github.com/AronGomu/bookmarks.git`
    - Branch: `main`
-   - File: `bookmarks.xbel` (or `bookmarks.html`)
+   - File: `bookmarks.xbel`
    - Auth: token
-4. Pick local folder to sync (usually **Bookmarks bar** or a folder `Synced`).
-5. Sync strategy: **merge** (safest) or bidirectional.
-6. Click **Sync** once. Confirm file appears on GitHub.
+3. Pick local folder to sync (usually **Bookmarks bar** or a folder `Synced`).
+4. Sync strategy: **merge** (safest) or bidirectional.
+5. Click **Sync** once. Confirm GitHub file updates.
 
 After that: add/edit/delete bookmarks in Brave as usual. Floccus pushes/pulls on its interval (or manual sync).
 
