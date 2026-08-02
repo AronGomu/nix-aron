@@ -1,52 +1,45 @@
 # cut-silence — remove silence stretches longer than MAX_SEC from video
-# Usage: cut-silence INPUT OUTPUT [max_silence_sec] [noise_db] [options]
-# Examples: cut-silence talk.mp4 talk-tight.mp4
-#           cut-silence talk.mp4 talk-tight.mp4 --no-transcript
-#           cut-silence talk.mp4 talk-tight.mp4 --transcript-json words.json
+# Usage: cut-silence INPUT [OUTPUT] [max_silence_sec] [noise_db] [options]
+# Examples: cut-silence INPUT
+#           cut-silence INPUT -o OUTPUT
+#           cut-silence INPUT --transcript-json words.json
 
 set -euo pipefail
 
 usage() {
-  echo "Usage: cut-silence INPUT OUTPUT [max_silence_sec] [noise_db] [options]" >&2
-  echo "  max_silence_sec     drop silence longer than SEC (default: 0.60)" >&2
-  echo "  noise_db            silence threshold (default: -37dB)" >&2
-  echo "  --keep-silence SEC  retain SEC total silence around each cut (default: 0.300)" >&2
-  echo "  --audio-fade SEC    fade audio at joins inside retained silence (default: 0.008)" >&2
-  echo "  --transcript-json FILE  protect transcript word intervals; automation mode" >&2
-  echo "  --no-transcript     use audio-only silence detection; automation mode" >&2
-  echo "  --word-padding SEC  pad protected words (default: 0.080 with transcript)" >&2
-  echo "  --cut-map FILE      write JSON cut timeline" >&2
+  echo "Usage: cut-silence INPUT [OUTPUT] [max_silence_sec] [noise_db] [options]" >&2
+  echo "  -o, --output OUTPUT     write to OUTPUT instead of deriving sibling path" >&2
+  echo "  max_silence_sec         drop silence longer than SEC (default: 0.60)" >&2
+  echo "  noise_db                silence threshold (default: -37dB)" >&2
+  echo "  --keep-silence SEC      retain SEC total silence around each cut (default: 0.300)" >&2
+  echo "  --audio-fade SEC        fade audio at joins inside retained silence (default: 0.008)" >&2
+  echo "  --transcript-json FILE  protect transcript word intervals" >&2
+  echo "  --word-padding SEC      pad protected words (default: 0.080 with transcript)" >&2
+  echo "  --cut-map FILE          write JSON cut timeline" >&2
   echo "Examples:" >&2
-  echo "  cut-silence talk.mp4 talk-tight.mp4" >&2
-  echo "  cut-silence talk.mp4 talk-tight.mp4 --no-transcript" >&2
-  echo "  cut-silence talk.mp4 talk-tight.mp4 --transcript-json words.json" >&2
+  echo "  cut-silence INPUT" >&2
+  echo "  cut-silence INPUT -o OUTPUT" >&2
+  echo "  cut-silence INPUT --transcript-json words.json" >&2
   exit 1
 }
 
-[[ $# -ge 2 ]] || usage
+[[ $# -ge 1 ]] || usage
 
 IN=$1
-OUT=$2
-shift 2
+shift
 
+OUT=
+OUTPUT_OPTION=0
+AUTO_OUTPUT=0
 MAX_SEC=0.60
 NOISE=-37dB
 KEEP_SILENCE=0.300
 AUDIO_FADE=0.008
 TRANSCRIPT_JSON=
-NO_TRANSCRIPT=0
 WORD_PADDING=
 CUT_MAP=
 LEGACY_MODE=0
-
-if [[ $# -gt 0 && $1 != --* ]]; then
-  MAX_SEC=$1
-  shift
-fi
-if [[ $# -gt 0 && $1 != --* ]]; then
-  NOISE=$1
-  shift
-fi
+POSITIONAL_ARGS=()
 
 validate_seconds() {
   local option=$1 value=$2
@@ -86,6 +79,14 @@ PY
 
 while [[ $# -gt 0 ]]; do
   case $1 in
+    -o|--output)
+      option=$1
+      [[ $# -ge 2 && -n $2 && $2 != -* ]] || { echo "error: $option requires OUTPUT" >&2; exit 1; }
+      [[ $OUTPUT_OPTION == 0 ]] || { echo "error: output specified more than once" >&2; exit 1; }
+      OUT=$2
+      OUTPUT_OPTION=1
+      shift 2
+      ;;
     --keep-silence|--audio-fade|--word-padding)
       option=$1
       [[ $# -ge 2 && $2 != --* ]] || { echo "error: $option requires SEC" >&2; exit 1; }
@@ -106,42 +107,78 @@ while [[ $# -gt 0 ]]; do
       LEGACY_MODE=0
       shift 2
       ;;
-    --no-transcript)
-      NO_TRANSCRIPT=1
-      shift
-      ;;
     --cut-map)
       [[ $# -ge 2 && $2 != --* ]] || { echo "error: --cut-map requires FILE" >&2; exit 1; }
       CUT_MAP=$2
       LEGACY_MODE=0
       shift 2
       ;;
-    *)
+    --*)
       echo "error: unknown option: $1" >&2
       usage
+      ;;
+    *)
+      POSITIONAL_ARGS+=("$1")
+      shift
       ;;
   esac
 done
 
-if [[ -n $TRANSCRIPT_JSON && $NO_TRANSCRIPT == 1 ]]; then
-  echo "error: --transcript-json and --no-transcript cannot be used together" >&2
+POSITIONAL_INDEX=0
+POSITIONAL_COUNT=${#POSITIONAL_ARGS[@]}
+FIRST_POSITIONAL_IS_MAX=0
+if [[ $POSITIONAL_COUNT -gt 0 ]]; then
+  first=${POSITIONAL_ARGS[0]}
+  if [[ $first =~ ^[0-9]+([.][0-9]+)?$ ]]; then
+    MAX_SEC=$first
+    FIRST_POSITIONAL_IS_MAX=1
+    POSITIONAL_INDEX=1
+  elif [[ $OUTPUT_OPTION == 1 ]]; then
+    echo "error: positional output cannot be combined with -o/--output" >&2
+    exit 1
+  else
+    OUT=$first
+    POSITIONAL_INDEX=1
+  fi
+fi
+if [[ $FIRST_POSITIONAL_IS_MAX == 1 ]]; then
+  if [[ $POSITIONAL_INDEX -lt $POSITIONAL_COUNT ]]; then
+    NOISE=${POSITIONAL_ARGS[$POSITIONAL_INDEX]}
+    POSITIONAL_INDEX=$((POSITIONAL_INDEX + 1))
+  fi
+else
+  if [[ $POSITIONAL_INDEX -lt $POSITIONAL_COUNT ]]; then
+    MAX_SEC=${POSITIONAL_ARGS[$POSITIONAL_INDEX]}
+    POSITIONAL_INDEX=$((POSITIONAL_INDEX + 1))
+  fi
+  if [[ $POSITIONAL_INDEX -lt $POSITIONAL_COUNT ]]; then
+    NOISE=${POSITIONAL_ARGS[$POSITIONAL_INDEX]}
+    POSITIONAL_INDEX=$((POSITIONAL_INDEX + 1))
+  fi
+fi
+if [[ $POSITIONAL_INDEX -lt $POSITIONAL_COUNT ]]; then
+  echo "error: too many positional arguments: ${POSITIONAL_ARGS[$POSITIONAL_INDEX]}" >&2
   exit 1
 fi
-if [[ -z $TRANSCRIPT_JSON && $NO_TRANSCRIPT == 0 ]]; then
-  if [[ ! -t 0 ]]; then
-    echo "error: stdin is not a TTY; pass --transcript-json FILE or --no-transcript" >&2
-    exit 1
+
+if [[ -z $OUT ]]; then
+  input_base=${IN##*/}
+  input_prefix=
+  if [[ $IN == */* ]]; then
+    input_dir=${IN%/*}
+    [[ -n $input_dir ]] || input_dir=/
+    if [[ $input_dir == / ]]; then
+      input_prefix=/
+    else
+      input_prefix=$input_dir/
+    fi
   fi
-  printf 'Use transcript JSON to protect spoken words? [y/N] ' >&2
-  read -r transcript_reply
-  case $transcript_reply in
-    y|Y|yes|Yes|YES)
-      printf 'Transcript JSON path: ' >&2
-      read -r TRANSCRIPT_JSON
-      [[ -n $TRANSCRIPT_JSON ]] || { echo "error: --transcript-json requires FILE" >&2; exit 1; }
-      ;;
-    *) NO_TRANSCRIPT=1 ;;
-  esac
+  if [[ $input_base =~ ^(.+)\.([^.]+)$ ]]; then
+    OUT="${input_prefix}${BASH_REMATCH[1]}-altered.${BASH_REMATCH[2]}"
+  else
+    OUT="${input_prefix}${input_base}-altered.mp4"
+  fi
+  AUTO_OUTPUT=1
 fi
 
 [[ -f "$IN" ]] || { echo "error: input not found: $IN" >&2; exit 1; }
@@ -153,6 +190,16 @@ if [[ -n $TRANSCRIPT_JSON ]]; then
 elif [[ -n $WORD_PADDING ]]; then
   echo "error: --word-padding requires --transcript-json" >&2
   exit 1
+fi
+
+if [[ $AUTO_OUTPUT == 1 && ( -e $OUT || -L $OUT ) ]]; then
+  echo "error: auto output already exists: $OUT; use -o OUTPUT" >&2
+  exit 1
+fi
+if [[ $AUTO_OUTPUT == 1 ]]; then
+  FFMPEG_OVERWRITE=-n
+else
+  FFMPEG_OVERWRITE=-y
 fi
 
 python3 - "$IN" "$OUT" "$TRANSCRIPT_JSON" "$CUT_MAP" <<'PY'
@@ -408,10 +455,10 @@ PY
 
 if [[ -f "$TMP/nosilence" ]]; then
   echo "==> no silence over ${MAX_SEC}s — stream copy"
-  ffmpeg -hide_banner -y -i "$IN" -c copy "$OUT"
+  ffmpeg -hide_banner "$FFMPEG_OVERWRITE" -i "$IN" -c copy "$OUT"
 else
   echo "==> encode → $OUT"
-  ffmpeg -hide_banner -y -i "$IN" \
+  ffmpeg -hide_banner "$FFMPEG_OVERWRITE" -i "$IN" \
     -filter_complex_script "$TMP/fc.txt" \
     -map "[vout]" -map "[aout]" \
     -c:v libx264 -preset veryfast -crf 18 \
