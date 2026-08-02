@@ -2,6 +2,7 @@
 pkg:
 builtins.elem (lib.getName pkg) [
   "brave"
+  "claude-code"
   "davinci-resolve"
   "discord"
   "nvidia-settings"

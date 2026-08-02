@@ -312,6 +312,7 @@ in
       cut-silence
     ]
     ++ (with pkgsUnstable; [
+      claude-code
       codex
       ghostty
       grok-cli
