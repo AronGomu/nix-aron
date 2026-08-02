@@ -359,15 +359,24 @@ silence_intervals_are_clamped_to_duration() {
     make_edge_fixture "$input" "$position"
     bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
       --keep-silence 0.300 --cut-map "$map" >"$TMP/${position}.log" 2>&1
-    python3 - "$map" <<'PY'
+    python3 - "$map" "$position" <<'PY'
 import json
 import sys
 from pathlib import Path
 
 data = json.loads(Path(sys.argv[1]).read_text())
+position = sys.argv[2]
 duration = data["source_duration"]
+cuts = data["cuts"]
+if len(cuts) != 1:
+    raise SystemExit(f"expected one {position} cut, got {len(cuts)}")
+source_start, source_end = cuts[0]["source_interval"]
+if position in ("leading", "all") and source_start != 0:
+    raise SystemExit(f"{position} silence did not start at source edge: {source_start}")
+if position in ("trailing", "all") and source_end != duration:
+    raise SystemExit(f"{position} silence did not end at source edge: {source_end} != {duration}")
 intervals = []
-for cut in data["cuts"]:
+for cut in cuts:
     intervals.extend([
         cut["source_interval"],
         cut["removed_interval"],
@@ -389,18 +398,19 @@ short_retained_gap_never_removes_everything() {
   make_edge_fixture "$input" all
   bash "$CUT_SILENCE" "$input" "$output" 0.45 -35dB \
     --keep-silence 0.080 --cut-map "$map" >"$TMP/short-retain.log" 2>&1
-  python3 - "$(duration "$input")" "$(duration "$output")" "$map" <<'PY'
+  python3 - "$(duration "$output")" "$map" <<'PY'
 import json
 import sys
 from pathlib import Path
 
-source_duration = float(sys.argv[1])
-output_duration = float(sys.argv[2])
-data = json.loads(Path(sys.argv[3]).read_text())
-if output_duration < 0.070 and abs(output_duration - source_duration) > 0.040:
-    raise SystemExit(f"unsafe short-retain duration: {output_duration}")
-if data["output_duration"] <= 0:
-    raise SystemExit("map planned empty output")
+output_duration = float(sys.argv[1])
+data = json.loads(Path(sys.argv[2]).read_text())
+if len(data["cuts"]) != 1:
+    raise SystemExit(f"expected one short-retain cut, got {len(data['cuts'])}")
+if abs(data["output_duration"] - 0.080) > 0.000001:
+    raise SystemExit(f"map output duration not 0.080s: {data['output_duration']}")
+if abs(output_duration - 0.080) > 0.040:
+    raise SystemExit(f"rendered output duration not within codec tolerance of 0.080s: {output_duration}")
 PY
   pass "short_retained_gap_never_removes_everything"
 }

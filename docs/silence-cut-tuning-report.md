@@ -2,7 +2,7 @@
 
 ## Result
 
-Recommended winner: `B_n37_s060_p080`. Objective gates pass; final copied automatically for one-shot workflow. User taste approval remains residual review, not execution blocker.
+Recommended winner: `B_n37_s060_p080`. Evaluator join-window checks, cut-map gap arithmetic, and boundary-step gates pass; final copied automatically for one-shot workflow. User taste approval remains residual review, not execution blocker.
 
 - Source: `/mnt/data/Videos/OBS_Output/2026-08-02 17-38-52.mp4`
 - 180 s sample: `/home/aron/.tmp/silence-cut-tuning/source-first-180s.mp4`
@@ -182,16 +182,16 @@ Full evidence: `/home/aron/.tmp/silence-cut-tuning/metrics/B_n37_s060_p080.json`
 
 ## Every-join waveform/energy inspection
 
-Decoded winner MP4 to mono 16 kHz signed-16 PCM. Checked exact cut-map output offset for each join. Boundary-step gate: `≤0.005 FS` (`-46.02 dBFS`). Recorded 8 ms pre/post RMS plus ±20 ms peak. All four boundary-step/fade-handle checks passed; max boundary step `0.000030518 FS`. Waveform PNGs: `/home/aron/.tmp/silence-cut-tuning/join-checks/B_n37_s060_p080-join-1.png` through `-join-4.png`. Numeric evidence: `/home/aron/.tmp/silence-cut-tuning/join-checks/B_n37_s060_p080.json`.
+Decoded winner MP4 to mono 16 kHz signed-16 PCM. Checked exact cut-map output offset for each join. Boundary-step gate: `≤0.005 FS` (`-46.02 dBFS`); 4/4 gates passed, with max boundary step `0.000030518 FS`. Recorded 8 ms pre/post RMS plus ±20 ms peak. The cut map and filter planned 300 ms total retained handles plus 8 ms fades. No independent per-join rendered-gap measurement or fade-shape proof was made. Waveform PNGs: `/home/aron/.tmp/silence-cut-tuning/join-checks/B_n37_s060_p080-join-1.png` through `-join-4.png`. Numeric evidence: `/home/aron/.tmp/silence-cut-tuning/join-checks/B_n37_s060_p080.json`.
 
-| Join | Output time | Step dBFS | Pre-fade RMS dBFS | Post-fade RMS dBFS | ±20 ms peak dBFS | Raw ASR context baseline → winner | Gate |
+| Join | Output time | Step dBFS | Pre-join RMS dBFS | Post-join RMS dBFS | ±20 ms peak dBFS | Raw ASR context baseline → winner | Boundary-step gate |
 |---:|---:|---:|---:|---:|---:|---|:---:|
 | 1 | 50.411104 | -90.31 | -58.24 | -51.84 | -39.60 | you the site → you the site | pass |
 | 2 | 53.616854 | -120.00 | -51.41 | -66.15 | -44.20 | and → and so | pass |
 | 3 | 54.173416 | -90.31 | -64.84 | -65.14 | -48.10 | so here → and so here | pass |
 | 4 | 67.799520 | -90.31 | -64.85 | -65.01 | -50.94 | a terminal → a terminal not | pass |
 
-Sensory listening unavailable in execution env. No listening claim made. Numeric waveform, energy, fade, handle checks cannot detect every perceptual pacing issue or clipped phoneme. Final user taste/listening approval remains residual review.
+Sensory listening unavailable in execution env. No sensory proof or listening claim was made. Recorded waveform and energy values cannot prove perceptual pacing or absence of clipped phonemes. Final user taste/listening approval remains residual review.
 
 ## TDD + validation
 
