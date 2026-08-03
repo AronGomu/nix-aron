@@ -2,6 +2,10 @@
   "theme": "dark",
   "model": "opus[1m]",
   "skipDangerousModePermissionPrompt": true,
+  "statusLine": {
+    "type": "command",
+    "command": "/home/aron/coding/nix-aron/dotfiles/claude/statusline.sh"
+  },
   "permissions": {
     "defaultMode": "bypassPermissions",
     "ask": [
