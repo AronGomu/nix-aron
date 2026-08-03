@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Nautilus Video Thumbnails — Research Report</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --fg: #e6edf3;
+    --muted: #8b949e;
+    --border: #30363d;
+    --accent: #58a6ff;
+    --accent2: #3fb950;
+    --warn: #d29922;
+    --danger: #f85149;
+    --purple: #a371f7;
+    --code-bg: #0d1117;
+    --card-shadow: 0 8px 24px rgba(0,0,0,.35);
+    --radius: 14px;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0;
+    background: radial-gradient(1200px 600px at 10% -10%, #1a2740 0%, transparent 50%),
+                radial-gradient(900px 500px at 100% 0%, #1a2e24 0%, transparent 45%),
+                var(--bg);
+    color: var(--fg);
+    font-family: var(--sans);
+    line-height: 1.55;
+  }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 40px 24px 80px; }
+  header.hero {
+    background: linear-gradient(135deg, #161b22 0%, #1c2333 50%, #14261c 100%);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 36px 40px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  header.hero::after {
+    content: "";
+    position: absolute; inset: auto -40px -40px auto;
+    width: 220px; height: 220px;
+    background: radial-gradient(circle, rgba(88,166,255,.18), transparent 70%);
+    pointer-events: none;
+  }
+  .eyebrow {
+    display: inline-flex; gap: 8px; align-items: center;
+    font-size: 12px; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin-bottom: 10px;
+  }
+  h1 { font-size: clamp(1.8rem, 3vw, 2.4rem); margin: 0 0 12px; letter-spacing: -0.02em; }
+  .lead { color: var(--muted); font-size: 1.08rem; max-width: 70ch; margin: 0; }
+  .meta {
+    display: flex; flex-wrap: wrap; gap: 10px; margin-top: 22px;
+  }
+  .pill {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 999px; padding: 6px 12px; font-size: 13px; color: var(--muted);
+  }
+  .pill strong { color: var(--fg); font-weight: 600; }
+  .pill.ok { border-color: rgba(63,185,80,.4); color: var(--accent2); }
+  .pill.warn { border-color: rgba(210,153,34,.4); color: var(--warn); }
+
+  nav.toc {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 10px; margin-bottom: 28px;
+  }
+  nav.toc a {
+    text-decoration: none; color: var(--fg);
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px 14px; font-size: 14px;
+    transition: border-color .15s, transform .15s;
+  }
+  nav.toc a:hover { border-color: var(--accent); transform: translateY(-1px); }
+  nav.toc a span { display: block; color: var(--muted); font-size: 11px; margin-bottom: 4px; }
+
+  section {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 28px 30px;
+    margin-bottom: 20px;
+    box-shadow: var(--card-shadow);
+  }
+  section h2 {
+    margin: 0 0 16px; font-size: 1.35rem;
+    display: flex; align-items: center; gap: 10px;
+  }
+  section h2 .num {
+    width: 28px; height: 28px; border-radius: 8px;
+    background: rgba(88,166,255,.15); color: var(--accent);
+    display: inline-grid; place-items: center;
+    font-size: 13px; font-weight: 700;
+  }
+  h3 { margin: 22px 0 10px; font-size: 1.05rem; color: var(--fg); }
+  p { margin: 0 0 12px; color: var(--fg); }
+  .muted { color: var(--muted); }
+  ul, ol { margin: 0 0 12px; padding-left: 1.25rem; }
+  li { margin: 6px 0; }
+  a { color: var(--accent); }
+  code, pre {
+    font-family: var(--mono);
+    font-size: 0.88em;
+  }
+  code {
+    background: var(--bg3); border: 1px solid var(--border);
+    border-radius: 6px; padding: 1px 6px;
+  }
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    margin: 12px 0 16px;
+    line-height: 1.45;
+  }
+  pre code { background: none; border: 0; padding: 0; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 14px;
+  }
+  .card {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .card h4 { margin: 0 0 8px; font-size: 0.98rem; }
+  .card p { margin: 0; font-size: 0.92rem; color: var(--muted); }
+  .card.good { border-color: rgba(63,185,80,.35); }
+  .card.good h4 { color: var(--accent2); }
+  .card.bad { border-color: rgba(248,81,73,.35); }
+  .card.bad h4 { color: var(--danger); }
+  .card.mid { border-color: rgba(210,153,34,.35); }
+  .card.mid h4 { color: var(--warn); }
+
+  table {
+    width: 100%; border-collapse: collapse; margin: 12px 0 8px;
+    font-size: 0.92rem;
+  }
+  th, td {
+    text-align: left; padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    color: var(--muted); font-weight: 600; font-size: 0.78rem;
+    text-transform: uppercase; letter-spacing: .06em;
+    background: rgba(255,255,255,.02);
+  }
+  tr:hover td { background: rgba(88,166,255,.04); }
+  .tag {
+    display: inline-block; border-radius: 999px;
+    padding: 2px 8px; font-size: 11px; font-weight: 700;
+    letter-spacing: .04em; text-transform: uppercase;
+  }
+  .tag.yes { background: rgba(63,185,80,.15); color: var(--accent2); }
+  .tag.no { background: rgba(248,81,73,.15); color: var(--danger); }
+  .tag.opt { background: rgba(163,113,247,.15); color: var(--purple); }
+  .tag.hi { background: rgba(248,81,73,.15); color: var(--danger); }
+  .tag.med { background: rgba(210,153,34,.15); color: var(--warn); }
+  .tag.lo { background: rgba(139,148,158,.15); color: var(--muted); }
+
+  /* flow diagram */
+  .flow {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+    margin: 16px 0 8px;
+  }
+  .flow .node {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-size: 13px; font-weight: 600;
+    min-width: 110px; text-align: center;
+  }
+  .flow .node.accent { border-color: var(--accent); color: var(--accent); }
+  .flow .node.good { border-color: var(--accent2); color: var(--accent2); }
+  .flow .arrow { color: var(--muted); font-size: 18px; }
+
+  /* bar chart */
+  .bars { display: grid; gap: 10px; margin: 16px 0 4px; }
+  .bar-row { display: grid; grid-template-columns: 160px 1fr 48px; gap: 10px; align-items: center; font-size: 13px; }
+  .bar-row .label { color: var(--muted); }
+  .bar-track {
+    height: 12px; background: var(--bg); border-radius: 999px; overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .bar-fill { height: 100%; border-radius: 999px; }
+  .bar-fill.a { background: linear-gradient(90deg, #238636, #3fb950); width: 95%; }
+  .bar-fill.b { background: linear-gradient(90deg, #1f6feb, #58a6ff); width: 70%; }
+  .bar-fill.c { background: linear-gradient(90deg, #6e40c9, #a371f7); width: 35%; }
+  .bar-fill.d { background: linear-gradient(90deg, #6e7681, #8b949e); width: 10%; }
+  .bar-row .val { color: var(--fg); font-weight: 600; text-align: right; font-variant-numeric: tabular-nums; }
+
+  .callout {
+    border-left: 3px solid var(--accent);
+    background: rgba(88,166,255,.08);
+    padding: 12px 16px;
+    border-radius: 0 10px 10px 0;
+    margin: 14px 0;
+  }
+  .callout.warn {
+    border-left-color: var(--warn);
+    background: rgba(210,153,34,.08);
+  }
+  .callout.ok {
+    border-left-color: var(--accent2);
+    background: rgba(63,185,80,.08);
+  }
+  .callout strong { display: block; margin-bottom: 4px; }
+
+  .steps {
+    counter-reset: step;
+    list-style: none; padding: 0; margin: 0;
+  }
+  .steps li {
+    counter-increment: step;
+    display: grid; grid-template-columns: 36px 1fr; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .steps li:last-child { border-bottom: 0; }
+  .steps li::before {
+    content: counter(step);
+    width: 36px; height: 36px; border-radius: 10px;
+    background: rgba(88,166,255,.12); color: var(--accent);
+    display: grid; place-items: center; font-weight: 700;
+  }
+  .steps .title { font-weight: 600; }
+  .steps .desc { color: var(--muted); font-size: 0.92rem; }
+
+  footer {
+    margin-top: 28px; color: var(--muted); font-size: 13px;
+    text-align: center;
+  }
+  .sources a { display: inline-block; margin: 3px 8px 3px 0; font-size: 0.9rem; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="hero">
+      <div class="eyebrow">Research Report · NixOS · GNOME Files</div>
+      <h1>Video thumbnail previews in Nautilus</h1>
+      <p class="lead">
+        Nautilus never decodes video itself. It runs external
+        <code>*.thumbnailer</code> programs discovered on
+        <code>XDG_DATA_DIRS</code>. On this host only font/PDF thumbnailers
+        were registered — no video handler — so icons stayed blank.
+      </p>
+      <div class="meta">
+        <span class="pill ok"><strong>Fix</strong> · ffmpegthumbnailer</span>
+        <span class="pill"><strong>Scope</strong> · home.packages</span>
+        <span class="pill warn"><strong>Host state</strong> · fail cache present</span>
+        <span class="pill"><strong>Sources</strong> · primary GNOME / nixpkgs / fd.o</span>
+      </div>
+    </header>
+
+    <nav class="toc">
+      <a href="#flow"><span>01</span>How it works</a>
+      <a href="#packages"><span>02</span>Packages</a>
+      <a href="#config"><span>03</span>Nix config</a>
+      <a href="#failures"><span>04</span>Failure modes</a>
+      <a href="#verify"><span>05</span>Verify steps</a>
+      <a href="#sources"><span>06</span>Sources</a>
+    </nav>
+
+    <section id="flow">
+      <h2><span class="num">1</span> How it works</h2>
+      <div class="flow">
+        <div class="node">Video file</div>
+        <div class="arrow">→</div>
+        <div class="node accent">Nautilus</div>
+        <div class="arrow">→</div>
+        <div class="node accent">gnome-desktop factory</div>
+        <div class="arrow">→</div>
+        <div class="node">.thumbnailer match</div>
+        <div class="arrow">→</div>
+        <div class="node good">ffmpegthumbnailer</div>
+        <div class="arrow">→</div>
+        <div class="node good">PNG cache</div>
+      </div>
+      <p class="muted" style="margin-top:14px">
+        Factory scans <code>$XDG_DATA_HOME/thumbnailers</code> then system data dirs.
+        Exec placeholders: <code>%i</code> path, <code>%u</code> URI, <code>%o</code> out, <code>%s</code> size.
+        Cache: <code>~/.cache/thumbnails/{normal,large,...}</code>. Failures land in
+        <code>~/.cache/thumbnails/fail/gnome-thumbnail-factory/</code>.
+      </p>
+
+      <h3>Recommendation strength</h3>
+      <div class="bars" aria-label="Package recommendation chart">
+        <div class="bar-row">
+          <div class="label">ffmpegthumbnailer</div>
+          <div class="bar-track"><div class="bar-fill a"></div></div>
+          <div class="val">best</div>
+        </div>
+        <div class="bar-row">
+          <div class="label">totem (+ gst stack)</div>
+          <div class="bar-track"><div class="bar-fill b"></div></div>
+          <div class="val">ok</div>
+        </div>
+        <div class="bar-row">
+          <div class="label">gst-libav alone</div>
+          <div class="bar-track"><div class="bar-fill c"></div></div>
+          <div class="val">no</div>
+        </div>
+        <div class="bar-row">
+          <div class="label">nautilus-python</div>
+          <div class="bar-track"><div class="bar-fill d"></div></div>
+          <div class="val">n/a</div>
+        </div>
+      </div>
+      <p class="muted">Chart = fitness for Nautilus video thumbs (not general package quality).</p>
+    </section>
+
+    <section id="packages">
+      <h2><span class="num">2</span> What you need</h2>
+      <table>
+        <thead>
+          <tr><th>Package</th><th>Role</th><th>Need?</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>ffmpegthumbnailer</code></td>
+            <td>Binary + <code>share/thumbnailers/*.thumbnailer</code>; nixpkgs patches absolute Exec</td>
+            <td><span class="tag yes">yes</span></td>
+          </tr>
+          <tr>
+            <td><code>totem</code></td>
+            <td><code>totem-video-thumbnailer</code> + GStreamer (incl. gst-libav)</td>
+            <td><span class="tag opt">alt</span></td>
+          </tr>
+          <tr>
+            <td><code>showtime</code></td>
+            <td>Current GNOME core player — no thumbnailer file</td>
+            <td><span class="tag no">no</span></td>
+          </tr>
+          <tr>
+            <td><code>gst-libav</code> alone</td>
+            <td>Codecs only; no .thumbnailer registration</td>
+            <td><span class="tag no">no</span></td>
+          </tr>
+          <tr>
+            <td><code>nautilus-python</code></td>
+            <td>Extensions API only</td>
+            <td><span class="tag no">no</span></td>
+          </tr>
+          <tr>
+            <td><code>bubblewrap</code></td>
+            <td>Sandbox for thumbnail Exec (usually already present)</td>
+            <td><span class="tag yes">indirect</span></td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <strong>Host check (before fix)</strong>
+        <code>/run/current-system/sw/share/thumbnailers</code> only had
+        <code>gnome-font-viewer</code> + <code>papers</code>. Fail dir already under
+        <code>~/.cache/thumbnails/fail</code> — clear after install.
+      </div>
+    </section>
+
+    <section id="config">
+      <h2><span class="num">3</span> Nix config</h2>
+      <div class="grid-2">
+        <div class="card good">
+          <h4>Applied · Home Manager</h4>
+          <p>Hyprland + HM Nautilus → <code>home.packages</code> is correct place so session <code>XDG_DATA_DIRS</code> picks up thumbnailer.</p>
+        </div>
+        <div class="card mid">
+          <h4>Alt · systemPackages</h4>
+          <p>Prefer if Nautilus comes from full GNOME system session and HM env not visible to GUI apps.</p>
+        </div>
+      </div>
+
+      <h3>Applied change · <code>home/aron/packages.nix</code></h3>
+<pre><code># Daily desktop
+copyq
+evince
+ffmpeg-full
+ffmpegthumbnailer # Nautilus video thumbs via share/thumbnailers
+file-roller
+...</code></pre>
+
+      <h3>After rebuild</h3>
+<pre><code>nautilus -q
+rm -rf ~/.cache/thumbnails/*
+# reopen Nautilus on a folder of local videos</code></pre>
+    </section>
+
+    <section id="failures">
+      <h2><span class="num">4</span> Failure modes</h2>
+      <table>
+        <thead>
+          <tr><th>Issue</th><th>Sev</th><th>Cause → fix</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>No video thumbs after GNOME core-apps swap</td>
+            <td><span class="tag hi">high</span></td>
+            <td>Totem gone; Showtime has no .thumbnailer → install ffmpegthumbnailer</td>
+          </tr>
+          <tr>
+            <td>.thumbnailer invisible</td>
+            <td><span class="tag hi">high</span></td>
+            <td>Not on XDG_DATA_DIRS → system/HM packages + re-login</td>
+          </tr>
+          <tr>
+            <td>Fail cache poisoned</td>
+            <td><span class="tag hi">high</span></td>
+            <td>Prior fails stored → <code>rm -rf ~/.cache/thumbnails/*</code></td>
+          </tr>
+          <tr>
+            <td>Decode fail / missing codec</td>
+            <td><span class="tag med">med</span></td>
+            <td>ffmpeg build flags / gst plugins → test CLI; totem path pulls gst-libav</td>
+          </tr>
+          <tr>
+            <td>bwrap / userns sandbox</td>
+            <td><span class="tag med">med</span></td>
+            <td>Hardened kernel / missing bubblewrap → ensure bwrap + userns</td>
+          </tr>
+          <tr>
+            <td>Flatpak Nautilus</td>
+            <td><span class="tag med">med</span></td>
+            <td>Can't see host store thumbnailers → system Nautilus preferred</td>
+          </tr>
+          <tr>
+            <td>Thumbs disabled in settings</td>
+            <td><span class="tag lo">low</span></td>
+            <td><code>org.gnome.desktop.thumbnailers disable-all</code> or Nautilus never</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="verify">
+      <h2><span class="num">5</span> Verify</h2>
+      <ol class="steps">
+        <li>
+          <div>
+            <div class="title">Rebuild / switch</div>
+            <div class="desc">Apply HM/NixOS so <code>ffmpegthumbnailer</code> lands on profile + XDG data dirs.</div>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div class="title">Confirm registration</div>
+            <div class="desc"><code>ls ~/.nix-profile/share/thumbnailers</code> or scan <code>$XDG_DATA_DIRS/*/thumbnailers</code> for <code>ffmpegthumbnailer.thumbnailer</code>.</div>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div class="title">CLI smoke test</div>
+            <div class="desc"><code>ffmpegthumbnailer -i video.mp4 -o /tmp/t.png -s 256 &amp;&amp; file /tmp/t.png</code></div>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div class="title">Clear poison cache</div>
+            <div class="desc"><code>nautilus -q; rm -rf ~/.cache/thumbnails/*</code></div>
+          </div>
+        </li>
+        <li>
+          <div>
+            <div class="title">Open folder in grid view</div>
+            <div class="desc">Local videos only first. PNGs should appear under <code>~/.cache/thumbnails/large/</code> or <code>normal/</code>.</div>
+          </div>
+        </li>
+      </ol>
+
+      <div class="callout ok">
+        <strong>Bottom line</strong>
+        One package: <code>ffmpegthumbnailer</code>. Already added to
+        <code>home/aron/packages.nix</code>. Rebuild, wipe thumb cache, reopen Nautilus.
+      </div>
+    </section>
+
+    <section id="sources">
+      <h2><span class="num">6</span> Sources (primary)</h2>
+      <div class="sources">
+        <a href="https://specifications.freedesktop.org/thumbnail-spec/latest/directory.html">fd.o Thumbnail Spec — directory</a>
+        <a href="https://specifications.freedesktop.org/thumbnail-spec/latest/creation.html">fd.o — creation</a>
+        <a href="https://specifications.freedesktop.org/thumbnail-spec/latest/failures.html">fd.o — failures</a>
+        <a href="https://gitlab.gnome.org/GNOME/gnome-desktop/-/raw/gnome-44/libgnome-desktop/gnome-desktop-thumbnail.c">gnome-desktop-thumbnail.c</a>
+        <a href="https://gitlab.gnome.org/GNOME/gnome-desktop/-/raw/master/libgnome-desktop/gnome-desktop-thumbnail-script.c">thumbnail-script.c (bwrap)</a>
+        <a href="https://gitlab.gnome.org/GNOME/totem/-/raw/gnome-43/data/totem.thumbnailer.in">totem.thumbnailer.in</a>
+        <a href="https://raw.githubusercontent.com/dirkvdb/ffmpegthumbnailer/master/dist/ffmpegthumbnailer.thumbnailer">ffmpegthumbnailer.thumbnailer</a>
+        <a href="https://raw.githubusercontent.com/NixOS/nixpkgs/master/pkgs/by-name/ff/ffmpegthumbnailer/package.nix">nixpkgs ffmpegthumbnailer</a>
+        <a href="https://raw.githubusercontent.com/NixOS/nixpkgs/master/pkgs/by-name/to/totem/package.nix">nixpkgs totem</a>
+        <a href="https://raw.githubusercontent.com/NixOS/nixpkgs/master/pkgs/by-name/sh/showtime/package.nix">nixpkgs showtime</a>
+        <a href="https://raw.githubusercontent.com/NixOS/nixpkgs/master/pkgs/by-name/na/nautilus/package.nix">nixpkgs nautilus</a>
+        <a href="https://raw.githubusercontent.com/NixOS/nixpkgs/nixos-unstable/nixos/modules/services/desktop-managers/gnome.nix">nixpkgs gnome.nix module</a>
+      </div>
+      <p class="muted" style="margin-top:14px">
+        Full cited write-up:
+        <code>.tmp/RESEARCH_nautilus-video-thumbnails.md</code>
+      </p>
+    </section>
+
+    <footer>
+      research-aron · Nautilus video thumbnails · dark report
+    </footer>
+  </div>
+</body>
+</html>

@@ -1,0 +1,133 @@
+{
+  "runId": "666021a3-e5e0-416b-99c4-0cd99984995b",
+  "agent": "reviewer",
+  "task": "Review current working-tree diff in /home/aron/coding/nix-aron for this exact request: remove Kitty from Nix config; rename existing YGO MSE desktop entry display name to `YGO X MTG: Essentia - MSE Menu`; ensure entry opens Essentia MSE menu. Scope files: home/aron/packages.nix, home/aron/end4.nix. Inspect actual files/diff. Report only concrete correctness/regression findings with severity + file:line. Verify Ghostty remains terminal replacement, stable desktop key avoids stale Rofi entry, Exec command points to working launcher/projects dir. Do not modify files. Ignore unrelated pre-existing diff except conflicts with request.\n\n## Acceptance Contract\nAcceptance level: attested\nCompletion is not accepted from prose alone. End with a structured acceptance report.\n\nCriteria:\n- criterion-1: Return concrete findings with file paths and severity when applicable\n\nRequired evidence: review-findings, residual-risks\n\nFinish with a fenced JSON block tagged `acceptance-report` in this shape:\nUse empty arrays when no items apply; array fields contain strings unless object entries are shown.\n`criteriaSatisfied[].status` must be exactly one of: satisfied, not-satisfied, not-applicable.\n`commandsRun[].result` must be exactly one of: passed, failed, not-run.\n`manualNotes` and `notes` are optional strings; an empty string means no note and does not satisfy `manual-notes` evidence.\n```acceptance-report\n{\n  \"criteriaSatisfied\": [\n    {\n      \"id\": \"criterion-1\",\n      \"status\": \"satisfied\",\n      \"evidence\": \"specific proof\"\n    }\n  ],\n  \"changedFiles\": [\n    \"src/file.ts\"\n  ],\n  \"testsAddedOrUpdated\": [\n    \"test/file.test.ts\"\n  ],\n  \"commandsRun\": [\n    {\n      \"command\": \"command\",\n      \"result\": \"passed\",\n      \"summary\": \"short result\"\n    }\n  ],\n  \"validationOutput\": [\n    \"validation output or concise summary\"\n  ],\n  \"residualRisks\": [\n    \"none\"\n  ],\n  \"noStagedFiles\": true,\n  \"diffSummary\": \"short description of the diff\",\n  \"reviewFindings\": [\n    \"blocker: file.ts:12 - issue found, or no blockers\"\n  ],\n  \"manualNotes\": \"anything else the parent should know\"\n}\n```",
+  "exitCode": 0,
+  "model": "openai-codex/gpt-5.6-sol:high",
+  "attemptedModels": [
+    "openai-codex/gpt-5.6-sol:high"
+  ],
+  "modelAttempts": [
+    {
+      "model": "openai-codex/gpt-5.6-sol:high",
+      "success": true,
+      "exitCode": 0,
+      "usage": {
+        "input": 37367,
+        "output": 4356,
+        "cacheRead": 107520,
+        "cacheWrite": 0,
+        "cost": 0.371275,
+        "turns": 6
+      }
+    }
+  ],
+  "acceptance": {
+    "status": "attested",
+    "evidenceStatus": "attested",
+    "explicit": false,
+    "effectiveAcceptance": {
+      "level": "attested",
+      "explicit": false,
+      "inferredReason": [
+        "read-only/reviewer-style agent"
+      ],
+      "criteria": [
+        {
+          "id": "criterion-1",
+          "must": "Return concrete findings with file paths and severity when applicable",
+          "evidence": [
+            "review-findings",
+            "residual-risks"
+          ],
+          "severity": "required"
+        }
+      ],
+      "evidence": [
+        "review-findings",
+        "residual-risks"
+      ],
+      "verify": [],
+      "stopRules": []
+    },
+    "inferredReason": [
+      "read-only/reviewer-style agent"
+    ],
+    "criteria": [
+      {
+        "id": "criterion-1",
+        "must": "Return concrete findings with file paths and severity when applicable",
+        "evidence": [
+          "review-findings",
+          "residual-risks"
+        ],
+        "severity": "required"
+      }
+    ],
+    "runtimeChecks": [],
+    "verifyRuns": [],
+    "childReport": {
+      "criteriaSatisfied": [
+        {
+          "id": "criterion-1",
+          "status": "satisfied",
+          "evidence": "Medium-severity staged-index conflict cited at home/aron/packages.nix:316-317; scoped config behavior verified."
+        }
+      ],
+      "changedFiles": [
+        "home/aron/packages.nix",
+        "home/aron/end4.nix"
+      ],
+      "testsAddedOrUpdated": [],
+      "commandsRun": [
+        {
+          "command": "nix flake check --no-build --show-trace",
+          "result": "passed",
+          "summary": "All flake checks passed."
+        },
+        {
+          "command": "nix-instantiate --parse home/aron/packages.nix && nix-instantiate --parse home/aron/end4.nix",
+          "result": "passed",
+          "summary": "Both scoped Nix files parse."
+        },
+        {
+          "command": "nix eval scoped desktop entries and Home Manager package names",
+          "result": "passed",
+          "summary": "Exact display name, Exec, Path, stable key, Ghostty presence verified; Kitty absent."
+        },
+        {
+          "command": "Essentia launcher --list with MSE_PROJECTS_DIR",
+          "result": "passed",
+          "summary": "Launcher discovered Essentia MSE projects."
+        },
+        {
+          "command": "git diff --check HEAD -- home/aron/packages.nix home/aron/end4.nix",
+          "result": "passed",
+          "summary": "No whitespace errors."
+        }
+      ],
+      "validationOutput": [
+        "Desktop key remains ygo-mtg-mse-menu.",
+        "Name evaluates to YGO X MTG: Essentia - MSE Menu.",
+        "Exec resolves to coreutils env plus executable Essentia launcher.",
+        "Path resolves to /home/aron/projects/essentia.",
+        "Evaluated packages include ghostty-1.3.1; no Kitty.",
+        "Staged packages.nix snapshot still adds Kitty."
+      ],
+      "residualRisks": [
+        "Committing staged snapshot without restaging home/aron/packages.nix re-adds Kitty.",
+        "GUI launch not manually exercised; launcher interpreter, syntax, config, project discovery verified."
+      ],
+      "noStagedFiles": false,
+      "diffSummary": "Current files remove Kitty, retain Ghostty, preserve YGO MSE desktop key, rename display, point Exec/Path at Essentia.",
+      "reviewFindings": [
+        "medium: home/aron/packages.nix:316-317 - staged index adds Kitty while unstaged working-tree patch removes it; restage final file before commit."
+      ],
+      "manualNotes": "Unrelated scoped diff ignored except staged Kitty conflict."
+    }
+  },
+  "launchContractDigest": "5c9c3489f0cfbe4523707cc17161eda49a60b437064c8a699686d62ee1aa5557",
+  "transcriptPath": "/home/aron/coding/nix-aron/.pi-subagents/artifacts/666021a3-e5e0-416b-99c4-0cd99984995b_reviewer_transcript.jsonl",
+  "skills": [],
+  "timestamp": 1785690665784
+}
