@@ -1,6 +1,7 @@
 {
   "theme": "dark",
   "model": "opus[1m]",
+  "skipDangerousModePermissionPrompt": true,
   "permissions": {
     "defaultMode": "bypassPermissions",
     "ask": [
