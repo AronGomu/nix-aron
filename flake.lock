@@ -72,6 +72,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-claude": {
+      "locked": {
+        "lastModified": 1785571196,
+        "narHash": "sha256-KoTsyMQqnXQZq8deCEnu4QkyldkwH/bpMMhUcfMdGIw=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "148bab9c1c3c53136ecb44a6ea356a0ed5b39b06",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "148bab9c1c3c53136ecb44a6ea356a0ed5b39b06",
+        "type": "github"
+      }
+    },
     "nixpkgs-unstable": {
       "locked": {
         "lastModified": 1784497964,
@@ -131,6 +147,7 @@
         "herdr-src": "herdr-src",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
+        "nixpkgs-claude": "nixpkgs-claude",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nvim-config": "nvim-config",
         "quickshell": "quickshell"
