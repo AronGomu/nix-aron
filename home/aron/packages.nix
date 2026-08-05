@@ -294,6 +294,7 @@ in
       rofi
       rustc
       rustfmt
+      smartmontools
       tree
       tree-sitter
       unzip
