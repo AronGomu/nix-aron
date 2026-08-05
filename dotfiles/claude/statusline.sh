@@ -8,11 +8,23 @@ json_line="$(jq -r '
     (.model.display_name // ""),
     (.workspace.current_dir // .cwd // ""),
     (.version // ""),
-    (.context_window.used_percentage // "")
-  ] | @tsv
+    (if .thinking.enabled then (.effort.level // "") else "" end),
+    ((.context_window.current_usage // {})
+      | (.input_tokens // 0)
+        + (.output_tokens // 0)
+        + (.cache_creation_input_tokens // 0)
+        + (.cache_read_input_tokens // 0))
+  ] | map(tostring) | join("\u001f")
 ' <<<"$input" 2>/dev/null || true)"
 
-IFS=$'\t' read -r model_name cwd version used_pct <<<"${json_line:-}"
+# unit separator, not tab: tab is IFS whitespace and would collapse empty fields
+IFS=$'\037' read -r model_name cwd version effort used_tokens <<<"${json_line:-}"
+
+# drop trailing parenthetical from the model name, e.g. "Opus 5 (1M context)" -> "Opus 5"
+model_name="${model_name%% (*}"
+if [[ -n "$effort" ]]; then
+  model_name="$model_name  $effort"
+fi
 
 home="${HOME:-}"
 display_cwd="$cwd"
@@ -33,8 +45,18 @@ if [[ -n "$cwd" ]] && git -C "$cwd" --no-optional-locks rev-parse --is-inside-wo
 fi
 
 ctx_segment=""
-if [[ -n "$used_pct" && "$used_pct" =~ ^[0-9]+([.][0-9]+)?$ ]]; then
-  ctx_segment="ctx $(printf '%.0f' "$used_pct")%"
+if [[ "$used_tokens" =~ ^[0-9]+$ && "$used_tokens" -gt 0 ]]; then
+  if (( used_tokens < 1000 )); then
+    ctx_segment="ctx $used_tokens"
+  else
+    # one decimal below 100K (37.5K), whole K above (142K)
+    tenths=$(( (used_tokens + 50) / 100 ))
+    if (( used_tokens < 100000 )); then
+      ctx_segment="ctx $(( tenths / 10 )).$(( tenths % 10 ))K"
+    else
+      ctx_segment="ctx $(( (used_tokens + 500) / 1000 ))K"
+    fi
+  fi
 fi
 
 out=""
