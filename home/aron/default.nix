@@ -4,6 +4,7 @@
     ./desktop.nix
     ./end4.nix
     ./google-drive.nix
+    ./herdr.nix
     ./packages.nix
     ./shell.nix
   ];
