@@ -193,6 +193,7 @@ in
       kdePackages.kdegraphics-thumbnailers # PDF/image thumbs
       kdePackages.kconfig
       kdePackages.kio-extras # previews, network, thumbnails
+      kdePackages.kservice # kbuildsycoca6: without it KIO can't (re)build its app cache
       kdePackages.plasma-integration
       kdePackages.plasma-nm
       kdePackages.qqc2-breeze-style

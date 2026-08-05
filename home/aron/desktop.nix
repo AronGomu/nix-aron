@@ -1,4 +1,22 @@
 { lib, pkgs, ... }:
+let
+  # KDE/KIO indexes applications into ksycoca through an XDG menu file. Plasma ships
+  # one; a bare Hyprland session ships none, so kbuildsycoca6 registered ZERO services
+  # ("unknown service mpv.desktop in Default Applications") and every Dolphin
+  # double-click silently did nothing. This minimal menu just says "index everything".
+  applicationsMenu = ''
+    <!DOCTYPE Menu PUBLIC "-//freedesktop//DTD Menu 1.0//EN" "http://www.freedesktop.org/standards/menu-spec/1.0/menu.dtd">
+    <Menu>
+      <Name>Applications</Name>
+      <DefaultAppDirs/>
+      <DefaultDirectoryDirs/>
+      <DefaultMergeDirs/>
+      <Include>
+        <All/>
+      </Include>
+    </Menu>
+  '';
+in
 {
   # Hardest blue-light cut: night floor 1000K (redshift min).
   services.redshift = {
@@ -98,12 +116,19 @@
         "inode/directory" = [ "org.kde.dolphin.desktop" ];
         "message/rfc822" = [ "thunderbird.desktop" ];
         "text/html" = [ "brave-browser.desktop" ];
+        "video/3gpp" = [ "mpv.desktop" ];
+        "video/mp2t" = [ "mpv.desktop" ];
         "video/mp4" = [ "mpv.desktop" ];
-        "video/x-matroska" = [ "mpv.desktop" ];
-        "video/webm" = [ "mpv.desktop" ];
-        "video/quicktime" = [ "mpv.desktop" ];
-        "video/x-msvideo" = [ "mpv.desktop" ];
         "video/mpeg" = [ "mpv.desktop" ];
+        "video/ogg" = [ "mpv.desktop" ];
+        "video/quicktime" = [ "mpv.desktop" ];
+        "video/vnd.avi" = [ "mpv.desktop" ];
+        "video/webm" = [ "mpv.desktop" ];
+        "video/x-flv" = [ "mpv.desktop" ];
+        "video/x-m4v" = [ "mpv.desktop" ];
+        "video/x-matroska" = [ "mpv.desktop" ];
+        "video/x-ms-wmv" = [ "mpv.desktop" ];
+        "video/x-msvideo" = [ "mpv.desktop" ];
         "x-scheme-handler/http" = [ "brave-browser.desktop" ];
         "x-scheme-handler/https" = [ "brave-browser.desktop" ];
         "x-scheme-handler/mailto" = [ "thunderbird.desktop" ];
@@ -111,6 +136,10 @@
     };
 
     configFile = {
+      # Both names: KDE packages set XDG_MENU_PREFIX=plasma-, plain KIO looks for the unprefixed one.
+      "menus/applications.menu".text = applicationsMenu;
+      "menus/plasma-applications.menu".text = applicationsMenu;
+
       "xdg-terminals.list".text = ''
         com.mitchellh.ghostty.desktop
       '';
@@ -129,6 +158,13 @@
       '';
     };
   };
+
+  # ksycoca caches are keyed by env hash and never self-heal once built empty:
+  # drop them so KDE apps rebuild against the new menu + mime defaults.
+  home.activation.rebuildKsycoca = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    $DRY_RUN_CMD rm -f "$HOME"/.cache/ksycoca6_*
+    $DRY_RUN_CMD ${pkgs.kdePackages.kservice}/bin/kbuildsycoca6 --noincremental > /dev/null 2>&1 || true
+  '';
 
   home.activation.addDataBookmark = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     bookmarks="$HOME/.config/gtk-3.0/bookmarks"
