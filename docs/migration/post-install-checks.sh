@@ -10,6 +10,15 @@ note() { echo "  note  $*"; }
 
 [ -d /mnt/etc ] || { echo "FAIL: nothing installed at /mnt"; exit 1; }
 
+# Works whether or not efibootmgr is installed on the running system.
+efibootmgr_v() {
+  if command -v efibootmgr >/dev/null 2>&1; then
+    sudo efibootmgr -v
+  else
+    nix-shell -p efibootmgr --run 'sudo efibootmgr -v'
+  fi
+}
+
 echo "=== mounts under /mnt"
 findmnt -R /mnt | sed 's/^/  /'
 for mp in /mnt /mnt/boot /mnt/home /mnt/nix /mnt/.snapshots; do
@@ -50,9 +59,9 @@ fi
 
 echo
 echo "=== §8 bootloader — an NVRAM entry must point at the NVMe ESP"
-sudo efibootmgr -v | sed 's/^/  /'
+efibootmgr_v | sed 's/^/  /'
 NVME_PARTUUID="$(blkid -s PARTUUID -o value /dev/nvme0n1p1 2>/dev/null || true)"
-if [ -n "$NVME_PARTUUID" ] && sudo efibootmgr -v | grep -qi "${NVME_PARTUUID}"; then
+if [ -n "$NVME_PARTUUID" ] && efibootmgr_v | grep -qi "${NVME_PARTUUID}"; then
   ok "an entry references the NVMe ESP PARTUUID $NVME_PARTUUID"
 else
   fail "no EFI entry references the NVMe ESP — create it BEFORE unplugging the Samsung"

@@ -9,6 +9,20 @@ MIRROR="/mnt/data/rescue/_system/baseline"
 
 mkdir -p "$OUT"
 
+# efibootmgr and sgdisk are not on a stock NixOS unless the config asks for them.
+# modules/nixos/base.nix now does, but this script has to work before that rebuild.
+# Run each tool from the system if present, otherwise fetch it transiently.
+have() { command -v "$1" >/dev/null 2>&1; }
+run_tool() {
+  local tool="$1" pkg="$2"; shift 2
+  if have "$tool"; then
+    sudo "$tool" "$@"
+  else
+    echo "  ($tool absent — fetching $pkg transiently)" >&2
+    nix-shell -p "$pkg" --run "sudo $tool $*"
+  fi
+}
+
 lsblk -o NAME,SIZE,MODEL,SERIAL,FSTYPE,LABEL,MOUNTPOINTS,UUID > "$OUT/lsblk.txt"
 lsblk -o NAME,TRAN,HOTPLUG,SIZE -d                            > "$OUT/lsblk-transport.txt"
 findmnt -A                                                    > "$OUT/mounts.txt"
@@ -16,9 +30,12 @@ swapon --show                                                 > "$OUT/swap.txt"
 id aron                                                       > "$OUT/uid.txt"
 ls -l /dev/disk/by-id/                                        > "$OUT/by-id.txt"
 ls -l /dev/disk/by-uuid/                                      > "$OUT/by-uuid.txt"
-sudo efibootmgr -v                                            > "$OUT/efi.txt"
-sudo sgdisk -p /dev/nvme0n1                                   > "$OUT/nvme-parttable.txt" 2>/dev/null \
-  || echo "sgdisk unavailable — run inside: nix-shell -p gptfdisk" > "$OUT/nvme-parttable.txt"
+# The load-bearing one. After the install there are TWO EFI entries and, with
+# systemd-boot, both read "Linux Boot Manager". This file is how you tell the new
+# NVMe entry from the old Samsung one at §8 and §9.
+run_tool efibootmgr efibootmgr -v                             > "$OUT/efi.txt"
+sudo bootctl status                                           > "$OUT/bootctl.txt" 2>&1 || true
+run_tool sgdisk gptfdisk -p /dev/nvme0n1                      > "$OUT/nvme-parttable.txt"
 
 echo "--- written to $OUT"
 ls -1 "$OUT"

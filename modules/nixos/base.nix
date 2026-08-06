@@ -125,7 +125,12 @@
   };
 
   environment.systemPackages = with pkgs; [
+    # Inspecting and repairing UEFI boot entries. systemd ships bootctl, but only
+    # efibootmgr can list and delete NVRAM entries — needed to tell two identically
+    # labelled "Linux Boot Manager" entries apart after a disk migration.
+    efibootmgr
     git
+    gptfdisk
     restic
     vim
     wget
