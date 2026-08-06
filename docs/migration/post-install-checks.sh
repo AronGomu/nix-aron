@@ -58,20 +58,59 @@ else
 fi
 
 echo
-echo "=== §8 bootloader — an NVRAM entry must point at the NVMe ESP"
-efibootmgr_v | sed 's/^/  /'
-NVME_PARTUUID="$(blkid -s PARTUUID -o value /dev/nvme0n1p1 2>/dev/null || true)"
-if [ -n "$NVME_PARTUUID" ] && efibootmgr_v | grep -qi "${NVME_PARTUUID}"; then
-  ok "an entry references the NVMe ESP PARTUUID $NVME_PARTUUID"
-else
-  fail "no EFI entry references the NVMe ESP — create it BEFORE unplugging the Samsung"
+echo "=== §8 bootloader — the NVMe must be bootable on its own"
+echo "  (this machine boots via the FALLBACK path, not a registered NVRAM entry —"
+echo "   see baseline efi.txt: BootCurrent 0006 'UEFI OS' -> \\EFI\\BOOT\\BOOTX64.EFI)"
+
+# blkid needs root and returns EMPTY with exit 0 for a normal user — silently
+# passing an empty PARTUUID into a grep. Read the udev symlink instead.
+partuuid_of() {
+  local dev; dev="$(readlink -f "$1")"
+  local l; for l in /dev/disk/by-partuuid/*; do
+    [ "$(readlink -f "$l")" = "$dev" ] && { basename "$l"; return; }
+  done
+}
+
+NVME_PARTUUID="$(partuuid_of /dev/nvme0n1p1)"
+EFI_OUT="$(efibootmgr_v)"
+echo "$EFI_OUT" | sed 's/^/  /'
+echo
+[ -n "$NVME_PARTUUID" ] && ok "NVMe ESP PARTUUID = $NVME_PARTUUID" \
+  || fail "could not determine the NVMe ESP PARTUUID"
+
+# Two independent ways the NVMe can boot. Either is sufficient; both is better.
+NVRAM_OK=0; FALLBACK_OK=0
+[ -n "$NVME_PARTUUID" ] && echo "$EFI_OUT" | grep -qi "$NVME_PARTUUID" && NVRAM_OK=1
+[ -f /mnt/boot/EFI/BOOT/BOOTX64.EFI ] && FALLBACK_OK=1
+
+[ "$NVRAM_OK" = 1 ] && ok "an NVRAM entry references the NVMe ESP" \
+  || note "no NVRAM entry references the NVMe ESP"
+[ "$FALLBACK_OK" = 1 ] && ok "fallback /mnt/boot/EFI/BOOT/BOOTX64.EFI present" \
+  || note "no fallback BOOTX64.EFI on the NVMe ESP"
+
+if [ "$NVRAM_OK" = 0 ] && [ "$FALLBACK_OK" = 0 ]; then
+  fail "the NVMe has NEITHER an NVRAM entry NOR a fallback loader — it will not boot"
+  echo "        Fix now, with the Samsung still attached:"
+  echo "          sudo nixos-enter --root /mnt -c 'bootctl install'"
+  echo "        or register the entry explicitly:"
+  echo "          sudo efibootmgr --create --disk /dev/nvme0n1 --part 1 \\"
+  echo "            --loader '\\EFI\\systemd\\systemd-bootx64.efi' --label 'NixOS'"
+elif [ "$NVRAM_OK" = 0 ]; then
+  note "booting will rely on firmware fallback detection, exactly as it does today."
+  note "that is how this machine already boots, so it is expected — but if G3 fails,"
+  note "this is the first thing to fix (see the efibootmgr --create line in §8)."
 fi
-[ -f /mnt/boot/EFI/BOOT/BOOTX64.EFI ] \
-  && ok "fallback /mnt/boot/EFI/BOOT/BOOTX64.EFI present" \
-  || note "no fallback BOOTX64.EFI — firmware must use the NVRAM entry"
+
 ls /mnt/boot/loader/entries/*.conf >/dev/null 2>&1 \
   && ok "systemd-boot entries present in /mnt/boot" \
   || fail "no loader entries in /mnt/boot"
+
+# Stale entries that will point at destroyed partitions after the wipe.
+echo
+echo "=== entries that will be dead after the migration (delete in §9)"
+echo "$EFI_OUT" | grep -i 'Windows Boot Manager' \
+  && note "Windows Boot Manager -> the wiped Crucial ESP. Dead. Remove in §9." \
+  || ok "no Windows Boot Manager entry"
 
 echo
 if [ "$pass" = 0 ]; then
