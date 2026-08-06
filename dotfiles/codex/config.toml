@@ -14,7 +14,7 @@ trust_level = "trusted"
 [projects."/home/aron/coding"]
 trust_level = "trusted"
 
-[projects."/home/aron/coding/nix-aron"]
+[projects."/home/aron/config/nix-aron"]
 trust_level = "trusted"
 
 [tui]

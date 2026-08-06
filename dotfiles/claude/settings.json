@@ -5,7 +5,7 @@
   "skipDangerousModePermissionPrompt": true,
   "statusLine": {
     "type": "command",
-    "command": "/home/aron/coding/nix-aron/dotfiles/claude/statusline.sh"
+    "command": "/home/aron/config/nix-aron/dotfiles/claude/statusline.sh"
   },
   "permissions": {
     "defaultMode": "bypassPermissions",

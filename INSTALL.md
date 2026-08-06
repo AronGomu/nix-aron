@@ -292,18 +292,42 @@ docker info
 Rebuild after configuration changes:
 
 ```bash
-sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main
+sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main
 ```
 
 Update pinned flake inputs manually:
 
 ```bash
-cd ~/coding/nix-aron
+cd ~/config/nix-aron
 nix flake update
 sudo nixos-rebuild switch --flake .#desk-main
 ```
 
 The configuration runs weekly Nix garbage collection and removes generations older than 30 days.
+
+## 14. Clone the other repositories
+
+`home/aron/repos.nix` is the single source of truth for every repo checked out
+on this machine. Home Manager activation creates `~/config` and `~/projects`,
+and installs a `clone-repos` command:
+
+```bash
+clone-repos           # clone anything missing over SSH
+clone-repos --https   # same, but over HTTPS (no SSH key needed yet)
+```
+
+It is idempotent — already-cloned repos are skipped, never overwritten.
+
+Layout:
+
+| Path | Contents |
+| --- | --- |
+| `~/config` | configuration repos (`nix-aron`, `bookmarks`) |
+| `~/projects` | code projects (`ascencio`, `essentia`, `gones`, `millions_must_die`) |
+
+To add a repo, append an entry to the `repos` list in `home/aron/repos.nix` and
+rebuild. `~/config/bookmarks` is local-only (no remote) and is therefore not in
+the list; only its parent directory is created.
 
 ## Troubleshooting
 

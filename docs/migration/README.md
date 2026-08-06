@@ -62,7 +62,7 @@ Everything before step 4 is non-destructive and reversible.
 | 5 | `sudo docs/migration/mount-target.sh` | §4 | done |
 | 6 | `docs/migration/fill-uuids.sh` | §5.1 | done |
 | 7 | `docs/migration/g0-verify.sh` — **G0** | §5.1 | PASSED |
-| 8 | `sudo nixos-install --flake /home/aron/coding/nix-aron#desk-main` | §5.2 | done |
+| 8 | `sudo nixos-install --flake /home/aron/config/nix-aron#desk-main` | §5.2 | done |
 | 9 | `sudo docs/migration/sync-home.sh` (twice) | §5.3 | done, 22 GB |
 | 10 | `docs/migration/post-install-checks.sh` | §5.2, §5.3, §8 | READY FOR G3 |
 | 11 | shut down, unplug the Samsung, boot — **G3** | §8 | |

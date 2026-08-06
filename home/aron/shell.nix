@@ -3,14 +3,16 @@ let
   shellAliases = {
     cat = "bat";
     gtbrain = "cd /home/aron/brain";
-    gtnixconfig = "cd /home/aron/coding/nix-aron";
+    gtnixconfig = "cd /home/aron/config/nix-aron";
     gtygocube = "cd /home/aron/projects/essentia";
     gtessentia = "cd /home/aron/projects/essentia";
-    gtygostory = "cd /home/aron/coding/ygo-story-duel-simulator";
+    gtygostory = "cd /home/aron/projects/ascencio";
+    gtprojects = "cd /home/aron/projects";
+    gtconfig = "cd /home/aron/config";
     ll = "eza -lah --group-directories-first";
-    rebuild = "sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main";
-    hm = "home-manager switch --flake ~/coding/nix-aron#desk-main";
-    update-system = "nix flake update --flake ~/coding/nix-aron";
+    rebuild = "sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main";
+    hm = "home-manager switch --flake ~/config/nix-aron#desk-main";
+    update-system = "nix flake update --flake ~/config/nix-aron";
     v = "nvim";
   };
 

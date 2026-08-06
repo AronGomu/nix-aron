@@ -305,7 +305,9 @@ in
       yq-go
       zip
       zoxide
-      home-manager
+      # home-manager: provided by programs.home-manager.enable (default.nix).
+      # Listing it here too collides in buildEnv once the flake input and
+      # nixpkgs ship different versions.
       davinciResolve
       herdr
       openwhispr

@@ -17,12 +17,12 @@ Read and obey `/home/aron/AGENTS.md` plus repo `NIX-CHEATSHEET.md`.
 
 | Fact             | Value                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------- |
-| Repo             | `/home/aron/coding/nix-aron`                                                                          |
+| Repo             | `/home/aron/config/nix-aron`                                                                          |
 | Host flake       | `desk-main`                                                                                           |
 | HM user flake    | check `home-manager` / flake outputs (often `#aron` or `#desk-main` — verify `flake.nix` before cmds) |
 | Active source    | this flake only                                                                                       |
 | Legacy           | `/etc/nixos/configuration.nix` — **never** edit for system changes                                    |
-| Rebuild (system) | `sudo nixos-rebuild switch --flake /home/aron/coding/nix-aron#desk-main`                              |
+| Rebuild (system) | `sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#desk-main`                              |
 | Branch           | work on `main` unless user said otherwise                                                             |
 
 ## Input
@@ -87,7 +87,7 @@ After grill rounds finish and user confirms shared understanding → continue fr
 
 ## Commit / push rules
 
-- Repo cwd: `/home/aron/coding/nix-aron`
+- Repo cwd: `/home/aron/config/nix-aron`
 - No force-push. No `--no-verify` unless user said.
 - No amend of others' commits. No rewrite published history.
 - Scan diff for secrets before commit.
@@ -109,10 +109,10 @@ residual-risk: ...
 
 Rebuild when ready (I did not run it):
 
-  sudo nixos-rebuild switch --flake /home/aron/coding/nix-aron#desk-main
+  sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#desk-main
 
 # If change was HM-only and you normally use HM separately, also/alternate:
-  home-manager switch --flake /home/aron/coding/nix-aron#<user-or-output>
+  home-manager switch --flake /home/aron/config/nix-aron#<user-or-output>
 ```
 
 Pick the accurate rebuild line(s) from what you changed. Prefer full `nixos-rebuild switch` when both system + HM wired through NixOS; mention HM-only when that is truly enough.

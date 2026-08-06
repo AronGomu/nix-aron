@@ -8,7 +8,7 @@
 
 Active command source:
 
-`/home/aron/coding/nix-aron/home/aron/scripts/cut-silence.sh`
+`/home/aron/config/nix-aron/home/aron/scripts/cut-silence.sh`
 
 Packaging:
 

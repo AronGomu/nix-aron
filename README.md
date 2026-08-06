@@ -10,8 +10,8 @@ Hosts (one `main` branch, not per-machine branches):
 | — | `hosts/_template` | copy to add a machine |
 
 ```bash
-sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main
-# after HM changes: home-manager switch --flake ~/coding/nix-aron#desk-main
+sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main
+# after HM changes: home-manager switch --flake ~/config/nix-aron#desk-main
 ```
 
 ## Design
@@ -112,8 +112,8 @@ Manual GUI setup:
 ## Rebuild/update
 
 ```bash
-sudo nixos-rebuild switch --flake ~/coding/nix-aron#desk-main
-nix flake update --flake ~/coding/nix-aron
+sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main
+nix flake update --flake ~/config/nix-aron
 ```
 
 Updates stay manual. Nix GC runs weekly, deleting generations older than 30 days.

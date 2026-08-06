@@ -91,7 +91,7 @@ Each baseline/candidate has raw segments, flat `{model,words:[...]}` JSON, TXT, 
 ## Exact winner render
 
 ```bash
-bash /home/aron/coding/nix-aron/home/aron/scripts/cut-silence.sh /home/aron/.tmp/silence-cut-tuning/source-first-180s.mp4 /home/aron/.tmp/silence-cut-tuning/candidates/B_n37_s060_p080/B_n37_s060_p080.mp4 0.60 -37dB --keep-silence 0.300 --audio-fade 0.008 --transcript-json /home/aron/.tmp/silence-cut-tuning/baseline/baseline.words.json --word-padding 0.080 --cut-map /home/aron/.tmp/silence-cut-tuning/candidates/B_n37_s060_p080/B_n37_s060_p080.cut-map.json
+bash /home/aron/config/nix-aron/home/aron/scripts/cut-silence.sh /home/aron/.tmp/silence-cut-tuning/source-first-180s.mp4 /home/aron/.tmp/silence-cut-tuning/candidates/B_n37_s060_p080/B_n37_s060_p080.mp4 0.60 -37dB --keep-silence 0.300 --audio-fade 0.008 --transcript-json /home/aron/.tmp/silence-cut-tuning/baseline/baseline.words.json --word-padding 0.080 --cut-map /home/aron/.tmp/silence-cut-tuning/candidates/B_n37_s060_p080/B_n37_s060_p080.cut-map.json
 ```
 
 Exact saved command: `/home/aron/.tmp/silence-cut-tuning/candidates/B_n37_s060_p080/render-command.txt`. Cut map: `/home/aron/.tmp/silence-cut-tuning/candidates/B_n37_s060_p080/B_n37_s060_p080.cut-map.json`.

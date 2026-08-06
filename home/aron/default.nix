@@ -6,6 +6,7 @@
     ./google-drive.nix
     ./herdr.nix
     ./packages.nix
+    ./repos.nix
     ./shell.nix
   ];
 

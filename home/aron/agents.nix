@@ -68,7 +68,7 @@ in
     };
 
     # Writable: Codex TUI writes project trust into config.toml at runtime.
-    ".codex/config.toml".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/coding/nix-aron/dotfiles/codex/config.toml";
+    ".codex/config.toml".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/config/nix-aron/dotfiles/codex/config.toml";
     ".codex/caveman.config.toml".source = ../../dotfiles/codex/caveman.config.toml;
     ".codex/prompts" = {
       source = ../../dotfiles/codex/prompts;
@@ -87,7 +87,7 @@ in
 
     # Writable: Claude Code rewrites settings.json at runtime (/config, /model).
     ".claude/settings.json".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/coding/nix-aron/dotfiles/claude/settings.json";
+      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/config/nix-aron/dotfiles/claude/settings.json";
 
     # Global memory: caveman ultra active by default in every Claude session.
     ".claude/CLAUDE.md".source = ../../dotfiles/claude/CLAUDE.md;

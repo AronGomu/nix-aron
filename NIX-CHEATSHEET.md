@@ -1,13 +1,13 @@
 # NixOS Cheat Sheet
 
-Active config: `/home/aron/coding/nix-aron`
+Active config: `/home/aron/config/nix-aron`
 
 Host flake output: `desk-main`
 
 ## Apply config
 
 ```bash
-cd /home/aron/coding/nix-aron
+cd /home/aron/config/nix-aron
 
 # Apply config now + make boot default
 sudo nixos-rebuild switch --flake .#desk-main
@@ -31,7 +31,7 @@ git add path/to/new-file.nix
 ## Update system
 
 ```bash
-cd /home/aron/coding/nix-aron
+cd /home/aron/config/nix-aron
 
 # Update all flake inputs
 nix flake update
@@ -52,7 +52,7 @@ git diff flake.lock
 ## Check config
 
 ```bash
-cd /home/aron/coding/nix-aron
+cd /home/aron/config/nix-aron
 
 # Validate flake outputs
 nix flake check
@@ -181,7 +181,7 @@ ls ~/GoogleDrive
 ## Common workflow
 
 ```bash
-cd /home/aron/coding/nix-aron
+cd /home/aron/config/nix-aron
 $EDITOR home/aron/packages.nix
 git diff
 sudo nixos-rebuild test --flake .#desk-main
