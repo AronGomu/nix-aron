@@ -174,6 +174,13 @@ sudo shutdown -h now
 `/mnt` must still be mounted for that sync; switching VT keeps it, rebooting
 does not. If you rebooted, re-run `sudo ./docs/migration/mount-target.sh` first.
 
+If the TTY is not reachable at all, use `docs/migration/g3-finish.sh`, which
+does the same thing from a transient *system* unit — stopping the display
+manager cannot kill it mid-rsync, and it powers off on success or hands the
+desktop back on failure. Skipping the final sync is also survivable: the config
+repo lives on `origin`, so the NVMe can `git clone` it back, and the Samsung
+keeps every byte until you choose to reformat it.
+
 Then unplug the Samsung and boot. On the NVMe the `rebuild` alias fails until
 `nixos-host` exists, so bootstrap once by naming the disk you are booted from:
 
