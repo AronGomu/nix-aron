@@ -10,8 +10,9 @@ Hosts (one `main` branch, not per-machine branches):
 | — | `hosts/_template` | copy to add a machine |
 
 ```bash
-sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main
-# after HM changes: home-manager switch --flake ~/config/nix-aron#desk-main
+sudo nixos-rebuild switch --flake ~/config/nix-aron#$(nixos-host)   # = the `rebuild` alias
+# Home Manager changes apply through the same command — there is no
+# homeConfigurations output, so never run `home-manager switch`.
 ```
 
 ## Design
@@ -81,7 +82,7 @@ cd /mnt/etc/nixos
 # Replace generic HW scan. storage.nix remains authoritative for mount layout.
 nixos-generate-config --root /mnt --show-hardware-config > hosts/desk-main/hardware-configuration.nix
 
-nixos-install --flake .#desk-main
+nixos-install --flake .#desk-main-nvme   # name the target disk; nixos-host does not exist yet at install time
 nixos-enter --root /mnt -c 'passwd aron'
 reboot
 ```
@@ -112,7 +113,7 @@ Manual GUI setup:
 ## Rebuild/update
 
 ```bash
-sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main
+sudo nixos-rebuild switch --flake ~/config/nix-aron#$(nixos-host)
 nix flake update --flake ~/config/nix-aron
 ```
 

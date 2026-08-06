@@ -17,8 +17,13 @@ let
     gtgones = "cd /home/aron/projects/gones";
     gtmillions = "cd /home/aron/projects/millions_must_die";
 
-    rebuild = "sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main";
-    hm = "home-manager switch --flake ~/config/nix-aron#desk-main";
+    # $(nixos-host) resolves the flake output from the running root disk, so a
+    # rebuild can never carry the other disk's fileSystems. Never hardcode it:
+    # there is no bare `desk-main`, only `desk-main-nvme` / `desk-main-samsung`.
+    rebuild = "sudo nixos-rebuild switch --flake ~/config/nix-aron#$(nixos-host)";
+    # No homeConfigurations output — HM is wired through the NixOS module, so
+    # `home-manager switch` would apply a different config or none. Refuse loudly.
+    hm = "echo 'no standalone HM output — HM applies via nixos-rebuild; run: rebuild' >&2";
     update-system = "nix flake update --flake ~/config/nix-aron";
   };
 

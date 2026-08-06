@@ -17,7 +17,7 @@ Floccus = daily bookmarks, multi-device, work laptop.
 ### 1. Rebuild
 
 ```bash
-sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#desk-main
+sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#$(nixos-host)
 ```
 
 Restart Brave. You should see a **Nix** bookmarks folder (managed).

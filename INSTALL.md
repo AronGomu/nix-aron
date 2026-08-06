@@ -170,7 +170,7 @@ This validates the NixOS and Home Manager configuration without installing it.
 Run the installer:
 
 ```bash
-nixos-install --flake .#desk-main
+nixos-install --flake .#desk-main-nvme   # name the target disk; nixos-host does not exist yet at install time
 ```
 
 The installer may request a root password. Set the `aron` user password before rebooting:
@@ -292,7 +292,7 @@ docker info
 Rebuild after configuration changes:
 
 ```bash
-sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main
+sudo nixos-rebuild switch --flake ~/config/nix-aron#$(nixos-host)
 ```
 
 Update pinned flake inputs manually:
@@ -300,7 +300,7 @@ Update pinned flake inputs manually:
 ```bash
 cd ~/config/nix-aron
 nix flake update
-sudo nixos-rebuild switch --flake .#desk-main
+sudo nixos-rebuild switch --flake .#$(nixos-host)
 ```
 
 The configuration runs weekly Nix garbage collection and removes generations older than 30 days.

@@ -18,11 +18,11 @@ Read and obey `/home/aron/AGENTS.md` plus repo `NIX-CHEATSHEET.md`.
 | Fact             | Value                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------- |
 | Repo             | `/home/aron/config/nix-aron`                                                                          |
-| Host flake       | `desk-main`                                                                                           |
-| HM user flake    | check `home-manager` / flake outputs (often `#aron` or `#desk-main` — verify `flake.nix` before cmds) |
+| Host flake       | `desk-main-nvme` (btrfs nvme0n1, current) / `desk-main-samsung` (ext4 sdb) — **no bare `desk-main`**   |
+| HM user flake    | none — HM is wired through the NixOS module; `nixos-rebuild` applies it. Never run `home-manager switch` |
 | Active source    | this flake only                                                                                       |
 | Legacy           | `/etc/nixos/configuration.nix` — **never** edit for system changes                                    |
-| Rebuild (system) | `sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#desk-main`                              |
+| Rebuild (system) | `sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#$(nixos-host)`                              |
 | Branch           | work on `main` unless user said otherwise                                                             |
 
 ## Input
@@ -111,7 +111,7 @@ residual-risk: ...
 
 Rebuild when ready (I did not run it):
 
-  sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#desk-main
+  sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#$(nixos-host)
 
 # If change was HM-only and you normally use HM separately, also/alternate:
   home-manager switch --flake /home/aron/config/nix-aron#<user-or-output>
