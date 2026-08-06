@@ -2,7 +2,17 @@
 
 Active config: `/home/aron/config/nix-aron`
 
-Host flake output: `desk-main`
+Host flake outputs — one per disk, no bare `desk-main`:
+
+| Attr | Disk | Root FS |
+|---|---|---|
+| `desk-main-samsung` | Samsung 860 EVO (`sdb`) | ext4 |
+| `desk-main-nvme` | Crucial P310 (`nvme0n1`) | Btrfs |
+
+`$(nixos-host)` below resolves to whichever one matches the running root disk.
+Never hardcode the other disk's attr: `switch` applies the new `fileSystems`
+live, so it would mount that disk's `/nix` and `/home` over the running ones and
+kill the shell mid-command. Use `boot` + reboot for any mount change.
 
 ## Apply config
 
@@ -10,16 +20,16 @@ Host flake output: `desk-main`
 cd /home/aron/config/nix-aron
 
 # Apply config now + make boot default
-sudo nixos-rebuild switch --flake .#desk-main
+sudo nixos-rebuild switch --flake .#$(nixos-host)
 
 # Build + activate until reboot only
-sudo nixos-rebuild test --flake .#desk-main
+sudo nixos-rebuild test --flake .#$(nixos-host)
 
 # Build without activating
-sudo nixos-rebuild build --flake .#desk-main
+sudo nixos-rebuild build --flake .#$(nixos-host)
 
 # Build + make boot default without activating now
-sudo nixos-rebuild boot --flake .#desk-main
+sudo nixos-rebuild boot --flake .#$(nixos-host)
 ```
 
 New untracked `.nix` files must enter Git before flake sees them:
@@ -37,7 +47,7 @@ cd /home/aron/config/nix-aron
 nix flake update
 
 # Apply updated config
-sudo nixos-rebuild switch --flake .#desk-main
+sudo nixos-rebuild switch --flake .#$(nixos-host)
 
 # Update one input only
 nix flake update nixpkgs
@@ -137,7 +147,7 @@ Cleanup is irreversible. Keep known-good generations until new config works.
 
 ```bash
 # Detailed rebuild error
-sudo nixos-rebuild switch --flake .#desk-main --show-trace
+sudo nixos-rebuild switch --flake .#$(nixos-host) --show-trace
 
 # Current NixOS version
 nixos-version
@@ -184,7 +194,7 @@ ls ~/GoogleDrive
 cd /home/aron/config/nix-aron
 $EDITOR home/aron/packages.nix
 git diff
-sudo nixos-rebuild test --flake .#desk-main
-sudo nixos-rebuild switch --flake .#desk-main
+sudo nixos-rebuild test --flake .#$(nixos-host)
+sudo nixos-rebuild switch --flake .#$(nixos-host)
 git status --short
 ```

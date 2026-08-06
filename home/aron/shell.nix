@@ -10,8 +10,24 @@ let
     gtprojects = "cd /home/aron/projects";
     gtconfig = "cd /home/aron/config";
     ll = "eza -lah --group-directories-first";
-    rebuild = "sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main";
-    hm = "home-manager switch --flake ~/config/nix-aron#desk-main";
+    # $(nixos-host) resolves the flake output from the running root disk, so a
+    # rebuild can never carry the other disk's fileSystems. Never hardcode the
+    # output here — that is exactly how the NVMe layout got switched onto the
+    # Samsung. Single quotes in the generated alias keep the substitution lazy.
+    # `_nixhost=$(...) &&` so a missing or failing nixos-host short-circuits
+    # before sudo. Quoting the substitution alone does nothing: the shell eats
+    # the quotes, argv ends up identical, and nixos-rebuild silently falls back
+    # to nixosConfigurations.<hostname> — a confusing flake-attribute error that
+    # invites hand-typing an output name, which is how this went wrong before.
+    rebuild = "_nixhost=$(nixos-host) && sudo nixos-rebuild switch --flake ~/config/nix-aron#\"$_nixhost\"";
+    # `boot` + reboot, not `switch`, whenever fileSystems change: `switch`
+    # applies new mount units to the running system immediately.
+    rebuild-boot = "_nixhost=$(nixos-host) && sudo nixos-rebuild boot --flake ~/config/nix-aron#\"$_nixhost\"";
+    # Standalone home-manager gets no osConfig, so home/aron/end4.nix evaluates
+    # `enabled = false` and drops every hypr*/quickshell file — while writing the
+    # same profile the NixOS module owns. Running it here wipes the desktop
+    # config. HM is wired through the NixOS module on this host; use rebuild.
+    hm = "echo 'home-manager is managed by the NixOS module here — use: rebuild' >&2; false";
     update-system = "nix flake update --flake ~/config/nix-aron";
     v = "nvim";
   };
@@ -64,6 +80,11 @@ in
       initContent = lib.mkMerge [
         (lib.mkBefore agentEnvInit)
         ''
+          # zsh leaves interactive_comments off by default (unlike bash), so a
+          # pasted `cmd  # note` passes "#" and the note as literal arguments
+          # instead of ignoring them.
+          setopt interactive_comments
+
           for keymap in emacs viins vicmd; do
             bindkey -M $keymap '^[[1;5C' forward-word
             bindkey -M $keymap '^[[1;5D' backward-word

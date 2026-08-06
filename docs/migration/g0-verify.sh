@@ -16,16 +16,21 @@ pass=0
 fail() { echo "  FAIL  $*"; pass=1; }
 ok()   { echo "  ok    $*"; }
 
-echo "=== import sanity"
-grep -q '\./storage\.btrfs\.nix' hosts/desk-main/default.nix \
-  && ok "default.nix imports storage.btrfs.nix" \
-  || fail "default.nix does NOT import storage.btrfs.nix"
-grep -q '\./storage\.nix' hosts/desk-main/default.nix \
-  && fail "default.nix still imports storage.nix — remove it" \
-  || ok "storage.nix not imported"
-grep -q 'REPLACE-ME' hosts/desk-main/storage.btrfs.nix \
+echo "=== output sanity"
+grep -q 'REPLACE-ME' hosts/desk-main/disks.nix \
   && fail "UUID placeholders unfilled — run fill-uuids.sh" \
   || ok "UUIDs filled in"
+
+# The two outputs are the isolation mechanism. Assert they exist and that each
+# one really describes its own disk, rather than grepping for an import.
+SAM_FS="$(nix eval --raw '.#nixosConfigurations.desk-main-samsung.config.fileSystems."/".fsType')"
+NVME_FS="$(nix eval --raw '.#nixosConfigurations.desk-main-nvme.config.fileSystems."/".fsType')"
+[ "$SAM_FS" = "ext4" ]   && ok "desk-main-samsung root = ext4"  || fail "desk-main-samsung root = $SAM_FS"
+[ "$NVME_FS" = "btrfs" ] && ok "desk-main-nvme root = btrfs"    || fail "desk-main-nvme root = $NVME_FS"
+
+nix eval '.#nixosConfigurations.desk-main' >/dev/null 2>&1 \
+  && fail "a bare .#desk-main output exists again — it must not, see flake.nix" \
+  || ok "no bare .#desk-main output (a stale rebuild command fails loudly)"
 
 echo
 echo "=== git state (a flake builds from the tracked tree)"
@@ -40,7 +45,7 @@ fi
 
 echo
 echo "=== building"
-nixos-rebuild build --flake .#desk-main
+nixos-rebuild build --flake .#desk-main-nvme
 FSTAB="$(readlink -f result)/etc/fstab"
 [ -r "$FSTAB" ] || { echo "FAIL: no fstab at $FSTAB"; exit 1; }
 
@@ -76,25 +81,25 @@ grep -q "ext4" "$FSTAB" && fail "stale ext4 entry" || ok "no ext4 entries"
 
 echo
 echo "=== bootloader"
-grep -q 'systemd-boot' <(nix eval --raw .#nixosConfigurations.desk-main.config.system.boot.loader.id 2>/dev/null || echo "") \
+grep -q 'systemd-boot' <(nix eval --raw .#nixosConfigurations.desk-main-nvme.config.system.boot.loader.id 2>/dev/null || echo "") \
   && ok "loader id = systemd-boot" || echo "  note  could not read loader id; boot.nix sets systemd-boot"
-CANTOUCH="$(nix eval .#nixosConfigurations.desk-main.config.boot.loader.efi.canTouchEfiVariables)"
+CANTOUCH="$(nix eval .#nixosConfigurations.desk-main-nvme.config.boot.loader.efi.canTouchEfiVariables)"
 [ "$CANTOUCH" = "true" ] \
   && ok "canTouchEfiVariables = true (an NVRAM entry will be written)" \
   || fail "canTouchEfiVariables = $CANTOUCH — nixos-install writes NO NVRAM entry"
-ESP="$(nix eval --raw .#nixosConfigurations.desk-main.config.boot.loader.efi.efiSysMountPoint)"
+ESP="$(nix eval --raw .#nixosConfigurations.desk-main-nvme.config.boot.loader.efi.efiSysMountPoint)"
 [ "$ESP" = "/boot" ] && ok "efiSysMountPoint = /boot" || fail "efiSysMountPoint = $ESP"
 
 echo
 echo "=== swap"
-SWAP="$(nix eval --json .#nixosConfigurations.desk-main.config.swapDevices)"
+SWAP="$(nix eval --json .#nixosConfigurations.desk-main-nvme.config.swapDevices)"
 [ "$SWAP" = "[]" ] && ok "swapDevices = [] (zram only)" || fail "swapDevices = $SWAP"
 
 echo
 echo "=== user"
-UID_="$(nix eval .#nixosConfigurations.desk-main.config.users.users.aron.uid)"
+UID_="$(nix eval .#nixosConfigurations.desk-main-nvme.config.users.users.aron.uid)"
 [ "$UID_" = "1000" ] && ok "aron uid = 1000 (matches the source system)" || fail "aron uid = $UID_"
-MUT="$(nix eval .#nixosConfigurations.desk-main.config.users.mutableUsers)"
+MUT="$(nix eval .#nixosConfigurations.desk-main-nvme.config.users.mutableUsers)"
 [ "$MUT" = "true" ] \
   && ok "mutableUsers = true (passwd works after install)" \
   || fail "mutableUsers = false — aron needs hashedPassword or the system is unloggable"
@@ -102,7 +107,7 @@ MUT="$(nix eval .#nixosConfigurations.desk-main.config.users.mutableUsers)"
 echo
 if [ "$pass" = 0 ]; then
   echo "G0 PASSED — safe to run:"
-  echo "  sudo nixos-install --flake $REPO#desk-main"
+  echo "  sudo nixos-install --flake $REPO#desk-main-nvme"
 else
   echo "G0 FAILED — do not run nixos-install."
   exit 1

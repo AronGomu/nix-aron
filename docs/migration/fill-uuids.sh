@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
-# G0 step 1 — read the UUIDs of the freshly formatted Crucial partitions,
-# write them into hosts/desk-main/storage.btrfs.nix, and switch
-# hosts/desk-main/default.nix over to that module.
+# G0 step 1 — read the UUIDs of the freshly formatted Crucial partitions and
+# write them into the `nvme` block of hosts/desk-main/disks.nix.
+#
+# There is no longer an import to flip: the Btrfs layout is its own flake
+# output (desk-main-nvme) and is always present. This script only fills UUIDs.
 #
 # Run AFTER mkfs.fat / mkfs.btrfs. Idempotent — safe to re-run.
 # Touches only files in this repo. No disks are modified.
@@ -9,8 +11,7 @@ set -euo pipefail
 
 DISK="${1:-/dev/disk/by-id/nvme-CT1000P310SSD8_252550DB0A3E}"
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-STORAGE="$REPO/hosts/desk-main/storage.btrfs.nix"
-DEFAULT="$REPO/hosts/desk-main/default.nix"
+DISKS="$REPO/hosts/desk-main/disks.nix"
 
 BOOT="$DISK-part1"
 ROOT="$DISK-part2"
@@ -45,29 +46,28 @@ done
 echo "  root (btrfs, NIXROOT) $ROOT_UUID"
 echo "  boot (vfat,  NIXBOOT) $BOOT_UUID"
 
+# The `samsung` and `nvme` blocks both have `root =` / `boot =` at the same
+# indent, so the substitution is scoped to the nvme block by address range.
+# Only the quoted value is replaced, which keeps the trailing device comment.
 sed -i \
-  -e "s|^  rootUuid = \".*\";|  rootUuid = \"$ROOT_UUID\";|" \
-  -e "s|^  bootUuid = \".*\";|  bootUuid = \"$BOOT_UUID\";|" \
-  "$STORAGE"
+  -e "/^  nvme = {/,/^  };/ s|^\(    root = \)\"[^\"]*\"|\1\"$ROOT_UUID\"|" \
+  -e "/^  nvme = {/,/^  };/ s|^\(    boot = \)\"[^\"]*\"|\1\"$BOOT_UUID\"|" \
+  "$DISKS"
 
-grep -q "REPLACE-ME" "$STORAGE" && fail "placeholders still present in $STORAGE"
-echo "--- patched $STORAGE"
-grep -n 'Uuid = ' "$STORAGE"
+grep -q "REPLACE-ME" "$DISKS" && fail "placeholders still present in $DISKS"
+echo "--- patched $DISKS"
+sed -n '/^  nvme = {/,/^  };/p' "$DISKS" | sed 's/^/    /'
 
-# Switch the host over to the Btrfs layout.
-if grep -q '\./storage\.btrfs\.nix' "$DEFAULT"; then
-  echo "--- $DEFAULT already imports storage.btrfs.nix"
-else
-  sed -i 's|\./storage\.nix|./storage.btrfs.nix|' "$DEFAULT"
-  echo "--- switched $DEFAULT to storage.btrfs.nix"
-fi
-# Plain `grep -q ... && fail`: `grep -c | grep -qx 0` looks equivalent but
-# grep -c exits 1 on zero matches and pipefail turns the success case into a
-# failure. The regex must not match ./storage.btrfs.nix, hence the anchor on
-# "nix" immediately after "storage.".
-grep -qE '\./storage\.nix([^a-zA-Z0-9]|$)' "$DEFAULT" \
-  && fail "$DEFAULT still imports storage.nix — both must never be imported"
-grep -n 'storage' "$DEFAULT"
+# Re-read the values back out of the nvme block to prove the sed landed there
+# and not in the samsung block.
+got_root="$(sed -n '/^  nvme = {/,/^  };/ s|^    root = "\([^"]*\)".*|\1|p' "$DISKS")"
+got_boot="$(sed -n '/^  nvme = {/,/^  };/ s|^    boot = "\([^"]*\)".*|\1|p' "$DISKS")"
+[ "$got_root" = "$ROOT_UUID" ] || fail "nvme.root is '$got_root', expected $ROOT_UUID"
+[ "$got_boot" = "$BOOT_UUID" ] || fail "nvme.boot is '$got_boot', expected $BOOT_UUID"
+
+# And that the Samsung block was left alone.
+sam_root="$(sed -n '/^  samsung = {/,/^  };/ s|^    root = "\([^"]*\)".*|\1|p' "$DISKS")"
+[ "$sam_root" = "$SAMSUNG_ROOT" ] || fail "samsung.root was overwritten — now '$sam_root'"
 
 # Sanity-check the subvolumes exist, if the fs is mounted somewhere.
 if MP="$(findmnt -rno TARGET "$ROOT" 2>/dev/null | head -1)" && [ -n "$MP" ]; then

@@ -84,18 +84,26 @@
         };
     in
     {
+      # One output per physical disk. There is deliberately no bare `desk-main`:
+      # a rebuild has to name the disk it is for, so a stale `#desk-main` command
+      # fails with "unknown flake output" instead of writing one disk's fstab
+      # into the other disk's running system. Use `nixos-host` (or the `rebuild`
+      # alias, which calls it) to get the output matching the running root.
       nixosConfigurations = {
-        desk-main = mkNixos ./hosts/desk-main;
+        desk-main-samsung = mkNixos ./hosts/desk-main/samsung.nix; # sdb, ext4
+        desk-main-nvme = mkNixos ./hosts/desk-main/nvme.nix; # nvme0n1, btrfs
         # laptop = mkNixos ./hosts/laptop;
       };
 
-      homeConfigurations.desk-main = home-manager.lib.homeManagerConfiguration {
-        pkgs = pkgsUnstable;
-        extraSpecialArgs = {
-          inherit inputs pkgsUnstable;
-        };
-        modules = [ ./home/aron ];
-      };
+      # No homeConfigurations output. Home Manager is wired through the NixOS
+      # module (see mkNixos above), and a standalone HM config gets no
+      # `osConfig`, so home/aron/end4.nix evaluates `enabled = false` and emits
+      # none of the hypr*/quickshell files — while writing the same
+      # ~/.local/state/nix/profiles/home-manager the NixOS module owns. Running
+      # it would wipe the desktop config. Removing the output makes every
+      # spelling of that command fail with "unknown flake output" instead, the
+      # same mechanism that protects the bare `desk-main` system output.
+      # Apply HM changes with `rebuild`.
 
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
     };

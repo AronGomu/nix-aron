@@ -27,27 +27,80 @@ State verified live on 2026-08-06 from the running system.
 
 ## What changed in this repo to prepare
 
-- `hosts/desk-main/storage.btrfs.nix` — rewritten. Was `by-label`, now `by-uuid`
-  with two placeholders. `/mnt/data` moved from `umask=0022` (which marks every
-  file executable) to `fmask=0133` + `dmask=0022`, plus `windows_names`. Gained
-  `services.btrfs.autoScrub`. All `lib.mkForce` on `fileSystems` removed, so
-  importing both storage modules now fails loudly instead of silently resolving.
+- `hosts/desk-main/storage.nvme.nix` (was `storage.btrfs.nix`) — rewritten. Was
+  `by-label`, now `by-uuid`. `/mnt/data` moved from `umask=0022` (which marks
+  every file executable) to `fmask=0133` + `dmask=0022`, plus `windows_names`.
+  Gained `services.btrfs.autoScrub`.
 - `modules/nixos/base.nix` — the disabled `services.btrfs.autoScrub` block moved
   out to the host's Btrfs module, where the layout it describes actually exists.
-- `hosts/desk-main/default.nix` — **unchanged for now**, still imports
-  `./storage.nix`. `fill-uuids.sh` flips it at G0.
+- `hosts/desk-main/disks.nix` — every UUID for both disks, one place.
+  `fill-uuids.sh` writes the `nvme` block at G0.
+- `hosts/desk-main/default.nix` — gone, split into `common.nix` (no storage) plus
+  `samsung.nix` / `nvme.nix`. See the next section for why.
 
-## Why the import is not flipped yet
+## There is no import to flip (post-incident, 2026-08-06)
 
-`storage.nix` describes the *running* Samsung root. The moment `default.nix`
-points at `storage.btrfs.nix`, any `nixos-rebuild switch` on the Samsung would
-write an fstab for a disk that does not exist yet and break the rollback system
-on its next boot. The flip belongs at G0, after the NVMe is formatted.
+The original design had one `desk-main` output whose `default.nix` was flipped
+from `storage.nix` to `storage.btrfs.nix` at G0, guarded only by a written rule:
+*do not run `nixos-rebuild switch` on the Samsung after the flip*.
 
-Between the flip and G3 the Samsung stays bootable — its existing generation and
-its own `/boot` are untouched — but **do not run `nixos-rebuild switch` on the
-Samsung after the flip.** To roll back, boot an older generation, or flip the
-import back first.
+That rule was broken twice on 2026-08-06 (generations 68 and 69). `switch` does
+not merely stage a boot entry — it applies the new `fileSystems` to the running
+system immediately. From the journal:
+
+    home.mount: Directory /home to mount over is not empty, mounting anyway.
+    Mounted /home.
+    nix.mount: Directory /nix to mount over is not empty, mounting anyway.
+    Mounted /nix.
+    nixos-rebuild-switch-to-configuration.service: Main process exited, status=4
+
+The NVMe's `@nix` was stacked over the live store, so every binary path resolved
+into the wrong copy and the shell died mid-command; `@home` took the dotfiles
+with it. `/boot` was unmounted from the Samsung ESP and the NVMe ESP mounted in
+its place. Only `-.mount` failing (`status=32`) kept `/` on ext4. The boot entry
+had already been written to the Samsung ESP by then, pointing at a store path
+that exists only on the Samsung while `root=fstab` said NVMe — so the machine
+did not come back either.
+
+The layout choice is therefore no longer a line anyone can flip. Each disk is
+its own flake output:
+
+| Attr | Entry | Storage |
+|---|---|---|
+| `desk-main-samsung` | `hosts/desk-main/samsung.nix` | `storage.samsung.nix` (ext4) |
+| `desk-main-nvme` | `hosts/desk-main/nvme.nix` | `storage.nvme.nix` (Btrfs) |
+
+Both are always present and always buildable; neither can be reached without
+naming it. There is no bare `desk-main`, so a stale command fails with "unknown
+flake output" rather than switching disks under a running system. `nixos-host`
+resolves the running root's UUID to its attr, and the `rebuild` alias calls it,
+so the everyday command is correct on either disk without being edited at G3.
+
+Building the other disk's output is safe — `nix build` and `nixos-rebuild build`
+touch nothing.
+
+`boot` is **not** safe for the other disk's output. It moves no mounts, but it
+still runs the bootloader installer, which writes entries into whatever is
+mounted at `/boot` — the running disk's ESP. The result is BRICK-1's shape:
+an entry naming one disk's root with an `init=` that resolves only in the other
+disk's store. `hosts/desk-main/esp-guard.nix` compares `/boot`'s UUID against
+the output's own ESP and fails loudly with a recovery path, but only *after* the
+entries are written, so the cleanup is manual. Use `rebuild-boot`, never a
+hand-typed `--flake .#desk-main-<other>`.
+
+### First rebuild after this restructure
+
+`nixos-host` ships in the new generation, so it does not exist yet in whatever
+generation you are running now. Until you switch once, the `rebuild` alias
+resolves to nothing and errors out. Bootstrap it by naming the disk explicitly,
+**once**, and only the one you are actually booted from:
+
+```bash
+sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main-samsung
+```
+
+Do not "fix" that first error by substituting `#desk-main-nvme`. That is the
+2026-08-06 command.
 
 ## Order of operations
 
@@ -56,13 +109,13 @@ Everything before step 4 is non-destructive and reversible.
 | # | Command | Plan § | 2026-08-06 |
 |---|---|---|---|
 | 1 | `docs/migration/baseline.sh` | §3 | done |
-| 2 | `nixos-rebuild build --flake .#desk-main` | §3 | done |
+| 2 | `nixos-rebuild build --flake .#desk-main-nvme` | §3 | done |
 | 3 | `docs/migration/preflight-disk.sh` | §4 | done |
 | 4 | `sudo docs/migration/wipe-and-format.sh` | §4 | done |
 | 5 | `sudo docs/migration/mount-target.sh` | §4 | done |
 | 6 | `docs/migration/fill-uuids.sh` | §5.1 | done |
 | 7 | `docs/migration/g0-verify.sh` — **G0** | §5.1 | PASSED |
-| 8 | `sudo nixos-install --flake /home/aron/config/nix-aron#desk-main` | §5.2 | done |
+| 8 | `sudo nixos-install --flake /home/aron/config/nix-aron#desk-main-nvme` | §5.2 | done |
 | 9 | `sudo docs/migration/sync-home.sh` (twice) | §5.3 | done, 22 GB |
 | 10 | `docs/migration/post-install-checks.sh` | §5.2, §5.3, §8 | READY FOR G3 |
 | 11 | shut down, unplug the Samsung, boot — **G3** | §8 | |

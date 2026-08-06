@@ -6,13 +6,40 @@ Hosts (one `main` branch, not per-machine branches):
 
 | Flake attr | Path | Notes |
 |---|---|---|
-| `desk-main` | `hosts/desk-main` | current desktop (ext4 now; Btrfs target in `storage.btrfs.nix`) |
+| `desk-main-samsung` | `hosts/desk-main/samsung.nix` | desktop on the Samsung 860 EVO (ext4) — the rollback system |
+| `desk-main-nvme` | `hosts/desk-main/nvme.nix` | desktop on the Crucial P310 (Btrfs) — the migration target |
 | — | `hosts/_template` | copy to add a machine |
 
+One flake output **per disk**, sharing `hosts/desk-main/common.nix`. There is no
+bare `desk-main` attr on purpose: `nixos-rebuild switch` applies the new
+`fileSystems` to the *running* system immediately, so a config carrying the
+other disk's layout mounts that disk's `/nix` and `/home` over the live ones and
+the machine loses its shell mid-command. Naming the disk makes that a typo you
+cannot make; a stale `#desk-main` fails with "unknown flake output".
+
+`nixos-host` reads the running root's UUID and prints the matching attr, so the
+usual command never needs to know which disk booted:
+
 ```bash
-sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main
-# after HM changes: home-manager switch --flake ~/config/nix-aron#desk-main
+sudo nixos-rebuild switch --flake ~/config/nix-aron#$(nixos-host)   # = the `rebuild` alias
 ```
+
+Home Manager changes apply through the same command — there is no standalone
+`homeConfigurations` output, because running one would strip the desktop config.
+
+Changing `fileSystems`? Use `nixos-rebuild boot` (the `rebuild-boot` alias) and
+reboot. `switch` is never safe for a mount change.
+
+`boot` is not a safety net for the *wrong output* though — it still installs
+bootloader entries into the running disk's ESP. `hosts/desk-main/esp-guard.nix`
+catches that and fails loudly. Only `nix build` / `nixos-rebuild build` are
+unconditionally safe.
+
+**First rebuild after the per-disk split:** `nixos-host` lives in the new
+generation, so it is absent from the one you are running and `rebuild` errors
+until you switch once. Bootstrap by naming the disk you are booted from —
+`sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main-samsung` — and
+never by substituting the other disk's name.
 
 ## Design
 
@@ -78,10 +105,10 @@ mkdir -p /mnt/etc
 git clone git@github.com:AronGomu/nix-aron.git /mnt/etc/nixos
 cd /mnt/etc/nixos
 
-# Replace generic HW scan. storage.nix remains authoritative for mount layout.
+# Replace generic HW scan. storage.<disk>.nix remains authoritative for mount layout.
 nixos-generate-config --root /mnt --show-hardware-config > hosts/desk-main/hardware-configuration.nix
 
-nixos-install --flake .#desk-main
+nixos-install --flake .#desk-main-nvme
 nixos-enter --root /mnt -c 'passwd aron'
 reboot
 ```
@@ -112,7 +139,7 @@ Manual GUI setup:
 ## Rebuild/update
 
 ```bash
-sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main
+sudo nixos-rebuild switch --flake ~/config/nix-aron#$(nixos-host)
 nix flake update --flake ~/config/nix-aron
 ```
 
