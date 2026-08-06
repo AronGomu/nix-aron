@@ -53,23 +53,50 @@ import back first.
 
 Everything before step 4 is non-destructive and reversible.
 
-| # | Command | Plan § |
-|---|---|---|
-| 1 | `docs/migration/baseline.sh` | §3 |
-| 2 | `nixos-rebuild build --flake .#desk-main` | §3 |
-| 3 | `docs/migration/preflight-disk.sh` | §4 |
-| 4 | **wipe + partition + format, by hand** (printed by step 3) | §4 |
-| 5 | subvolumes + mounts (below) | §4 |
-| 6 | `docs/migration/fill-uuids.sh` | §5.1 |
-| 7 | `docs/migration/g0-verify.sh` — **G0** | §5.1 |
-| 8 | `sudo nixos-install --flake /home/aron/coding/nix-aron#desk-main` | §5.2 |
-| 9 | rsync home from a TTY (below) | §5.3 |
-| 10 | `docs/migration/post-install-checks.sh` | §5.2, §5.3, §8 |
-| 11 | shut down, unplug the Samsung, boot — **G3** | §8 |
+| # | Command | Plan § | 2026-08-06 |
+|---|---|---|---|
+| 1 | `docs/migration/baseline.sh` | §3 | done |
+| 2 | `nixos-rebuild build --flake .#desk-main` | §3 | done |
+| 3 | `docs/migration/preflight-disk.sh` | §4 | done |
+| 4 | `sudo docs/migration/wipe-and-format.sh` | §4 | done |
+| 5 | `sudo docs/migration/mount-target.sh` | §4 | done |
+| 6 | `docs/migration/fill-uuids.sh` | §5.1 | done |
+| 7 | `docs/migration/g0-verify.sh` — **G0** | §5.1 | PASSED |
+| 8 | `sudo nixos-install --flake /home/aron/coding/nix-aron#desk-main` | §5.2 | done |
+| 9 | `sudo docs/migration/sync-home.sh` (twice) | §5.3 | done, 22 GB |
+| 10 | `docs/migration/post-install-checks.sh` | §5.2, §5.3, §8 | READY FOR G3 |
+| 11 | shut down, unplug the Samsung, boot — **G3** | §8 | |
 
-Steps 1–3 can be run right now. Do not start step 4 until the §2.2 pre-flight
-boxes are ticked: OneKey seed written down offline, the 62 Google-native docs
-exported, `brain` committed **and pushed**, and the recovery USB written.
+Steps 4 and 5 were hand-typed commands in rev 3 of the plan; they are scripts
+here so the guards are auditable rather than dependent on typing correctly at
+the one moment where a typo is unrecoverable.
+
+## Result of the destructive phase (2026-08-06)
+
+| | |
+|---|---|
+| `nvme0n1p1` | 1 GB vfat, `NIXBOOT`, UUID `61EA-07B3`, PARTUUID `1aed035f-d8cb-4448-8a96-b7facc556024` |
+| `nvme0n1p2` | 930.5 GB btrfs, `NIXROOT`, UUID `5b251757-c14c-4641-aec5-cea83857290b` |
+| Subvolumes | `@` 256, `@home` 257, `@nix` 258, `@snapshots` 259 |
+| Home copied | 22 GB (73 GB before exclusions) |
+
+btrfs-progs 6.19 enables `block-group-tree` by default. It needs kernel ≥ 6.1,
+which every kernel this flake builds satisfies — but a pre-6.1 rescue ISO will
+not mount this root. The recovery stick is 26.05 and is fine.
+
+### Both boot paths exist on the NVMe
+
+`nixos-install` wrote `\EFI\systemd\systemd-bootx64.efi` **and** the firmware
+fallback `\EFI\BOOT\BOOTX64.EFI`, and registered `Boot0000 Linux Boot Manager`.
+That entry was created *last* in `BootOrder`, behind Windows and PXE. With the
+Samsung unplugged the firmware would have walked past a dead Windows entry and
+sat in a DHCP timeout before reaching the real system. Reordered before G3:
+
+    sudo efibootmgr -o 0000,0006,0003,0001,0002,0005
+
+`0000` is the NVMe, `0006` is the Samsung's `UEFI OS` fallback entry — kept
+second so the rollback still boots. `0003` (Windows) points at the PARTUUID
+`c92098bf-…` that the wipe destroyed; it is dead and gets deleted in §9.
 
 ### Step 5 — subvolumes and mounts
 
