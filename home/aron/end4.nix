@@ -469,11 +469,18 @@ in
       JSON
       fi
 
+      # The shell rewrites config.json at runtime and can leave it malformed.
+      # Under activation's `set -e` a jq failure would abort the whole switch
+      # before linkGeneration, so warn and leave the file alone instead.
       tmp_file="$(${pkgs.coreutils}/bin/mktemp)"
-      ${pkgs.jq}/bin/jq --arg wallpaper "${wallpaper}" \
+      if ${pkgs.jq}/bin/jq --arg wallpaper "${wallpaper}" \
         'if .bar.screenList == ["HDMI-A-2"] then .bar.screenList = [] else . end
-        | .background.wallpaperPath = $wallpaper' "$config_file" > "$tmp_file"
-      ${pkgs.coreutils}/bin/mv "$tmp_file" "$config_file"
+        | .background.wallpaperPath = $wallpaper' "$config_file" > "$tmp_file"; then
+        ${pkgs.coreutils}/bin/mv -f "$tmp_file" "$config_file"
+      else
+        echo "warning: $config_file is not valid JSON — leaving it untouched" >&2
+        ${pkgs.coreutils}/bin/rm -f "$tmp_file"
+      fi
     '';
   };
 }

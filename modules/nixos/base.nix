@@ -12,6 +12,14 @@
   hardware.uinput.enable = true;
 
   users = {
+    # mutableUsers: every credential lives in the target's /etc/shadow, and no
+    # initialHashedPassword is declared here. A FRESH /etc therefore has no
+    # login at all — nixos-install sets root only, and sync-home.sh copies /home,
+    # not /etc. docs/migration/post-install-checks.sh is the gate that catches
+    # this; do not skip it after an install. Setting initialHashedPassword (from
+    # `mkpasswd -m yescrypt`) is the only thing that makes a fresh /etc
+    # self-sufficient — it applies at account creation only, so it does not
+    # fight `passwd` on an existing system.
     mutableUsers = true;
     users.aron = {
       isNormalUser = true;
