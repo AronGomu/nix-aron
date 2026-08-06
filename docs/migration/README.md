@@ -88,6 +88,18 @@ the output's own ESP and fails loudly with a recovery path, but only *after* the
 entries are written, so the cleanup is manual. Use `rebuild-boot`, never a
 hand-typed `--flake .#desk-main-<other>`.
 
+### Before any switch that touches storage
+
+```bash
+docs/migration/no-brick-check.sh
+```
+
+Read-only, no sudo. Builds both outputs and compares the one matching the
+running disk against `/run/booted-system`. Check 4 is the whole point: if the
+mount set changes, `switch` would start those mounts on the live system. It
+names them — `/home`, `/nix`, `/.snapshots` are the three that took the shell
+out on 2026-08-06. Exit 1 means do not switch.
+
 ### First rebuild after this restructure
 
 `nixos-host` ships in the new generation, so it does not exist yet in whatever
