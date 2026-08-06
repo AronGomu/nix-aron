@@ -50,12 +50,8 @@
     blueman.enable = true;
     fstrim.enable = true;
     fwupd.enable = true;
-    # Enable after moving root to Btrfs (see hosts/desk-main/storage.btrfs.nix).
-    btrfs.autoScrub = {
-      enable = false;
-      interval = "monthly";
-      fileSystems = [ "/" ];
-    };
+    # btrfs.autoScrub is layout-specific — it lives in the host's Btrfs storage
+    # module (hosts/desk-main/storage.btrfs.nix), not here.
     pipewire = {
       enable = true;
       alsa.enable = true;
