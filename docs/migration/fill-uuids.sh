@@ -20,13 +20,16 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 [ -e "$BOOT" ] || fail "$BOOT missing — partition the disk first"
 [ -e "$ROOT" ] || fail "$ROOT missing — partition the disk first"
 
-BOOT_FS="$(blkid -s TYPE -o value "$BOOT")"
-ROOT_FS="$(blkid -s TYPE -o value "$ROOT")"
+# lsblk, not blkid: blkid needs root and returns an EMPTY string with exit
+# status 0 for a normal user, which would sed a blank UUID into the config.
+# lsblk reads the same udev database unprivileged.
+BOOT_FS="$(lsblk -dno FSTYPE "$BOOT")"
+ROOT_FS="$(lsblk -dno FSTYPE "$ROOT")"
 [ "$BOOT_FS" = "vfat" ]  || fail "part1 is '$BOOT_FS', expected vfat — run mkfs.fat"
 [ "$ROOT_FS" = "btrfs" ] || fail "part2 is '$ROOT_FS', expected btrfs — run mkfs.btrfs"
 
-BOOT_UUID="$(blkid -s UUID -o value "$BOOT")"
-ROOT_UUID="$(blkid -s UUID -o value "$ROOT")"
+BOOT_UUID="$(lsblk -dno UUID "$BOOT")"
+ROOT_UUID="$(lsblk -dno UUID "$ROOT")"
 [ -n "$BOOT_UUID" ] || fail "no UUID on $BOOT"
 [ -n "$ROOT_UUID" ] || fail "no UUID on $ROOT"
 
@@ -58,8 +61,12 @@ else
   sed -i 's|\./storage\.nix|./storage.btrfs.nix|' "$DEFAULT"
   echo "--- switched $DEFAULT to storage.btrfs.nix"
 fi
-grep -c '\./storage\.nix' "$DEFAULT" | grep -qx 0 \
-  || fail "$DEFAULT still imports storage.nix — both must never be imported"
+# Plain `grep -q ... && fail`: `grep -c | grep -qx 0` looks equivalent but
+# grep -c exits 1 on zero matches and pipefail turns the success case into a
+# failure. The regex must not match ./storage.btrfs.nix, hence the anchor on
+# "nix" immediately after "storage.".
+grep -qE '\./storage\.nix([^a-zA-Z0-9]|$)' "$DEFAULT" \
+  && fail "$DEFAULT still imports storage.nix — both must never be imported"
 grep -n 'storage' "$DEFAULT"
 
 # Sanity-check the subvolumes exist, if the fs is mounted somewhere.

@@ -17,9 +17,9 @@
 { lib, ... }:
 let
   # nvme0n1p2 — btrfs, label NIXROOT
-  rootUuid = "REPLACE-ME-ROOT-UUID";
+  rootUuid = "5b251757-c14c-4641-aec5-cea83857290b";
   # nvme0n1p1 — vfat ESP, label NIXBOOT
-  bootUuid = "REPLACE-ME-BOOT-UUID";
+  bootUuid = "61EA-07B3";
   # sda1 — 4 TB HGST, NTFS, label Data. Known and stable; not touched by the migration.
   dataUuid = "B41E0A3F1E09FB5E";
 

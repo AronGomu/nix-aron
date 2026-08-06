@@ -1,7 +1,7 @@
 {
   imports = [
     ./hardware-configuration.nix
-    ./storage.nix
+    ./storage.btrfs.nix
 
     # shared
     ../../modules/nixos
