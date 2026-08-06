@@ -8,7 +8,7 @@ json_line="$(jq -r '
     (.model.display_name // ""),
     (.workspace.current_dir // .cwd // ""),
     (.version // ""),
-    (if .thinking.enabled then (.effort.level // "") else "" end),
+    (.effort.level // ""),
     ((.context_window.current_usage // {})
       | (.input_tokens // 0)
         + (.output_tokens // 0)
@@ -44,19 +44,13 @@ if [[ -n "$cwd" ]] && git -C "$cwd" --no-optional-locks rev-parse --is-inside-wo
   fi
 fi
 
-ctx_segment=""
-if [[ "$used_tokens" =~ ^[0-9]+$ && "$used_tokens" -gt 0 ]]; then
-  if (( used_tokens < 1000 )); then
-    ctx_segment="ctx $used_tokens"
-  else
-    # one decimal below 100K (37.5K), whole K above (142K)
-    tenths=$(( (used_tokens + 50) / 100 ))
-    if (( used_tokens < 100000 )); then
-      ctx_segment="ctx $(( tenths / 10 )).$(( tenths % 10 ))K"
-    else
-      ctx_segment="ctx $(( (used_tokens + 500) / 1000 ))K"
-    fi
-  fi
+# always rendered, always in K: one decimal below 100K (0.4K, 37.5K), whole K above (142K)
+[[ "$used_tokens" =~ ^[0-9]+$ ]] || used_tokens=0
+if (( used_tokens < 100000 )); then
+  tenths=$(( (used_tokens + 50) / 100 ))
+  ctx_segment="ctx $(( tenths / 10 )).$(( tenths % 10 ))K"
+else
+  ctx_segment="ctx $(( (used_tokens + 500) / 1000 ))K"
 fi
 
 out=""

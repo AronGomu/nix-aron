@@ -10,12 +10,25 @@ disable-model-invocation: true
 
 1. Prompt and/or list of path to file.
 
-2. HTML Style page: Report Doc | [Presentation Slide Style](presentation-slide-style.md) | Landing Page Style
+2. Effort :
+   low - markdown style
+   medium - css styling, graphs (default)
+   high - heavy css styling, graphs and images
+
+3. verbosity:
+   prose (default)
+   caveman-lite
+   caveman-ultra
+
+## Pre-flight
+
+If not already, read :
+`~/.agents/skills/caveman/SKILL.md`
 
 ## Process
 
 1. Analyse resources given.
-2. Research on locally/internet for illustration image if fits.
+2. If **high** : Find local and/or internet images for illustration.
 3. Generate and open to browser.
 
 **DO NOT ASK USER INPUT UNTIL HTML GENERATION IS COMPLETE !**
@@ -23,10 +36,7 @@ disable-model-invocation: true
 ## Style
 
 Dark mode by default.
-Heavy use of styling, graphs and images.
-Images must be links from internet or local images.
-Focus human readbility.
-Use normal prose unless caveman mode from caveman skill is specified.
+Focus human readability.
 
 ## Resources paths
 

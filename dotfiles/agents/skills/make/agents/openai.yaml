@@ -1,0 +1,5 @@
+interface:
+  display_name: "Make"
+  short_description: "Goal or plan → ticket workers → ship → commit/push feature branch"
+policy:
+  allow_implicit_invocation: false

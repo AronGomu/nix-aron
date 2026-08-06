@@ -17,20 +17,20 @@ Floccus = daily bookmarks, multi-device, work laptop.
 ### 1. Rebuild
 
 ```bash
-sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#$(nixos-host)
+sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#desk-main
 ```
 
 Restart Brave. You should see a **Nix** bookmarks folder (managed).
 
 ### 2. One-time Floccus + git backend
 
-Local seed already at `/home/aron/config/bookmarks` (`bookmarks.xbel` + README).
+Local seed already at `/home/aron/coding/bookmarks` (`bookmarks.xbel` + README).
 
 Create private GitHub remote (needs `gh auth` once):
 
 ```bash
 gh auth login   # if gh not logged in
-cd /home/aron/config/bookmarks
+cd /home/aron/coding/bookmarks
 gh repo create bookmarks --private --source=. --remote=origin --push
 ```
 

@@ -1,20 +1,25 @@
 {
-  "companyAnnouncements": ["FIRST GO FIND CAR TO BUY LEBONCOIN"],
-  "theme": "dark",
-  "model": "opus[1m]",
-  "skipDangerousModePermissionPrompt": true,
-  "statusLine": {
-    "type": "command",
-    "command": "/home/aron/config/nix-aron/dotfiles/claude/statusline.sh"
-  },
   "permissions": {
-    "defaultMode": "bypassPermissions",
     "ask": [
       "Bash(rm -r *)",
       "Bash(rm -rf *)",
       "Bash(rm -fr *)",
       "Bash(rm -Rf *)",
       "Bash(rm -R *)"
-    ]
-  }
+    ],
+    "defaultMode": "auto"
+  },
+  "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "/home/aron/config/nix-aron/dotfiles/claude/statusline.sh"
+  },
+  "effortLevel": "medium",
+  "companyAnnouncements": [
+    "FIRST GO FIND CAR TO BUY LEBONCOIN"
+  ],
+  "skipDangerousModePermissionPrompt": true,
+  "theme": "dark",
+  "skipAutoPermissionPrompt": true,
+  "useAutoModeDuringPlan": true
 }

@@ -22,7 +22,7 @@ Recompute frontier and ask the next round.
 Questions whose answer depends on another still open question belongs to a _later_ round, not this one.
 
 Finding _facts_ is your job, never the user's.
-When frontier question needs fact from the environment (filesystem, tools, etc.), dispatch sub-agent to find it — don't ask user for anything you could look up yourself.
+When frontier question needs fact from the environment (filesystem, tools, etc.), dispatch `scout` child (`Read ~/.agents/roles/scout.md. Follow it.`) to find it — don't ask user for anything you could look up yourself.
 Don't block on it: running exploration is unsettled prerequisite. Only questions downstream wait for sub-agent to report — ask rest of frontier now.
 _Decisions_ are user's — put each to them and wait.
 

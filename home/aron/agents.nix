@@ -29,37 +29,36 @@ in
       settings_tmp="$settings_dir/settings.json.tmp"
       mkdir -p "$settings_dir"
 
-      # pi rewrites settings.json at runtime and can leave it malformed. Under
-      # activation's `set -e` a jq failure would abort the whole switch before
-      # linkGeneration, so fall back to the packaged defaults instead of dying.
-      #
-      # jq also exits non-zero for reasons that are not "bad JSON": unreadable
-      # file, a concurrent partial write while pi is running, ENOSPC. Keep a
-      # copy before resetting so no such case silently eats the user's settings.
       if [ -e "$settings_file" ]; then
-        if ! ${pkgs.jq}/bin/jq -s \
+        ${pkgs.jq}/bin/jq -s \
           '.[0] * (.[1] | with_entries(select(.key == "defaultProvider" or .key == "defaultModel" or .key == "defaultThinkingLevel")))' \
-          ${../../dotfiles/pi/agent/settings.json} "$settings_file" > "$settings_tmp"; then
-          echo "warning: $settings_file unreadable or not valid JSON." >&2
-          echo "warning: keeping a copy at $settings_file.broken, resetting to packaged defaults" >&2
-          # Order matters. Write the replacement FIRST: under ENOSPC a write
-          # fails while rename(2) still succeeds, so renaming first would leave
-          # no settings.json at all and then abort activation on the failed cp —
-          # the exact failure this branch exists to avoid. With cp first, `set -e`
-          # aborts while the original is still in place.
-          cp ${../../dotfiles/pi/agent/settings.json} "$settings_tmp"
-          # mv, not cp, for the backup: cp needs read permission on the file, and
-          # "unreadable" is one of the cases this branch exists for. A rename
-          # inside the same directory needs only directory write permission, so
-          # the data survives even when jq could not open it at all.
-          mv -f "$settings_file" "$settings_file.broken" 2>/dev/null || true
-        fi
+          ${../../dotfiles/pi/agent/settings.json} "$settings_file" > "$settings_tmp"
       else
         cp ${../../dotfiles/pi/agent/settings.json} "$settings_tmp"
       fi
 
-      # mv -f, not rm-then-mv: no window where neither file exists.
-      mv -f "$settings_tmp" "$settings_file"
+      rm -f "$settings_file"
+      mv "$settings_tmp" "$settings_file"
+    '';
+
+    # Files the agents rewrite at runtime (Claude /config /model /effort and
+    # the `#` memory shortcut, Codex project trust). home.file cannot host
+    # them: even mkOutOfStoreSymlink goes through
+    # /nix/store/...-home-manager-files/, and the agents write a temp file
+    # next to the *first* symlink target -> EROFS. Link straight to the repo
+    # file so writes land in a writable directory.
+    linkMutableAgentFiles = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      link_mutable() {
+        target="${config.home.homeDirectory}/config/nix-aron/dotfiles/$1"
+        dest="${config.home.homeDirectory}/$2"
+        mkdir -p "$(dirname "$dest")"
+        rm -f "$dest"
+        ln -s "$target" "$dest"
+      }
+
+      link_mutable claude/settings.json .claude/settings.json
+      link_mutable claude/CLAUDE.md .claude/CLAUDE.md
+      link_mutable codex/config.toml .codex/config.toml
     '';
   };
 
@@ -72,6 +71,14 @@ in
 
     ".agents/skills" = {
       source = ../../dotfiles/agents/skills;
+      recursive = true;
+    };
+
+    # Harness-neutral subagent roles. Skills reference them by absolute path
+    # (~/.agents/roles/*.md), so any harness that can spawn a child with a
+    # prompt can use them — no per-harness registry required.
+    ".agents/roles" = {
+      source = ../../dotfiles/agents/roles;
       recursive = true;
     };
 
@@ -88,8 +95,7 @@ in
       recursive = true;
     };
 
-    # Writable: Codex TUI writes project trust into config.toml at runtime.
-    ".codex/config.toml".source = config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/config/nix-aron/dotfiles/codex/config.toml";
+    # config.toml is NOT managed here: see linkMutableAgentFiles above.
     ".codex/caveman.config.toml".source = ../../dotfiles/codex/caveman.config.toml;
     ".codex/prompts" = {
       source = ../../dotfiles/codex/prompts;
@@ -106,15 +112,18 @@ in
     ".claude/skills".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
 
-    # Writable: Claude Code rewrites settings.json at runtime (/config, /model).
-    ".claude/settings.json".source =
-      config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/config/nix-aron/dotfiles/claude/settings.json";
-
-    # Global memory: caveman ultra active by default in every Claude session.
-    ".claude/CLAUDE.md".source = ../../dotfiles/claude/CLAUDE.md;
+    # settings.json and CLAUDE.md (global memory: caveman ultra by default) are
+    # NOT managed here: see linkMutableAgentFiles above.
     # Slash commands, e.g. /caveman on|off to toggle caveman mode.
     ".claude/commands" = {
       source = ../../dotfiles/claude/commands;
+      recursive = true;
+    };
+
+    # Claude-native subagent registry. Each file is a one-line adapter that
+    # reads the harness-neutral role in ~/.agents/roles — no duplicated text.
+    ".claude/agents" = {
+      source = ../../dotfiles/claude/agents;
       recursive = true;
     };
   };

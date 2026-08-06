@@ -226,7 +226,7 @@ Final functional result: user confirmed fixed.
 
 ```bash
 sudo nixos-rebuild switch \
-  --flake /home/aron/config/nix-aron#$(nixos-host)
+  --flake /home/aron/config/nix-aron#desk-main
 ```
 
 Full logout/login remains recommended after group changes. Wrapper makes OpenWhispr work before relogin.
@@ -237,5 +237,5 @@ Revert OpenWhispr patch/wrapper changes in `home/aron/packages.nix`, then rebuil
 
 ```bash
 sudo nixos-rebuild switch \
-  --flake /home/aron/config/nix-aron#$(nixos-host)
+  --flake /home/aron/config/nix-aron#desk-main
 ```

@@ -2,37 +2,27 @@
 let
   shellAliases = {
     cat = "bat";
-    gtbrain = "cd /home/aron/brain";
-    gtnixconfig = "cd /home/aron/config/nix-aron";
-    gtygocube = "cd /home/aron/projects/essentia";
-    gtessentia = "cd /home/aron/projects/essentia";
-    gtygostory = "cd /home/aron/projects/ascencio";
-    gtprojects = "cd /home/aron/projects";
-    gtconfig = "cd /home/aron/config";
     ll = "eza -lah --group-directories-first";
-    # $(nixos-host) resolves the flake output from the running root disk, so a
-    # rebuild can never carry the other disk's fileSystems. Never hardcode the
-    # output here — that is exactly how the NVMe layout got switched onto the
-    # Samsung. Single quotes in the generated alias keep the substitution lazy.
-    # `_nixhost=$(...) &&` so a missing or failing nixos-host short-circuits
-    # before sudo. Quoting the substitution alone does nothing: the shell eats
-    # the quotes, argv ends up identical, and nixos-rebuild silently falls back
-    # to nixosConfigurations.<hostname> — a confusing flake-attribute error that
-    # invites hand-typing an output name, which is how this went wrong before.
-    rebuild = "_nixhost=$(nixos-host) && sudo nixos-rebuild switch --flake ~/config/nix-aron#\"$_nixhost\"";
-    # `boot` + reboot, not `switch`, whenever fileSystems change: `switch`
-    # applies new mount units to the running system immediately.
-    rebuild-boot = "_nixhost=$(nixos-host) && sudo nixos-rebuild boot --flake ~/config/nix-aron#\"$_nixhost\"";
-    # Standalone home-manager gets no osConfig, so home/aron/end4.nix evaluates
-    # `enabled = false` and drops every hypr*/quickshell file — while writing the
-    # same profile the NixOS module owns. Running it here wipes the desktop
-    # config. HM is wired through the NixOS module on this host; use rebuild.
-    hm = "echo 'home-manager is managed by the NixOS module here — use: rebuild' >&2; false";
-    update-system = "nix flake update --flake ~/config/nix-aron";
     v = "nvim";
+
+    # gt* = "go to". One per config dir and per project; keep in sync by hand
+    # (nix cannot list $HOME at eval time without going impure).
+    gtbrain = "cd /home/aron/brain";
+    gtconfig = "cd /home/aron/config";
+    gtbookmarks = "cd /home/aron/config/bookmarks";
+    gtnixconfig = "cd /home/aron/config/nix-aron";
+    gtprojects = "cd /home/aron/projects";
+    gtascencio = "cd /home/aron/projects/ascencio";
+    gtessentia = "cd /home/aron/projects/essentia";
+    gtgones = "cd /home/aron/projects/gones";
+    gtmillions = "cd /home/aron/projects/millions_must_die";
+
+    rebuild = "sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main";
+    hm = "home-manager switch --flake ~/config/nix-aron#desk-main";
+    update-system = "nix flake update --flake ~/config/nix-aron";
   };
 
-  # Shared by bash + zsh. Loads agent secrets for:
+  # Loads agent secrets for:
   # - GEMINI_API_KEY → pi web_search (pikit web-access)
   # - XAI_API_KEY / GROK_API_KEY → grok-cli + grok-imagine
   agentEnvInit = ''
@@ -62,45 +52,25 @@ in
   };
 
   programs = {
+    # Replaces zsh. ble.sh supplies the only zsh feature that was worth keeping:
+    # inline autosuggestion, syntax highlighting, and a menu completion UI —
+    # without leaving POSIX/bash syntax.
     bash = {
       enable = true;
       enableCompletion = true;
       inherit shellAliases;
-      initExtra = agentEnvInit;
-    };
-
-    zsh = {
-      enable = true;
-      enableCompletion = true;
-      autosuggestion.enable = true;
-      syntaxHighlighting.enable = true;
-      inherit shellAliases;
-      # vi-mode (from EDITOR=nvim): unbound ^[[1;5C/D → Esc → cmd mode → delete.
-      # Bind ctrl/alt arrows for word jump in viins+vicmd+emacs.
-      initContent = lib.mkMerge [
-        (lib.mkBefore agentEnvInit)
-        ''
-          # zsh leaves interactive_comments off by default (unlike bash), so a
-          # pasted `cmd  # note` passes "#" and the note as literal arguments
-          # instead of ignoring them.
-          setopt interactive_comments
-
-          for keymap in emacs viins vicmd; do
-            bindkey -M $keymap '^[[1;5C' forward-word
-            bindkey -M $keymap '^[[1;5D' backward-word
-            bindkey -M $keymap '^[f' forward-word
-            bindkey -M $keymap '^[b' backward-word
-            bindkey -M $keymap '^[[1;3C' forward-word
-            bindkey -M $keymap '^[[1;3D' backward-word
-          done
-        ''
-      ];
-      plugins = [
-        {
-          name = "zsh-autocomplete";
-          src = pkgs.zsh-autocomplete;
-          file = "share/zsh-autocomplete/zsh-autocomplete.plugin.zsh";
-        }
+      initExtra = lib.mkMerge [
+        # After bash-completion (mkOrder 100), before everything that touches
+        # PROMPT_COMMAND. --noattach defers the takeover until the very end.
+        (lib.mkOrder 200 ''
+          [[ $- == *i* ]] && . "${pkgs.blesh}/share/blesh/ble.sh" --noattach
+        '')
+        agentEnvInit
+        # Last: after starship's init (mkOrder 1900), so ble.sh wraps the final
+        # prompt rather than being overwritten by it.
+        (lib.mkOrder 2000 ''
+          [[ ''${BLE_VERSION-} ]] && ble-attach
+        '')
       ];
     };
 
@@ -125,13 +95,11 @@ in
     starship = {
       enable = true;
       enableBashIntegration = true;
-      enableZshIntegration = true;
     };
 
     yazi = {
       enable = true;
       enableBashIntegration = true;
-      enableZshIntegration = true;
       settings.opener.edit = [
         {
           run = ''nvim "$@"'';

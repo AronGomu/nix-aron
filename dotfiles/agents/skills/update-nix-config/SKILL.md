@@ -18,12 +18,11 @@ Read and obey `/home/aron/AGENTS.md` plus repo `NIX-CHEATSHEET.md`.
 | Fact             | Value                                                                                                 |
 | ---------------- | ----------------------------------------------------------------------------------------------------- |
 | Repo             | `/home/aron/config/nix-aron`                                                                          |
-| Host flake       | `desk-main-samsung` (ext4 sdb) / `desk-main-nvme` (btrfs nvme0n1) — no bare `desk-main`               |
-| HM user flake    | none — HM is wired through the NixOS module; `nixos-rebuild` applies it. Never run `home-manager switch` |
+| Host flake       | `desk-main`                                                                                           |
+| HM user flake    | check `home-manager` / flake outputs (often `#aron` or `#desk-main` — verify `flake.nix` before cmds) |
 | Active source    | this flake only                                                                                       |
 | Legacy           | `/etc/nixos/configuration.nix` — **never** edit for system changes                                    |
-| Rebuild (system) | `sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#$(nixos-host)`                          |
-| Mount changes    | `nixos-rebuild boot` + reboot — **never** `switch`; it applies new mounts to the live system          |
+| Rebuild (system) | `sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#desk-main`                              |
 | Branch           | work on `main` unless user said otherwise                                                             |
 
 ## Input
@@ -39,7 +38,7 @@ STOP if prompt empty. Ask for prompt only.
 2. Explore repo. Find real files/modules. Prefer existing patterns (home/aron/*.nix, hosts/desk-main, modules/nixos, dotfiles/).
 3. Clarity gate:
    - Unclear / multi-way choice / destructive / security-sensitive / irreversible
-     → run **grill-me-aron** until shared understanding. Do not edit yet.
+     → grill until shared understanding (see Clarity gate). Do not edit yet.
    - Clear enough for one safe implementation path
      → proceed. Log brief Assumptions if tiny defaults taken.
 4. Implement surgical edit(s) only. Match repo style. No drive-by refactors.
@@ -57,7 +56,9 @@ STOP if prompt empty. Ask for prompt only.
 
 ## Clarity gate (when to grill)
 
-Use **grill-me-aron** when any true:
+Grill = read `~/.agents/skills/grill-me-aron/SKILL.md` now and follow it fully — rounds, frontier, html doc, wait for answers each round. Its `assets/*.html` paths resolve inside **its own** dir.
+
+Grill when any true:
 
 - Prompt names goal but not which host/user/package/module
 - Multiple reasonable impls (systemPackage vs HM, module vs overlay, enable flag vs package only)
@@ -110,9 +111,10 @@ residual-risk: ...
 
 Rebuild when ready (I did not run it):
 
-  sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#$(nixos-host)
+  sudo nixos-rebuild switch --flake /home/aron/config/nix-aron#desk-main
 
-# HM-only changes use the SAME command — there is no standalone HM output here.
+# If change was HM-only and you normally use HM separately, also/alternate:
+  home-manager switch --flake /home/aron/config/nix-aron#<user-or-output>
 ```
 
 Pick the accurate rebuild line(s) from what you changed. Prefer full `nixos-rebuild switch` when both system + HM wired through NixOS; mention HM-only when that is truly enough.
