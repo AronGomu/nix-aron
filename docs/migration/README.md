@@ -136,6 +136,58 @@ Steps 4 and 5 were hand-typed commands in rev 3 of the plan; they are scripts
 here so the guards are auditable rather than dependent on typing correctly at
 the one moment where a typo is unrecoverable.
 
+### Step 11 — G3, and what step 10 does not check
+
+`post-install-checks.sh` verifies the *target* — mounts, passwords, uid, the
+bootloader. It says nothing about how **stale** the target is, and on
+2026-08-06 it was stale in two ways that only turned up by hand:
+
+- The last `sync-home.sh` predated `ee80e0c`, so the NVMe still had the repo at
+  `~/coding/nix-aron` at `b9433fb`, and `~/config` was empty. None of the
+  per-disk split, `nixos-host`, or `no-brick-check.sh` existed there.
+- Generation 1 was installed before the restructure, so it ships **no**
+  `nixos-host` and **no** ESP guard.
+
+Neither stops the NVMe booting — its generation-1 fstab is correct (root, `/nix`,
+`/home`, `/.snapshots` all on `5b251757-…`, ESP `61EA-07B3`) and its initrd
+carries `nvme.ko`, `nvme-core.ko` and `btrfs.ko.xz`. But re-sync before G3 or
+you boot into a config that cannot rebuild itself.
+
+Do not read `/mnt/etc/fstab` to check this. It is a symlink to
+`/etc/static/fstab` → `/nix/store/…-etc/etc`, all **absolute**, so from the
+running system it resolves to the *running* disk's fstab and appears to say the
+target is ext4 on the Samsung. Read the generation's own copy instead:
+
+    grep -v '^#' "$(readlink -f /mnt/nix/var/nix/profiles/system)/etc/fstab"
+
+Final sync must run with the graphical session stopped. The Wayland session
+occupies **tty2**, so `Ctrl+Alt+F2` is a no-op — switch to `Ctrl+Alt+F3`, log in
+as `aron`, then:
+
+```bash
+sudo systemctl stop display-manager
+cd ~/config/nix-aron
+sudo ./docs/migration/sync-home.sh
+sudo shutdown -h now
+```
+
+`/mnt` must still be mounted for that sync; switching VT keeps it, rebooting
+does not. If you rebooted, re-run `sudo ./docs/migration/mount-target.sh` first.
+
+Then unplug the Samsung and boot. On the NVMe the `rebuild` alias fails until
+`nixos-host` exists, so bootstrap once by naming the disk you are booted from:
+
+```bash
+cd ~/config/nix-aron
+sudo nixos-rebuild switch --flake ~/config/nix-aron#desk-main-nvme
+./docs/migration/no-brick-check.sh
+nixos-host          # must print desk-main-nvme
+```
+
+If it will not boot, replug the Samsung and use the firmware's **F11** one-time
+menu to pick its `UEFI OS` entry. Do not rely on `BootOrder` — it now tries the
+NVMe first.
+
 ## Result of the destructive phase (2026-08-06)
 
 | | |
