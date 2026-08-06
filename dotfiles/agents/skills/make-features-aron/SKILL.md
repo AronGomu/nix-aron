@@ -1,5 +1,5 @@
 ---
-name: implement-plan-aron
+name: make-features-aron
 description: >
   Orchestrate plan tickets (make-plan-aron). Parent reads plan, topo-order
   workers. Each worker /ship ticket → validate → commit → push feature branch →
@@ -8,7 +8,7 @@ argument-hint: "Path to plan md (default ./.tmp/IMPLEMENTATION_PLAN_*.md)"
 disable-model-invocation: true
 ---
 
-# implement-plan-aron
+# make-features-aron
 
 Plan in → feature branch → ticket workers (ship) → commit/push each → all done or hard-stop.
 
