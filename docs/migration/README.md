@@ -155,13 +155,26 @@ not mount this root. The recovery stick is 26.05 and is fine.
 fallback `\EFI\BOOT\BOOTX64.EFI`, and registered `Boot0000 Linux Boot Manager`.
 That entry was created *last* in `BootOrder`, behind Windows and PXE. With the
 Samsung unplugged the firmware would have walked past a dead Windows entry and
-sat in a DHCP timeout before reaching the real system. Reordered before G3:
+sat in a DHCP timeout before reaching the real system, so it was reordered.
 
-    sudo efibootmgr -o 0000,0006,0003,0001,0002,0005
+State verified live on 2026-08-06, immediately before G3:
 
-`0000` is the NVMe, `0006` is the Samsung's `UEFI OS` fallback entry — kept
-second so the rollback still boots. `0003` (Windows) points at the PARTUUID
-`c92098bf-…` that the wipe destroyed; it is dead and gets deleted in §9.
+    BootOrder: 0007,0000,0006,0001,0002,0005
+
+| Entry | ESP PARTUUID | Path | Disk |
+|---|---|---|---|
+| `0007` `UEFI OS` | `1aed035f-…` | `\EFI\BOOT\BOOTX64.EFI` | NVMe (fallback) |
+| `0000` `Linux Boot Manager` | `1aed035f-…` | `\EFI\systemd\systemd-bootx64.efi` | NVMe |
+| `0006` `UEFI OS` | `e474e2c2-…` | `\EFI\BOOT\BOOTX64.EFI` | Samsung (rollback) |
+
+Both NVMe paths precede the Samsung, and the Samsung is kept third so the
+rollback still boots. `0003` (Windows) pointed at the PARTUUID `c92098bf-…`
+that the wipe destroyed; it is **already gone** — no §9 deletion is needed.
+
+Because `0007` now outranks `0006`, the next unattended boot goes to the NVMe
+even with the Samsung still attached. To boot the Samsung deliberately, use the
+firmware's one-time boot menu (**F11**) and pick its `UEFI OS` entry; do not
+rely on `BootOrder`, which tries the NVMe first.
 
 ### Step 5 — subvolumes and mounts
 
