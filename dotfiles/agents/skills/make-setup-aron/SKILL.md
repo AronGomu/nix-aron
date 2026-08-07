@@ -15,14 +15,14 @@ Goal : every agent finds the same context, docs and artifact layout in every pro
 
 ## Const
 
-| name           | value                                                     |
-| -------------- | --------------------------------------------------------- |
-| Context file   | `{project_root}/AGENT.md`                                 |
-| Docs folder    | `{project_root}/docs/`                                    |
-| Dev folder     | `{project_root}/.dev/`                                    |
-| Artifacts      | `{project_root}/ai-artifacts/`                            |
-| Glossary skill | [make-glossary-aron](../make-glossary-aron/SKILL.md)      |
-| Graphify repo  | https://github.com/Graphify-Labs/graphify                 |
+| name           | value                                                |
+| -------------- | ---------------------------------------------------- |
+| Context file   | `{project_root}/AGENT.md`                            |
+| Docs folder    | `{project_root}/docs/`                               |
+| Dev folder     | `{project_root}/.dev/`                               |
+| Artifacts      | `{project_root}/ai-artifacts/`                       |
+| Glossary skill | [make-glossary-aron](../make-glossary-aron/SKILL.md) |
+| Graphify repo  | https://github.com/Graphify-Labs/graphify            |
 
 ## Process
 
@@ -34,7 +34,7 @@ Goal : every agent finds the same context, docs and artifact layout in every pro
 
    Then run `/make-glossary on`.
 
-3. **Graphify** — install [graphify](https://github.com/Graphify-Labs/graphify)
+3. **Graphify** — install [graphify](https://github.com/Graphify-Labs/graphify), generate graph
    and hook `claude`, `codex`, `pi` to use it by default.
 4. **docs/** — create folder, add line to `AGENT.md` :
    `docs/ : Project documentation. Contains CONTEXT.md, DESIGN.md, GLOSSARY.md, ADR/`

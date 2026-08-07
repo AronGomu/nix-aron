@@ -1,5 +1,5 @@
 ---
-name: update-nix-config
+name: nix-aron
 description: >
   Apply change to NixOS/Home Manager config repo:
   add, remove, or update packages/modules/settings. Grill if unclear.
@@ -7,7 +7,7 @@ description: >
 disable-model-invocation: true
 ---
 
-# update-nix-config
+# nix-aron
 
 One prompt in → clear change on active nix config → commit → push → **ask** rebuild.
 

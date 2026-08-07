@@ -9,6 +9,8 @@ let
   enabled = osConfig != null && osConfig.desktop.end4.enable;
   system = pkgs.stdenv.hostPlatform.system;
   end4 = inputs.end4;
+  # The MSE menu launcher is a tkinter GUI; the bare system python3 has no _tkinter.
+  msePython = pkgs.python3.withPackages (ps: [ ps.tkinter ]);
   qs = inputs.quickshell.packages.${system}.default;
   wallpaper = ../../assets/wallpapers/black-hole-interstellar.png;
   end4QuickshellConfig = pkgs.runCommand "end4-quickshell-config" { } ''
@@ -266,6 +268,20 @@ in
         hl.env("ILLOGICAL_IMPULSE_VIRTUAL_ENV", "${pythonEnv}")
       '';
       "hypr/custom/general.lua".text = ''
+        -- Fixed monitor layout: Philips (main) left, Samsung right.
+        hl.monitor({
+            output = "HDMI-A-2",
+            mode = "1920x1080@60",
+            position = "0x0",
+            scale = 1
+        })
+        hl.monitor({
+            output = "DP-5",
+            mode = "1920x1080@60",
+            position = "1920x0",
+            scale = 1
+        })
+
         hl.config({
             general = {
                 gaps_in = 0,
@@ -358,7 +374,7 @@ in
       ygo-mtg-mse-menu = {
         name = "YGO X MTG: Essentia - MSE Menu";
         comment = "Open Essentia projects in Magic Set Editor";
-        exec = "${pkgs.coreutils}/bin/env MSE_PROJECTS_DIR=/home/aron/projects/essentia/cards_mse MSE_LIBRARY_PATH=${pkgs.wxwidgets_3_2}/lib /home/aron/projects/essentia/launcher/mse_project_menu.pyw";
+        exec = "${pkgs.coreutils}/bin/env MSE_LIBRARY_PATH=${pkgs.wxwidgets_3_2}/lib ${msePython}/bin/python3 /home/aron/projects/essentia/launcher/mse_project_menu.pyw";
         terminal = false;
         categories = [ "Graphics" "Development" ];
         startupNotify = true;
