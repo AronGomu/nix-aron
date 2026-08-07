@@ -16,7 +16,20 @@ let
         --unset QT_QPA_PLATFORMTHEME
     '';
   };
-  herdr = pkgs.callPackage "${inputs.herdr-src}/nix/package.nix" { };
+  herdrUnwrapped = pkgs.callPackage "${inputs.herdr-src}/nix/package.nix" { };
+  herdrNotifyShim = pkgs.callPackage ../../pkgs/herdr-notify-shim.nix { };
+  # Upstream toasts are plain `notify-send -- <title> <body>`, i.e. no D-Bus
+  # action to invoke on click. Prefixing herdr's PATH with the shim makes its
+  # notifications focus the workspace/tab that raised them.
+  herdr = pkgs.symlinkJoin {
+    name = "herdr-wrapped";
+    paths = [ herdrUnwrapped ];
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+    postBuild = ''
+      wrapProgram $out/bin/herdr \
+        --prefix PATH : ${herdrNotifyShim}/bin
+    '';
+  };
   grokImagine = pkgs.callPackage ../../pkgs/grok-imagine.nix { };
   openwhisprHyprlandCancelPatch = pkgs.writeText "openwhispr-hyprland-cancel.patch" ''
     diff --git a/src/helpers/hotkeyManager.js b/src/helpers/hotkeyManager.js
