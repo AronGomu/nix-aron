@@ -9,7 +9,7 @@ delivery = "system"
 
 [ui.sound]
 done_path = "sounds/tuturu.mp3"
-request_path = "sounds/sc1-tank-siegeing.mp3"
+request_path = "sounds/tuturu.mp3"
 
 [ui]
 show_agent_labels_on_pane_borders = true
