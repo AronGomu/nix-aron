@@ -16,7 +16,9 @@
   },
   "effortLevel": "medium",
   "companyAnnouncements": [
-    "FIRST GO FIND CAR TO BUY LEBONCOIN"
+    "FIRST GO FIND CAR TO BUY LEBONCOIN",
+    "update make plan / make to add glossary of common lexical for better prompting",
+    "change tank sound"
   ],
   "skipDangerousModePermissionPrompt": true,
   "theme": "dark",
