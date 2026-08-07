@@ -12,6 +12,7 @@ return {
         'angular',
         'bash',
         'c',
+        'c_sharp',
         'css',
         'diff',
         'html',
@@ -22,10 +23,12 @@ return {
         'markdown',
         'markdown_inline',
         'query',
+        'razor',
         'scss',
         'typescript',
         'vim',
         'vimdoc',
+        'xml',
       }
 
       treesitter.setup { install_dir = vim.fn.stdpath 'data' .. '/site' }

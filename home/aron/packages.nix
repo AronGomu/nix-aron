@@ -286,8 +286,14 @@ in
       btop
       cargo
       clippy
+      # C#/.NET toolchain for the Neovim setup. netcoredbg and csharpier come
+      # from nixpkgs rather than Mason: Mason ships prebuilt ELF binaries that
+      # do not run on NixOS. The roslyn language server stays on Mason since it
+      # is a .NET DLL launched through `dotnet`.
+      csharpier
       curl
       direnv
+      dotnet-sdk_10
       eza
       fastfetch
       fd
@@ -301,6 +307,7 @@ in
       jq
       lazygit
       neovim
+      netcoredbg
       nodejs_24
       python3
       ripgrep

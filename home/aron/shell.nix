@@ -54,6 +54,9 @@ in
     VISUAL = "nvim";
     GROK_BASE_URL = "https://api.x.ai/v1";
     GROK_MODEL = "grok-4-latest";
+    # The roslyn language server and csharpier resolve the SDK through this.
+    DOTNET_ROOT = "${pkgs.dotnet-sdk_10}/share/dotnet";
+    DOTNET_CLI_TELEMETRY_OPTOUT = "1";
   };
 
   programs = {
