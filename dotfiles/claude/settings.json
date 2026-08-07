@@ -1,12 +1,5 @@
 {
   "permissions": {
-    "ask": [
-      "Bash(rm -r *)",
-      "Bash(rm -rf *)",
-      "Bash(rm -fr *)",
-      "Bash(rm -Rf *)",
-      "Bash(rm -R *)"
-    ],
     "defaultMode": "auto"
   },
   "model": "opus",
