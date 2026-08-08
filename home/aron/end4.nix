@@ -364,6 +364,20 @@ in
         terminal = false;
         categories = [ "Graphics" "Network" ];
       };
+      grok = {
+        name = "Grok";
+        icon = "brave-browser";
+        exec = "brave https://grok.com/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      chatgpt = {
+        name = "ChatGPT";
+        icon = "brave-browser";
+        exec = "brave https://chatgpt.com/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       github-essentia = {
         name = "Essentia";
         icon = "nvim";
