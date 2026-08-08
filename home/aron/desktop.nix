@@ -166,6 +166,43 @@ in
     $DRY_RUN_CMD ${pkgs.kdePackages.kservice}/bin/kbuildsycoca6 --noincremental > /dev/null 2>&1 || true
   '';
 
+  # Dolphin never shows image resolution out of the box: hover tooltips ship
+  # disabled and the Dimensions column is off. Both live in files Dolphin keeps
+  # rewriting at runtime, so seed them idempotently instead of symlinking them —
+  # a read-only dolphinrc would stop Dolphin saving any other setting.
+  home.activation.dolphinShowDimensions = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    kreadconfig=${pkgs.kdePackages.kconfig}/bin/kreadconfig6
+    kwriteconfig=${pkgs.kdePackages.kconfig}/bin/kwriteconfig6
+
+    # "Show item information on hover" — tooltip carries the preview + dimensions.
+    $DRY_RUN_CMD "$kwriteconfig" --file dolphinrc --group General --key ShowToolTips true
+
+    # GlobalViewProps defaults to true, so this one file drives the column set of
+    # every folder.
+    viewProps="$HOME/.local/share/dolphin/view_properties/global/.directory"
+    roles=$("$kreadconfig" --file "$viewProps" --group Dolphin --key VisibleRoles 2>/dev/null || true)
+    case ",$roles," in
+      *,Details_dimensions,*)
+        : # already there, leave the user's column order alone
+        ;;
+      *)
+        if [ -z "$roles" ]; then
+          roles="Details_text,Details_size,Details_modificationtime"
+        fi
+        $DRY_RUN_CMD mkdir -p "$(dirname "$viewProps")"
+        $DRY_RUN_CMD "$kwriteconfig" --file "$viewProps" --group Dolphin \
+          --key VisibleRoles "$roles,Details_dimensions"
+        # Version 4 is what Dolphin 26.04 considers current; write anything lower
+        # (or omit it) and Dolphin "converts" the file, blanking VisibleRoles and
+        # then deleting it. Timestamp must not predate General/ViewPropsTimestamp
+        # in dolphinrc, or the properties count as stale.
+        $DRY_RUN_CMD "$kwriteconfig" --file "$viewProps" --group Dolphin --key Version 4
+        $DRY_RUN_CMD "$kwriteconfig" --file "$viewProps" --group Dolphin \
+          --key Timestamp "$(date +'%Y,%-m,%-d,%-H,%-M,%-S')"
+        ;;
+    esac
+  '';
+
   home.activation.addDataBookmark = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     bookmarks="$HOME/.config/gtk-3.0/bookmarks"
     backup="$bookmarks.hm-backup"
