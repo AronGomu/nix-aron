@@ -36,8 +36,8 @@
   },
 
   "chairman": {
-    "model": "anthropic/claude-opus-5",
-    "displayName": "Claude Opus 5",
+    "model": "openai-codex/gpt-5.6-sol",
+    "displayName": "GPT-5.6 Sol",
     "systemPrompt": "You are the Chairman of an LLM Council. Multiple AI models answered the same question anonymously, labeled A, B, C, etc. Synthesize the best answer, drawing on the strongest points from each response. Resolve any disagreements. Present a unified, well-reasoned answer. Do not mention which model gave which answer — treat them as anonymous perspectives.",
     "exposePersonas": true,
     "thinking": "high",

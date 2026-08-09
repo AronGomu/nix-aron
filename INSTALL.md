@@ -224,10 +224,15 @@ pi
 codex
 ```
 
-Inside Pi, run `/login`. Complete the Codex login flow when prompted. Run
-`/login anthropic` as well — the `/opus`, `/sonnet` and `/claude` switches and
-the LLM council chairman all need that provider authenticated. Credentials land
-in `~/.pi/agent/auth.json`, which `.gitignore` keeps out of this repo.
+Inside Pi, run `/login`. Complete the Codex login flow when prompted. Credentials
+land in `~/.pi/agent/auth.json`, which `.gitignore` keeps out of this repo.
+
+`/login anthropic` is optional and only powers the `/opus`, `/sonnet` and
+`/claude` switches. A Claude subscription does **not** cover them: Anthropic
+meters third-party harnesses against extra usage, per token, so those switches
+return HTTP 400 until extra usage is funded at `claude.ai/settings/usage` (or
+`ANTHROPIC_API_KEY` is set in `~/.pi/agent/configs/.env` to bill API credits
+instead). The LLM council therefore keeps a Codex chairman.
 
 ## 11. Verify the installation
 
