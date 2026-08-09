@@ -224,7 +224,10 @@ pi
 codex
 ```
 
-Inside Pi, run `/login`. Complete the Codex login flow when prompted.
+Inside Pi, run `/login`. Complete the Codex login flow when prompted. Run
+`/login anthropic` as well — the `/opus`, `/sonnet` and `/claude` switches and
+the LLM council chairman all need that provider authenticated. Credentials land
+in `~/.pi/agent/auth.json`, which `.gitignore` keeps out of this repo.
 
 ## 11. Verify the installation
 
