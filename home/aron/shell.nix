@@ -4,6 +4,7 @@ let
     cat = "bat";
     ll = "eza -lah --group-directories-first";
     v = "nvim";
+    lz = "lazygit";
 
     # gt* = "go to". One per config dir and per project; keep in sync by hand
     # (nix cannot list $HOME at eval time without going impure).
