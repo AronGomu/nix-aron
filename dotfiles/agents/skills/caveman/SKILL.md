@@ -28,5 +28,5 @@ Confirm the resulting state in one short sentence.
 ## Linked use
 
 Other skills link this file for the **style rules only** — they do not toggle mode.
-`make-plan-aron` (Caveman Ultra plan body), `make-html` (prose style when caveman specified).
+`make-plan-aron` (Caveman Ultra plan body), `make-html-aron` (prose style when caveman specified).
 When read as a link, apply the Style rules section; ignore the on/off toggle.

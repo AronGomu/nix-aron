@@ -1,11 +1,11 @@
 ---
-name: make-script
+name: make-script-aron
 description: >-
   Convert a plain text or Markdown video/talk script into a self-contained HTML
   teleprompter page (auto-scroll, adjustable text size, per-section read times,
   table of contents, reading progress bar). Use when the user says "make a
-  script page", "turn this md into an html script", "teleprompter", "make-script
-  on <file>", or points at a .md/.txt script and asks for a readable/presentable
+  script page", "turn this md into an html script", "teleprompter",
+  "make-script-aron on <file>", or points at a .md/.txt script and asks for a readable/presentable
   HTML version. Skip for: general docs-to-HTML conversion, blog posts, or slide
   decks.
 ---

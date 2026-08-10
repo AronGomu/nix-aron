@@ -1,6 +1,6 @@
 # Orchestration core
 
-Shared machinery for `make`.
+Shared machinery for `make-aron`.
 Caller own: domain gate, artifact shape, publish rule, pre-flight.
 This file own: stance, loop, state, checkboxes, evidence, stop rules.
 

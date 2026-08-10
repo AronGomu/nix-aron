@@ -1,10 +1,10 @@
 ---
-name: make
+name: make-aron
 description: Make implementation.
 disable-model-invocation: true
 ---
 
-# make
+# make-aron
 
 Goal or plan in → ticket workers (ship) → commit + push each → done or hard-stop.
 
@@ -68,6 +68,7 @@ Index carries ticket bodies inline (legacy single-file plan) → split into per-
 | Push              | every successful ticket commit → `origin` feature branch                                                                                                                                           |
 | PR                | **no**, unless plan or user said open PR                                                                                                                                                           |
 | Progress          | `./.tmp/MAKE_PROGRESS_{slug}.md`                                                                                                                                                                   |
+| Manual test checklist | `./ai_artefacts/manual_test_checklist.md` — every ticket worker appends/updates its entries, never overwrites others'                                                                          |
 | Tests             | run relevant suite; tests mandatory when ticket has TDD                                                                                                                                            |
 | Sanity            | pre-commit hooks honored; no `--no-verify` unless plan says                                                                                                                                        |
 
@@ -103,8 +104,9 @@ Role file owns read scope, checkbox duty, evidence bar, report shape. Below is t
 8. Not `locally-verified` → 1 repair loop inside worker → re-validate.
 9. Still bad → report failed|blocked + evidence. **No commit.** Failed boxes stay unchecked.
 10. Success:
+    - update `./ai_artefacts/manual_test_checklist.md` (create with a one-line header if absent): append/update this ticket's manual test steps — what a human must click/run to verify the slice works, plain unchecked `- [ ]` boxes, grouped under a `## T{n} {slug}` heading. Never touch other tickets' sections. This file must stay current with the implementation — if a later ticket changes prior behavior, update the stale entries, don't just append.
     - review own diff only
-    - stage intentional paths + own ticket file checkbox updates (no secrets, no .env, no .tmp)
+    - stage intentional paths + own ticket file checkbox updates + manual_test_checklist.md (no secrets, no .env, no .tmp)
     - commit: ticket draft msg, else `feat({scope}): {commit outcome}`
     - `git push -u origin HEAD`
     - report per core shape + `SHA:` + `Ship terminal:`
@@ -115,7 +117,7 @@ Role file owns read scope, checkbox duty, evidence bar, report shape. Below is t
 - Source: https://github.com/AgentSystemLabs/core — skill `ship`.
 - Prefer installed harness skill. Else worker follows ship playbook: classify → depth → playbook → verify. Same gates.
 - `mode=fast` only for pure docs/cosmetic ticket.
-- Production ship may want confirm → **auto-approve inside this skill** (user already invoked make). Log `auto-approve production ship`.
+- Production ship may want confirm → **auto-approve inside this skill** (user already invoked make-aron). Log `auto-approve production ship`.
 - Ship "no publish" is overridden **only** for the feature branch. Worker publishes there, nowhere else.
 
 ## Git rules — code layer
@@ -131,6 +133,7 @@ Role file owns read scope, checkbox duty, evidence bar, report shape. Below is t
 - Feature branch on remote carries all successful ticket commits
 - Ticket-file boxes = ground truth, all checked steps have evidence
 - Every index order-table row resolves to an existing ticket file
+- `./ai_artefacts/manual_test_checklist.md` exists, covers every shipped ticket, current with final implementation
 - User gets core Done output + table: ID / state / SHA / blocker
 - Each hard stop has exact next human action, one line
 

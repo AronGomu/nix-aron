@@ -1,0 +1,5 @@
+interface:
+  display_name: "Grill Me Aron"
+  short_description: "Grill the design tree one frontier round at a time, HTML round docs"
+policy:
+  allow_implicit_invocation: false

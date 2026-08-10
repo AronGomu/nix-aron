@@ -15,7 +15,7 @@ If not already, read :
 
 Lazy — read only when needed :
 `~/.agents/skills/grill-me-aron/SKILL.md` — only if ambiguity left **and** caller did not say autonomous.
-`~/.agents/skills/make-html/SKILL.md` — only at step 5 / 7 (html plan, architecture docs).
+`~/.agents/skills/make-html-aron/SKILL.md` — only at step 5 / 7 (html plan, architecture docs).
 
 ## Job
 
@@ -25,7 +25,7 @@ Lazy — read only when needed :
 4. Write **1 markdown plan index**. Caveman Ultra. Save `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}.md`. Index holds **no ticket body** — only links.
 5. Write **1 markdown file per ticket**. Caveman Ultra. Save `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}/T{n}_{ticket-slug}.md`.
    Ticket dir = plan filename minus `.md`. Zero-pad nothing: `T1_`, `T2_`, … `T10_`.
-6. Write **1 html plan**. Use **make-html** effort=high verbosity=lite. Save `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}.html`.
+6. Write **1 html plan**. Use **make-html-aron** effort=high verbosity=lite. Save `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}.html`.
 7. Write **X ADR Records markdown doc** about decisions from investigation. Caveman Lite. Save `./docs/ADR/XXX_ADR_{title}.md`.
 8. Write, update, delete **X Architecture Design HTML Documents**. Caveman Lite. Save `./docs/{title}.html`.
 

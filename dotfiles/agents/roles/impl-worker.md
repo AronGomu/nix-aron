@@ -19,7 +19,7 @@ Ticket vague, ambiguous, or missing a fact → **plan defect**, report it (below
 - **Ticket file path** — the plan slice you execute
 - Workspace (branch / dir)
 - Publish policy (commit? push? nothing?)
-- Optional: extra skill to load (`ship`, `make-html`, `research-aron`, `fix-text-aron`)
+- Optional: extra skill to load (`ship`, `make-html-aron`, `research-aron`, `fix-text-aron`)
 
 ## Read scope — hard
 
