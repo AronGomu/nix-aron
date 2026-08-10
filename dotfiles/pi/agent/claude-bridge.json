@@ -1,6 +1,13 @@
 {
+  "askClaude": {
+    "enabled": true,
+    "allowFullMode": true,
+    "defaultIsolated": false
+  },
   "provider": {
     "plan": "max",
-    "longContextExtraUsage": false
+    "longContextExtraUsage": false,
+    "strictMcpConfig": true,
+    "pathToClaudeCodeExecutable": "/etc/profiles/per-user/aron/bin/claude"
   }
 }
