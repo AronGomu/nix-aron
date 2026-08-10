@@ -5,9 +5,9 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Pinned to source newer claude-code (2.1.220) and pi-coding-agent (0.83.0)
+    # Pinned to source newer claude-code (2.1.224) and pi-coding-agent (0.84.0)
     # via the narrow overlay below.
-    nixpkgs-claude.url = "github:NixOS/nixpkgs/148bab9c1c3c53136ecb44a6ea356a0ed5b39b06";
+    nixpkgs-claude.url = "github:NixOS/nixpkgs/f13ff45afd1bb73e640eaa08a7066dbed07e3238";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
