@@ -1,24 +1,32 @@
 ---
 name: make-html-aron
 description: generate html doc from input
-disable-model-invocation: true
+triggers:
+  - "make html"
+  - "generate doc"
+  - "explain me X"
 ---
 
 # Make Html Aron
+
+## Auto-Triggers
+
+- When more than 100 words of information must be communicated to user.
+- Graphical information communicate better
 
 ## Input
 
 1. Prompt and/or list of path to file.
 
 2. Effort :
-   low - markdown style
-   medium - css styling, graphs (default)
-   high - heavy css styling, graphs and images
+   - low - markdown style
+   - medium - css styling, allow graphs & image (default)
+   - high - heavy css styling & graphs & images
 
 3. verbosity:
-   prose (default)
-   caveman-lite
-   caveman-ultra
+   - prose
+   - caveman-lite (default)
+   - caveman-ultra
 
 ## Pre-flight
 

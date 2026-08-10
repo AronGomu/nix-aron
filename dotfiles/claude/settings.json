@@ -2,12 +2,12 @@
   "permissions": {
     "defaultMode": "auto"
   },
-  "model": "sonnet",
+  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
     "command": "/home/aron/config/nix-aron/dotfiles/claude/statusline.sh"
   },
-  "effortLevel": "medium",
+  "effortLevel": "xhigh",
   "companyAnnouncements": [
     "FIRST GO FIND CAR TO BUY LEBONCOIN",
     "update make plan / make to add glossary of common lexical for better prompting",

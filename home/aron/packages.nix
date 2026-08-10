@@ -248,6 +248,18 @@ let
       chmod 755 $out/bin/openwhispr
     '';
   };
+  # The essentia repo drives its whole Python toolchain (.script/, tests/, and
+  # the website's `npm run cards:rebuild`) through the plain `python` on PATH,
+  # and those modules import Pillow, lxml and requests. The bare python3 has
+  # none of them. nixpkgs' pillow is 12.3.0, which is the version essentia's
+  # requirements-dev.lock pins.
+  pythonEnv = pkgs.python3.withPackages (
+    ps: with ps; [
+      lxml
+      pillow
+      requests
+    ]
+  );
   cut-silence = pkgs.writeShellApplication {
     name = "cut-silence";
     runtimeInputs = [
@@ -309,7 +321,7 @@ in
       neovim
       netcoredbg
       nodejs_24
-      python3
+      pythonEnv
       ripgrep
       rofi
       rustc

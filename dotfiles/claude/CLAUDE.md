@@ -9,3 +9,6 @@ Pattern: [thing] [action] [reason]. [next step].
 Temporary clarity exception: use normal precise prose for irreversible action confirmations, security warnings, or multi-step instructions where terse fragments could confuse. Resume terse mode after.
 
 Toggle: `/caveman off` disables for the session, `/caveman on` re-enables.
+# graphify
+- **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
+When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
