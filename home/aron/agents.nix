@@ -3,6 +3,7 @@
   inputs,
   lib,
   pkgs,
+  pkgsUnstable,
   ...
 }:
 let
@@ -23,6 +24,10 @@ in
       fi
     '';
 
+    # lastChangelogVersion is pinned to the pi version this generation ships:
+    # pi only shows "What's New" for changelog entries newer than that value, so
+    # rewriting settings.json from the repo without it would replay the changelog
+    # after every rebuild.
     installMutablePiSettings = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
       settings_dir="${config.home.homeDirectory}/.pi/agent"
       settings_file="$settings_dir/settings.json"
@@ -30,11 +35,13 @@ in
       mkdir -p "$settings_dir"
 
       if [ -e "$settings_file" ]; then
-        ${pkgs.jq}/bin/jq -s \
-          '.[0] * (.[1] | with_entries(select(.key == "defaultProvider" or .key == "defaultModel" or .key == "defaultThinkingLevel")))' \
+        ${pkgs.jq}/bin/jq -s --arg piVersion ${pkgsUnstable.pi-coding-agent.version} \
+          '.[0] * (.[1] | with_entries(select(.key == "defaultProvider" or .key == "defaultModel" or .key == "defaultThinkingLevel"))) | .lastChangelogVersion = $piVersion' \
           ${../../dotfiles/pi/agent/settings.json} "$settings_file" > "$settings_tmp"
       else
-        cp ${../../dotfiles/pi/agent/settings.json} "$settings_tmp"
+        ${pkgs.jq}/bin/jq --arg piVersion ${pkgsUnstable.pi-coding-agent.version} \
+          '.lastChangelogVersion = $piVersion' \
+          ${../../dotfiles/pi/agent/settings.json} > "$settings_tmp"
       fi
 
       rm -f "$settings_file"
