@@ -24,14 +24,14 @@ const SWITCHES = [
   },
   {
     command: "opus",
-    description: "Switch to Claude Opus 5 (anthropic, xhigh thinking)",
+    description: "Switch to Claude Opus 5.0 (anthropic, xhigh thinking)",
     provider: ANTHROPIC,
     model: "claude-opus-5",
     thinking: "xhigh",
   },
   {
     command: "sonnet",
-    description: "Switch to Claude Sonnet 5 (anthropic, xhigh thinking)",
+    description: "Switch to Claude Sonnet 5.0 (anthropic, xhigh thinking)",
     provider: ANTHROPIC,
     model: "claude-sonnet-5",
     thinking: "xhigh",
