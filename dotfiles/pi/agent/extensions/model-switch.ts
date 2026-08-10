@@ -5,9 +5,10 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 
 const ANTHROPIC = "anthropic";
+const CLAUDE_BRIDGE = "claude-bridge";
 
 // `thinking` is deliberately absent on the xai/openai-codex entries: those keep
-// whatever shift+tab left the session on. The Anthropic entries pin xhigh —
+// whatever shift+tab left the session on. The Claude entries pin xhigh —
 // reaching for Claude here is always the "think hard" case.
 const SWITCHES = [
   {
@@ -24,15 +25,15 @@ const SWITCHES = [
   },
   {
     command: "opus",
-    description: "Switch to Claude Opus 5.0 (anthropic, xhigh thinking)",
-    provider: ANTHROPIC,
+    description: "Switch to Claude Opus 5.0 (claude-bridge, xhigh thinking)",
+    provider: CLAUDE_BRIDGE,
     model: "claude-opus-5",
     thinking: "xhigh",
   },
   {
     command: "sonnet",
-    description: "Switch to Claude Sonnet 5.0 (anthropic, xhigh thinking)",
-    provider: ANTHROPIC,
+    description: "Switch to Claude Sonnet 5.0 (claude-bridge, xhigh thinking)",
+    provider: CLAUDE_BRIDGE,
     model: "claude-sonnet-5",
     thinking: "xhigh",
   },

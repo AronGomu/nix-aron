@@ -41,6 +41,14 @@ in
       mv "$settings_tmp" "$settings_file"
     '';
 
+    removeDuplicatePiGraphifySkill = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+      canonical="${config.home.homeDirectory}/.agents/skills/graphify/SKILL.md"
+      duplicate="${config.home.homeDirectory}/.pi/agent/skills/graphify"
+      if [ -f "$canonical" ] && [ -e "$duplicate" ]; then
+        rm -rf "$duplicate"
+      fi
+    '';
+
     # Files the agents rewrite at runtime (Claude /config /model /effort and
     # the `#` memory shortcut, Codex project trust). home.file cannot host
     # them: even mkOutOfStoreSymlink goes through
