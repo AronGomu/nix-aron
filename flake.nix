@@ -5,8 +5,8 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Pinned solely to source a newer claude-code (2.1.220) via overlay.
-    # Bump this rev to move claude-code; nothing else uses it.
+    # Pinned to source newer claude-code (2.1.220) and pi-coding-agent (0.83.0)
+    # via the narrow overlay below.
     nixpkgs-claude.url = "github:NixOS/nixpkgs/148bab9c1c3c53136ecb44a6ea356a0ed5b39b06";
 
     home-manager = {
@@ -49,13 +49,18 @@
         inherit system;
         config.allowUnfreePredicate = allowUnfree;
         overlays = [
-          # Surgical: only claude-code comes from the pinned nixpkgs-claude input.
+          # Surgical: only these packages come from the pinned nixpkgs-claude input.
           (_final: _prev: {
             claude-code =
               (import inputs.nixpkgs-claude {
                 inherit system;
                 config.allowUnfreePredicate = allowUnfree;
               }).claude-code;
+            pi-coding-agent =
+              (import inputs.nixpkgs-claude {
+                inherit system;
+                config.allowUnfreePredicate = allowUnfree;
+              }).pi-coding-agent;
           })
         ];
       };
