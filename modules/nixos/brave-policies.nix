@@ -23,6 +23,10 @@ let
             name = "Canva";
             url = "https://www.canva.com/";
           }
+          {
+            name = "Scryfall";
+            url = "https://scryfall.com/";
+          }
         ];
       }
       {

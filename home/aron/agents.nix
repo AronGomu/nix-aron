@@ -106,6 +106,10 @@ in
       source = ../../dotfiles/pi/agent/configs;
       recursive = true;
     };
+    ".pi/agent/prompts" = {
+      source = ../../dotfiles/pi/agent/prompts;
+      recursive = true;
+    };
     ".pi/agent/extensions" = {
       source = ../../dotfiles/pi/agent/extensions;
       recursive = true;

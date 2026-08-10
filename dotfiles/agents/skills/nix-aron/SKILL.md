@@ -31,6 +31,26 @@ Read and obey `/home/aron/AGENTS.md` plus repo `NIX-CHEATSHEET.md`.
 
 STOP if prompt empty. Ask for prompt only.
 
+### Multi-store link recipe (`add to rofi and floccus …`)
+
+When prompt matches **add to rofi and floccus** (optional: and managed Brave / Nix bookmarks) with one or more URLs:
+
+| Store | Path | Default |
+| --- | --- | --- |
+| Rofi launcher | `home/aron/end4.nix` → `xdg.desktopEntries` | `brave <url>`; icon `brave-browser`; categories `Network`; key = slug from title/host |
+| Floccus | `/home/aron/config/bookmarks/bookmarks.xbel` (separate git repo) | folder `Synced`; `<title>` human name |
+| Nix managed Brave | `modules/nixos/brave-policies.nix` | folder **Daily** unless user named another |
+
+Defaults when unspecified: title from site/host (e.g. `scryfall.com` → `Scryfall`); include all three stores; keep existing XBEL entries; dedupe by URL.
+
+**Git:**
+1. nix-aron: commit + push intentional paths (this skill’s normal rules).
+2. bookmarks repo: `cd /home/aron/config/bookmarks` → commit intentional `bookmarks.xbel` → `git push origin` **if remote exists**; else report `blocked: no bookmarks remote` (do not invent remote, no force-push).
+
+**Rebuild ask** still required for nix-aron/HM/Brave policy. Floccus picks up after bookmarks push + extension sync.
+
+Pi convenience: prompt template `/add-rofi-floccus <url> [url…]` expands to this skill path (read skill file; no nested `/skill:` expand).
+
 ## Job
 
 ```

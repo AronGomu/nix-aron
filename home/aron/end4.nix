@@ -378,6 +378,13 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      scryfall = {
+        name = "Scryfall";
+        icon = "brave-browser";
+        exec = "brave https://scryfall.com/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       github-essentia = {
         name = "Essentia";
         icon = "nvim";
