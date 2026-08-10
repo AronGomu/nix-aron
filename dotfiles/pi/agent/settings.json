@@ -6,18 +6,18 @@
   "hideThinkingBlock": true,
   "packages": [
     {
+      "source": "npm:pi-subagents@0.38.0"
+    },
+    {
+      "source": "npm:pi-claude-bridge@0.7.0"
+    },
+    {
       "source": "npm:@adrianapan/pikit@1.1.7",
       "extensions": [
         "!agent/extensions/footer/index.ts",
         "!agent/extensions/permission-gate/index.ts",
         "!agent/extensions/subagents/index.ts"
       ]
-    },
-    {
-      "source": "npm:pi-subagents@0.38.0"
-    },
-    {
-      "source": "npm:pi-claude-bridge@0.7.0"
     }
   ],
   "theme": "slop",
