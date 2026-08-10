@@ -37,7 +37,7 @@ If not already, read :
 
 1. Analyse resources given.
 2. If **high** : Find local and/or internet images for illustration.
-3. Generate and open to browser.
+3. Generate, then open the file in the default browser (`xdg-open {file}.html`). Every HTML this skill writes must end up open in the default browser.
 
 **DO NOT ASK USER INPUT UNTIL HTML GENERATION IS COMPLETE !**
 

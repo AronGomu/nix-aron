@@ -49,7 +49,7 @@ Loop steps 2-6 per round. Round `n` starts at `n = 1`.
    `Read ~/.agents/roles/scout.md. Follow it.` Read-only, parallel OK.
    **Do not block.** Running scout = unsettled prerequisite -> its downstream question waits for next round. Ask rest of frontier now.
 4. **Write round doc** — 1 HTML file, whole frontier, `{out dir}/round-{n}.html`. Shape per [Output](#output).
-5. **Hand off** — give user the absolute path. State how many questions, which tree branches this round covers. Open file in browser.
+5. **Hand off** — give user the absolute path. State how many questions, which tree branches this round covers. Open file in the default browser (`xdg-open {out dir}/round-{n}.html`).
 6. **Wait** — user answers whole round (pasted summary, edited file, or chat). Then :
    - append answers to `{out dir}/ANSWERS.md`
    - fold answers into tree : settled decisions push frontier outward, unblock dependants

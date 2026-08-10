@@ -28,6 +28,7 @@ Lazy — read only when needed :
 6. Write **1 html plan**. Use **make-html-aron** effort=high verbosity=lite. Save `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}.html`.
 7. Write **X ADR Records markdown doc** about decisions from investigation. Caveman Lite. Save `./docs/ADR/XXX_ADR_{title}.md`.
 8. Write, update, delete **X Architecture Design HTML Documents**. Caveman Lite. Save `./docs/{title}.html`.
+9. Open every HTML doc written in steps 6 and 8 in the default browser (`xdg-open {file}.html`).
 
 **DO NOT START IMPLEMENTATION**
 

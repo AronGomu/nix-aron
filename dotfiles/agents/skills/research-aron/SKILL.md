@@ -14,4 +14,4 @@ Tasks:
 3. Save Markdown file to `./.tmp/RESEARCH_{title}.md`.
 4. Write findings in 1 report HTML doc. Must emphasize human readability. Heavy use of styling and graphs. Default to dark mode.
 5. Save HTML doc to `./.tmp/RESEARCH_REPORT_{title}.html`.
-6. Open HTML doc to default browser.
+6. Open HTML doc in the default browser (`xdg-open ./.tmp/RESEARCH_REPORT_{title}.html`).

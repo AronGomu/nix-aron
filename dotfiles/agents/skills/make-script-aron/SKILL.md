@@ -79,7 +79,7 @@ Rules:
 1. `grep -c '<section' out.html` matches the number of `##` headings.
 2. `grep -c '{{' out.html` returns 0.
 3. Word count is within ~1% of the source (`wc -w` the source vs. stripped HTML) — a big drop means you dropped content.
-4. Open it: `xdg-open out.html`. Confirm the table of contents populates, the word/minute counts render, and auto-scroll runs.
+4. Open it in the default browser: `xdg-open out.html`. Confirm the table of contents populates, the word/minute counts render, and auto-scroll runs.
 
 Report the output path, section count, total word count, and estimated runtime at 150 wpm.
 
