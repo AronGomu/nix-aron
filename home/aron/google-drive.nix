@@ -10,17 +10,25 @@
     Unit = {
       Description = "Mount Google Drive";
       ConditionPathExists = "%h/.config/rclone/rclone.conf";
+      After = [ "network-online.target" ];
+      Wants = [ "network-online.target" ];
     };
 
     Service = {
       Type = "notify";
-      ExecStartPre = "${pkgs.coreutils}/bin/mkdir -p %h/GoogleDrive";
+      ExecStartPre = [
+        "-${pkgs.fuse3}/bin/fusermount3 -uz %h/GoogleDrive"
+        "${pkgs.coreutils}/bin/mkdir -p %h/GoogleDrive"
+      ];
       ExecStart = ''
         ${pkgs.rclone}/bin/rclone mount gdrive: %h/GoogleDrive \
           --config=%h/.config/rclone/rclone.conf \
-          --vfs-cache-mode=writes
+          --vfs-cache-mode=writes \
+          --dir-cache-time=1h \
+          --attr-timeout=1h
       '';
-      ExecStop = "${pkgs.fuse3}/bin/fusermount3 -u %h/GoogleDrive";
+      ExecStartPost = "${pkgs.bash}/bin/bash -c '${pkgs.findutils}/bin/find %h/GoogleDrive -maxdepth 4 >/dev/null 2>&1 &'";
+      ExecStop = "-${pkgs.fuse3}/bin/fusermount3 -uz %h/GoogleDrive";
       Restart = "on-failure";
       RestartSec = 5;
     };

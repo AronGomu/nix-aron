@@ -445,6 +445,27 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      github-essentia-page = {
+        name = "github - Essentia";
+        icon = "brave-browser";
+        exec = "brave https://github.com/AronGomu/Essentia";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      google-drive = {
+        name = "Google Drive";
+        icon = "brave-browser";
+        exec = "brave https://drive.google.com/drive/my-drive";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      claude-ai = {
+        name = "Claude";
+        icon = "brave-browser";
+        exec = "brave https://claude.ai/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       gones-local = {
         name = "Gones - http://localhost:4200";
         icon = "brave-browser";
