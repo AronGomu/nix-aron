@@ -1,0 +1,5 @@
+interface:
+  display_name: "Make Prototype Aron"
+  short_description: "Create validated visual UI/UX HTML prototypes"
+policy:
+  allow_implicit_invocation: false
