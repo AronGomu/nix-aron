@@ -1,0 +1,5 @@
+interface:
+  display_name: "Make Audit Aron"
+  short_description: "Audit repo, fix findings, open PRs"
+policy:
+  allow_implicit_invocation: false
