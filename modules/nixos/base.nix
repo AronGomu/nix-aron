@@ -121,7 +121,38 @@
     memoryPercent = 25;
   };
 
-  programs.nix-ld.enable = true;
+  # Shared libraries for FHS-style binaries that download their own runtime, most
+  # notably the Chromium/Firefox/WebKit builds Playwright fetches into
+  # ~/.cache/ms-playwright. Without these they die at load with libglib-2.0.so.0 /
+  # libnss3.so / libnspr4.so missing, and no e2e suite can run on this host.
+  programs.nix-ld = {
+    enable = true;
+    libraries = with pkgs; [
+      alsa-lib
+      at-spi2-atk
+      at-spi2-core
+      atk
+      cairo
+      cups
+      dbus
+      expat
+      glib
+      gtk3
+      libdrm
+      libgbm
+      libx11
+      libxcb
+      libxcomposite
+      libxdamage
+      libxext
+      libxfixes
+      libxkbcommon
+      libxrandr
+      nspr
+      nss
+      pango
+    ];
+  };
 
   hardware.graphics.extraPackages = with pkgs; [ vulkan-loader ];
   environment.variables.SDL_VULKAN_LIBRARY = "/run/opengl-driver/lib/libvulkan.so.1";

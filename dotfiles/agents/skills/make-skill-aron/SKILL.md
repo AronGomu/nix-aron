@@ -34,7 +34,7 @@ Lazy — read only when needed :
 | Install rule     | `~/config/nix-aron/home/aron/agents.nix:72` — whole dir, recursive |
 | Live path        | `~/.agents/skills/{name}/` -> symlinked to claude, pi, codex       |
 | Rebuild          | `sudo nixos-rebuild switch --flake .#$(nixos-host)`                |
-| Roles            | `~/.agents/roles/{scout,impl-worker,reviewer}.md`                  |
+| Roles            | `~/.agents/roles/{scout,planner,impl-worker,reviewer}.md`          |
 | Reference skill  | `make-plan-aron` (full shape), `make-setup-aron` (short shape)     |
 
 ## Process

@@ -169,6 +169,7 @@ Every child gets a **role** from `~/.agents/roles/`:
 
 | Role | File | Tier | Use |
 | --- | --- | --- | --- |
+| planner | `~/.agents/roles/planner.md` | `deep` | writes plan artifacts; never app code |
 | impl-worker | `~/.agents/roles/impl-worker.md` | `standard` (`deep` if escalated) | executes one ticket, writes |
 | reviewer | `~/.agents/roles/reviewer.md` | `deep` | read-only, one dimension, loop step 6 |
 | scout | `~/.agents/roles/scout.md` | `cheap` | read-only fact finding, never asks user |

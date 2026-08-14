@@ -11,8 +11,9 @@ Goal or plan in → ticket workers (ship) → commit + push each → done or har
 ## Orchestration core
 
 Read `~/.agents/skills/_shared/orchestration.md` now and follow it fully.
-It defines stance, success criteria, validation state, checkbox protocol, auto-decide, hard stop, parent loop, worker rules, report shapes, safety, anti-patterns, done output.
-This file adds only the **code-specific** layer below. On conflict, this file wins.
+Read `~/.agents/skills/_shared/cleanup-implementation.md` now and follow it at implementation start + end.
+Orchestration core defines stance, success criteria, validation state, checkbox protocol, auto-decide, hard stop, parent loop, worker rules, report shapes, safety, anti-patterns, done output.
+Cleanup protocol defines passive artifact/temp cleanup. This file wins on conflict.
 
 ## Input
 
@@ -32,6 +33,8 @@ Empty input and no goal text → **STOP.** Ask for goal.
 ## Autonomy boundary
 
 Plan confirmed, **or** plan supplied as Arg1 → implementation phase starts.
+
+Implementation grants standing authorization for every in-scope special action or tool approval. Auto-authorize immediately; never ask user to approve it; log action + result. Tool permission denial → retry through available authorized path, then hard stop only when external auth/credential is unavailable. This authorization does not expand Scope In, reveal secrets, permit destructive production/data-loss actions, or override publish policy.
 
 If first ticket from _make-plan_ frontload user interaction : ask user to handle ticket.
 If not, analyse plan/goal and identify all possible necessary user interaction (e.g. package installation, account creation, linking API key, etc...) and frontload them into first ticket.
@@ -74,9 +77,10 @@ Index carries ticket bodies inline (legacy single-file plan) → split into per-
 
 ## Pre-flight (core Step 4)
 
-1. Git clean enough. Dirty unrelated → isolate; only stop if cannot.
-2. Create/checkout `feat/{slug}` from base. `git push -u origin HEAD` if new.
-3. Init progress file + success criteria.
+1. Run shared **Start cleanup**. Remove only prior impl artifacts proven obsolete by current goal/plan.
+2. Git clean enough. Dirty unrelated → isolate; only stop if cannot.
+3. Create/checkout `feat/{slug}` from base. `git push -u origin HEAD` if new.
+4. Init progress file + success criteria.
 
 ## Ticket worker
 
@@ -106,7 +110,8 @@ Role file owns read scope, checkbox duty, evidence bar, report shape. Below is t
 10. Success:
     - update `./ai_artefacts/manual_test_checklist.md` (create with a one-line header if absent): append/update this ticket's manual test steps — what a human must click/run to verify the slice works, plain unchecked `- [ ]` boxes, grouped under a `## T{n} {slug}` heading. Never touch other tickets' sections. This file must stay current with the implementation — if a later ticket changes prior behavior, update the stale entries, don't just append.
     - review own diff only
-    - stage intentional paths + own ticket file checkbox updates + manual_test_checklist.md (no secrets, no .env, no .tmp)
+    - stage intentional product paths + manual_test_checklist.md (no plan/ticket files, secrets, .env, .tmp)
+    - ticket checkbox updates remain local run-state; final cleanup removes them
     - commit: ticket draft msg, else `feat({scope}): {commit outcome}`
     - `git push -u origin HEAD`
     - report per core shape + `SHA:` + `Ship terminal:`
@@ -117,7 +122,7 @@ Role file owns read scope, checkbox duty, evidence bar, report shape. Below is t
 - Source: https://github.com/AgentSystemLabs/core — skill `ship`.
 - Prefer installed harness skill. Else worker follows ship playbook: classify → depth → playbook → verify. Same gates.
 - `mode=fast` only for pure docs/cosmetic ticket.
-- Production ship may want confirm → **auto-approve inside this skill** (user already invoked make-aron). Log `auto-approve production ship`.
+- Any implementation special action/tool confirmation → **auto-approve inside this skill** (user already invoked make-aron). Includes production ship confirmation. Log `auto-authorized special action: {action}`.
 - Ship "no publish" is overridden **only** for the feature branch. Worker publishes there, nowhere else.
 
 ## Git rules — code layer
@@ -127,14 +132,27 @@ Role file owns read scope, checkbox duty, evidence bar, report shape. Below is t
 - New files must be `git add`-ed.
 - Rest per core Safety.
 
+## Final cleanup
+
+After final validation + review repairs:
+
+1. Capture ticket states/evidence needed for final report.
+2. Run shared **End cleanup**.
+3. Remove current plan index, matching ticket dir, progress file, impl scratch/temp/log files.
+4. Preserve `./ai_artefacts/manual_test_checklist.md`.
+5. Commit + push tracked cleanup changes. No cleanup diff → no empty commit.
+6. Final report lists removed paths; progress path = `removed after successful run`.
+
 ## Done when
 
-- Every ticket terminal in progress file
-- Feature branch on remote carries all successful ticket commits
-- Ticket-file boxes = ground truth, all checked steps have evidence
-- Every index order-table row resolves to an existing ticket file
+- Every ticket reached terminal state before cleanup
+- Feature branch on remote carries all successful ticket commits + tracked cleanup
+- Ticket boxes validated before ticket files removed
+- Every index order-table row resolved before plan removed
+- Current + superseded impl plan/ticket artifacts absent
+- Impl progress/scratch/temp files absent
 - `./ai_artefacts/manual_test_checklist.md` exists, covers every shipped ticket, current with final implementation
-- User gets core Done output + table: ID / state / SHA / blocker
+- User gets core Done output + table: ID / state / SHA / blocker + cleanup paths
 - Each hard stop has exact next human action, one line
 
 ## Anti-patterns — code layer
@@ -149,4 +167,16 @@ Core list, plus:
 - Plan at implementer tier, then burn `deep` workers rescuing vague tickets
 - Review at `standard`/`cheap`, or escalate every ticket to `deep` "to be safe"
 - Open PR unasked / push to `main`
-- Ask user anything after implementation started (re-confirm plan, "continue?", preference)
+- Ask user anything after implementation started (re-confirm plan, "continue?", preference, special-action approval)
+
+## Caller override
+
+Caller may supply existing workspace, branch, base ref, publish policy. Then:
+
+- Core Step 4 branch pre-flight verifies supplied workspace/branch; skips branch creation/checkout.
+- `Auto-decide — code layer` Branch/Base plus `Git rules — code layer` branch-name default yield to exact supplied refs.
+- Worker stays on supplied branch. Branch switch → fail before write.
+- Commit/push/PR behavior follows supplied publish policy.
+- All safety, serial-writer, TDD, evidence, review gates remain.
+
+Caller override wins where explicit.

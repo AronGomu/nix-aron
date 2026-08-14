@@ -17,6 +17,15 @@ trust_level = "trusted"
 [projects."/home/aron/config/nix-aron"]
 trust_level = "trusted"
 
+[projects."/home/aron/projects/millions_must_die"]
+trust_level = "trusted"
+
+[projects."/home/aron/projects/gones"]
+trust_level = "trusted"
+
+[projects."/home/aron/projects/essentia"]
+trust_level = "trusted"
+
 [tui]
 status_line = ["model-with-reasoning", "current-dir", "context-remaining", "context-used", "five-hour-limit", "weekly-limit", "used-tokens", "total-input-tokens", "total-output-tokens"]
 status_line_use_colors = true
