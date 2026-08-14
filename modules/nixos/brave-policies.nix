@@ -27,6 +27,10 @@ let
             name = "Scryfall";
             url = "https://scryfall.com/";
           }
+          {
+            name = "Ascencio";
+            url = "https://github.com/AronGomu/ascencio";
+          }
         ];
       }
       {

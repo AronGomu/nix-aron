@@ -417,6 +417,13 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      ascencio = {
+        name = "Ascencio";
+        icon = "brave-browser";
+        exec = "brave https://github.com/AronGomu/ascencio";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       github-brain = {
         name = "github-brain";
         icon = "brave-browser";
