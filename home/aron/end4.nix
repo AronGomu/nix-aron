@@ -399,6 +399,20 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      messenger = {
+        name = "Messenger";
+        icon = "brave-browser";
+        exec = "brave https://www.facebook.com/messages/e2ee/t/8160697540693740/#";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      facebook = {
+        name = "Facebook";
+        icon = "brave-browser";
+        exec = "brave https://facebook.com/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       github-essentia = {
         name = "Essentia";
         icon = "nvim";

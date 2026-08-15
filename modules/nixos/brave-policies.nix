@@ -39,6 +39,14 @@ let
             name = "Discord";
             url = "https://discord.com/channels/@me";
           }
+          {
+            name = "Messenger";
+            url = "https://www.facebook.com/messages/e2ee/t/8160697540693740/#";
+          }
+          {
+            name = "Facebook";
+            url = "https://facebook.com/";
+          }
         ];
       }
       {
