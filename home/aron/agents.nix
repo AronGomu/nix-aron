@@ -12,6 +12,7 @@ let
     chmod -R u+w $out
     cp ${../../dotfiles/nvim/treesitter.lua} $out/lua/plugins/treesitter.lua
     cp ${../../dotfiles/nvim/ui.lua} $out/lua/plugins/ui.lua
+    cp ${../../dotfiles/nvim/options.lua} $out/lua/config/options.lua
   '';
 in
 {
