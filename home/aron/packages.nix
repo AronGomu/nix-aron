@@ -261,6 +261,23 @@ let
       requests
     ]
   );
+  # ytmusic-sync drives ytmusicapi from Python; it is what tells the account's
+  # YouTube *Music* playlists apart from its ordinary video playlists, which the
+  # channel's /playlists page lists together.
+  ytmusicPythonEnv = pkgs.python3.withPackages (ps: with ps; [ ytmusicapi ]);
+  ytmusic-sync = pkgs.writeShellApplication {
+    name = "ytmusic-sync";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.ffmpeg-full # yt-dlp shells out to it for opus extraction and cover art
+      pkgs.procps # pgrep, to refuse --relink while Strawberry is running
+      pkgs.strawberry
+      pkgs.yt-dlp
+    ];
+    text = ''
+      exec ${ytmusicPythonEnv}/bin/python3 ${./scripts/ytmusic-sync.py} "$@"
+    '';
+  };
   cut-silence = pkgs.writeShellApplication {
     name = "cut-silence";
     runtimeInputs = [
@@ -347,6 +364,7 @@ in
       grokImagine
       onekeyWallet
       cut-silence
+      ytmusic-sync
     ]
     ++ (with pkgsUnstable; [
       claude-code

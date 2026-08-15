@@ -47,6 +47,10 @@ let
             name = "Facebook";
             url = "https://facebook.com/";
           }
+          {
+            name = "MTGTop8 - Legacy";
+            url = "https://mtgtop8.com/format?f=LE";
+          }
         ];
       }
       {

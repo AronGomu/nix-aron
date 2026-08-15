@@ -402,7 +402,14 @@ in
       messenger = {
         name = "Messenger";
         icon = "brave-browser";
-        exec = "brave https://www.facebook.com/messages/e2ee/t/8160697540693740/#";
+        exec = "brave https://www.facebook.com/messages/e2ee/t/8160697540693740/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      mtgtop8-legacy = {
+        name = "MTGTop8 - Legacy";
+        icon = "brave-browser";
+        exec = "brave https://mtgtop8.com/format?f=LE";
         terminal = false;
         categories = [ "Network" ];
       };
