@@ -1,0 +1,5 @@
+interface:
+  display_name: "Make Image Generation Prompt"
+  short_description: "Write image prompts for ChatGPT web UI"
+policy:
+  allow_implicit_invocation: false
