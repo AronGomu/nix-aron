@@ -31,6 +31,7 @@ let
     '';
   };
   grokImagine = pkgs.callPackage ../../pkgs/grok-imagine.nix { };
+  onekeyWallet = pkgs.callPackage ../../pkgs/onekey-wallet.nix { };
   openwhisprHyprlandCancelPatch = pkgs.writeText "openwhispr-hyprland-cancel.patch" ''
     diff --git a/src/helpers/hotkeyManager.js b/src/helpers/hotkeyManager.js
     index 6931e82..abab7d1 100644
@@ -344,6 +345,7 @@ in
       herdr
       openwhispr
       grokImagine
+      onekeyWallet
       cut-silence
     ]
     ++ (with pkgsUnstable; [
