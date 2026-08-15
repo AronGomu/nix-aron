@@ -270,7 +270,7 @@ let
     runtimeInputs = [
       pkgs.coreutils
       pkgs.ffmpeg-full # yt-dlp shells out to it for opus extraction and cover art
-      pkgs.procps # pgrep, to refuse --relink while Strawberry is running
+      pkgs.procps # pgrep/pkill, to guard --relink and flush Strawberry cleanly
       pkgs.strawberry
       pkgs.yt-dlp
     ];
@@ -301,6 +301,7 @@ in
       sushi # Nautilus Space quick preview (org.gnome.NautilusPreviewer)
       file-roller
       flameshot
+      kdenlive
       keepassxc
       mediainfo
       mpv
