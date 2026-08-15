@@ -385,6 +385,13 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      outlook = {
+        name = "Outlook";
+        icon = "brave-browser";
+        exec = "brave https://outlook.live.com/mail/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       github-essentia = {
         name = "Essentia";
         icon = "nvim";

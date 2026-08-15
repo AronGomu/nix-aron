@@ -31,6 +31,10 @@ let
             name = "Ascencio";
             url = "https://github.com/AronGomu/ascencio";
           }
+          {
+            name = "Outlook";
+            url = "https://outlook.live.com/mail/";
+          }
         ];
       }
       {
