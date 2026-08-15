@@ -392,6 +392,13 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      discord = {
+        name = "Discord";
+        icon = "brave-browser";
+        exec = "brave https://discord.com/channels/@me";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       github-essentia = {
         name = "Essentia";
         icon = "nvim";

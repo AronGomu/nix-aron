@@ -35,6 +35,10 @@ let
             name = "Outlook";
             url = "https://outlook.live.com/mail/";
           }
+          {
+            name = "Discord";
+            url = "https://discord.com/channels/@me";
+          }
         ];
       }
       {
