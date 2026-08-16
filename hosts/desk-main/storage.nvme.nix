@@ -49,10 +49,11 @@ in
   fileSystems."/mnt/data" = {
     device = "/dev/disk/by-uuid/${disks.data}";
     fsType = "ntfs3";
+    # Mounted eagerly at boot (no x-systemd.automount): the disk should be there
+    # before anything looks for it. nofail keeps boot going if it is not.
     options = [
       "nofail"
       "x-systemd.device-timeout=10s"
-      "x-systemd.automount"
       "x-gvfs-show"
       "x-gvfs-name=Data"
       "uid=1000"
