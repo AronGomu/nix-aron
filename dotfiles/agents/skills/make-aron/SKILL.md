@@ -56,24 +56,24 @@ Index carries ticket bodies inline (legacy single-file plan) → split into per-
 
 ## Auto-decide — code layer
 
-| Choice            | Default                                                                                                                                                                                            |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Branch            | `plan/{slug}`, slug = plan title kebab                                                                                                                                                             |
-| Base              | current default remote HEAD (`main`/`master`)                                                                                                                                                      |
-| Plan breakdown    | tier `deep` — frontier model, high effort (Opus 5 high / GPT-5.6 Sol high). Never cheaper                                                                                                          |
-| Worker            | fresh-context child, role `~/.agents/roles/impl-worker.md`, tier `standard` (Sonnet 5 medium / Opus 5 low / GPT Terra medium); loads skill `ship` if installed, else AgentSystemLabs ship playbook |
-| Worker escalation | tier `deep` when ticket touches auth / pay / migrate / webhook / jobs / multi-subsystem, **or** it is the one repair attempt. Same trigger as ship depth `production`                              |
-| Reviewer          | fresh-context children, role `~/.agents/roles/reviewer.md`, tier `deep`, dimensions: correctness, security, scope-drift, tests                                                                     |
-| Scout             | fresh-context child, role `~/.agents/roles/scout.md`, tier `cheap`, read-only, for any unknown fact                                                                                                |
-| Ship depth        | `balanced`; `production` if ticket touches auth / pay / migrate / webhook / jobs / multi-subsystem                                                                                                 |
-| Commit            | **after** ship terminal `locally-verified` **and** ticket Validation pass                                                                                                                          |
-| Granularity       | 1 commit per ticket minimum                                                                                                                                                                        |
-| Push              | every successful ticket commit → `origin` feature branch                                                                                                                                           |
-| PR                | **no**, unless plan or user said open PR                                                                                                                                                           |
-| Progress          | `./.tmp/MAKE_PROGRESS_{slug}.md`                                                                                                                                                                   |
-| Manual test checklist | `./ai_artefacts/manual_test_checklist.md` — every ticket worker appends/updates its entries, never overwrites others'                                                                          |
-| Tests             | run relevant suite; tests mandatory when ticket has TDD                                                                                                                                            |
-| Sanity            | pre-commit hooks honored; no `--no-verify` unless plan says                                                                                                                                        |
+| Choice                | Default                                                                                                                                                                                            |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Branch                | `plan/{slug}`, slug = plan title kebab                                                                                                                                                             |
+| Base                  | current default remote HEAD (`main`/`master`)                                                                                                                                                      |
+| Plan breakdown        | tier `deep` — frontier model, high effort (Opus 5 high / GPT-5.6 Sol high). Never cheaper                                                                                                          |
+| Worker                | fresh-context child, role `~/.agents/roles/impl-worker.md`, tier `standard` (Sonnet 5 medium / Opus 5 low / GPT Terra medium); loads skill `ship` if installed, else AgentSystemLabs ship playbook |
+| Worker escalation     | tier `deep` when ticket touches auth / pay / migrate / webhook / jobs / multi-subsystem, **or** it is the one repair attempt. Same trigger as ship depth `production`                              |
+| Reviewer              | fresh-context children, role `~/.agents/roles/reviewer.md`, tier `deep`, dimensions: correctness, security, scope-drift, tests                                                                     |
+| Scout                 | fresh-context child, role `~/.agents/roles/scout.md`, tier `cheap`, read-only, for any unknown fact                                                                                                |
+| Ship depth            | `balanced`; `production` if ticket touches auth / pay / migrate / webhook / jobs / multi-subsystem                                                                                                 |
+| Commit                | **after** ship terminal `locally-verified` **and** ticket Validation pass                                                                                                                          |
+| Granularity           | 1 commit per ticket minimum                                                                                                                                                                        |
+| Push                  | every successful ticket commit → `origin` feature branch                                                                                                                                           |
+| PR                    | **no**, unless plan or user said open PR                                                                                                                                                           |
+| Progress              | `./.tmp/MAKE_PROGRESS_{slug}.md`                                                                                                                                                                   |
+| Manual test checklist | `./ai_artefacts/manual_test_checklist.md` — every ticket worker appends/updates its entries, never overwrites others'                                                                              |
+| Tests                 | run relevant suite; tests mandatory when ticket has TDD                                                                                                                                            |
+| Sanity                | pre-commit hooks honored; no `--no-verify` unless plan says                                                                                                                                        |
 
 ## Pre-flight (core Step 4)
 
@@ -154,6 +154,29 @@ After final validation + review repairs:
 - `./ai_artefacts/manual_test_checklist.md` exists, covers every shipped ticket, current with final implementation
 - User gets core Done output + table: ID / state / SHA / blocker + cleanup paths
 - Each hard stop has exact next human action, one line
+
+## FINAL MESSAGE STRUCTURE
+
+When autonomous implementation is done, final message report follow this structure :
+
+```
+STATUS IMPLEMENTATION : [COMPLETE | INCOMPLETE]
+
+| Ticket Name | STATUS |
+| ----------- | ------ |
+| {ticket name} | [COMPLETE | INCOMPLETE] |
+...
+
+Notes :
+- {List of decisions made not initialy planned}
+...
+
+@ if (STATUS == INCOMPLETE) {
+BLOCKING :
+
+REQUIRED USER ACTIONS :
+}
+```
 
 ## Anti-patterns — code layer
 
