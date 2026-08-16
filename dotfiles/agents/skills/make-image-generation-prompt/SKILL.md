@@ -44,7 +44,7 @@ Lazy — read only when needed :
 3. **Research** — style / era / subject unfamiliar or user named a movement, artist-adjacent look, product, or franchise -> run `research-aron`
    (read `~/.agents/skills/research-aron/SKILL.md`) to ground vocabulary : concrete visual traits, lighting, medium, typical composition.
    Everything already concrete -> skip, say so.
-4. **Refs** — collect 3-8 reference images illustrating agreed style/composition. Download to `{ref dir}` with descriptive kebab names
+4. **Refs** — collect 0-8 reference images illustrating agreed style/composition. Download to `{ref dir}` with descriptive kebab names
    (`curl -sL {url} -o {ref dir}/{name}.jpg`). Download fail -> drop that ref, keep going, never block. Record source URL per ref in doc.
 5. **Write prompts** — `N` prompts. Each **self-contained** (paste alone, no shared preamble), plain English prose, no markdown inside prompt,
    no negative-prompt syntax, no weights/`::`/`--ar` flags — ChatGPT web UI ignores them.
@@ -65,29 +65,29 @@ Lazy — read only when needed :
 ````md
 # Image prompts — {title}
 
-Date : {YYYY-MM-DD} · Count : {N} · Variation axis : {axis}
-
-## Spec
-
-| field       | value |
-| ----------- | ----- |
-| Purpose     |       |
-| Art style   |       |
-| Subject     |       |
-| Palette     |       |
-| Aspect      |       |
-| Text in img | no    |
-
-## References
-
-| file                     | shows | source |
-| ------------------------ | ----- | ------ |
-| `refs_{slug}/{name}.jpg` |       | {url}  |
+NO COLLAGE. Each prompt = 1 sceene = 1 individual distinct image.
+Generate 1 image for each prompt sequentially.
 
 ## Prompt 1 — {variation label}
 
 ```text
-{full prose prompt, single paragraph or few sentences}
+Opening declaration — one sentence naming the medium and the subject. "A documentary-style photograph of an elderly fisherman mending a net." This sets the rendering mode before anything else.
+
+Subject detail — appearance, clothing, materials, condition, expression, pose. Be specific; ChatGPT fills gaps with generic defaults if you don't.
+
+Composition & camera — shot type, angle, where the subject sits in the frame, depth of field. You can say "his hands occupy the lower third, sharply focused."
+
+Setting — location, background elements, what's visible in the distance.
+
+Lighting & atmosphere — direction, quality, time of day, haze or reflections.
+
+Color palette & mood — a short sentence.
+
+Text, if any — written in quotation marks with the placement and typeface style described. This is where ChatGPT clearly outperforms most alternatives, so it deserves its own line: The sign above the door reads "MARÉE DU JOUR" in hand-painted serif lettering, slightly weathered.
+
+Constraints and exclusions — phrased as what is there. Say "the street is empty" rather than "no people, no cars." Negative-prompt syntax is largely ignored and can even summon the thing you excluded.
+
+Aspect ratio — just ask for it in words: "square format," "wide landscape orientation," "vertical portrait format."
 
 IF ANY THIRD PARTY CONTENT PREVENT IMAGE GENERATION. REPLACE THEM.
 ```

@@ -353,17 +353,48 @@ def relink_strawberry(playlists: dict[str, dict]) -> None:
     finally:
         conn.close()
 
+    # The first -c launches Strawberry; later ones reach it over IPC. Playlist state
+    # only reaches the DB when Strawberry exits, so this owns the whole lifecycle:
+    # launch, feed, then shut it down cleanly and verify the rows landed.
     for meta in playlists.values():
         m3u = PLAYLIST_DIR / f"{safe_filename(meta['title'])}.m3u8"
         if not m3u.exists():
             continue
         subprocess.run(["strawberry", "-c", meta["title"], str(m3u)], check=False)
+        time.sleep(2)
+
+    log("  shutting Strawberry down to flush its playlist state")
+    subprocess.run(["pkill", "-TERM", "-x", "strawberry"], check=False)
+    for _ in range(30):
+        if not strawberry_running():
+            break
         time.sleep(1)
-    log("  Strawberry now holds the synced playlists — quit it normally to persist them")
+    else:
+        die("Strawberry did not exit cleanly; playlists may not have been saved")
+
+    conn = sqlite3.connect(STRAWBERRY_DB)
+    try:
+        placeholders = ",".join("?" * len(titles))
+        linked = conn.execute(
+            f"SELECT name, (SELECT COUNT(*) FROM playlist_items WHERE playlist = playlists.rowid) "
+            f"FROM playlists WHERE name IN ({placeholders})",
+            titles,
+        ).fetchall()
+    finally:
+        conn.close()
+    for name, count in linked:
+        log(f"  linked {name}: {count} track(s)")
+    if len(linked) != len(titles):
+        log(f"  warn: {len(titles) - len(linked)} playlist(s) did not link")
 
 
 def ensure_collection_dir() -> None:
-    """Register the music dir as a Strawberry collection directory if it is missing."""
+    """Register the music dir as a Strawberry collection directory if it is missing.
+
+    Collection roots live in the DB, not in strawberry.conf, so this is the only way
+    to set one up without clicking through Settings. Strawberry scans the new root on
+    its next start and builds the artist/album browser from the embedded tags.
+    """
     if not STRAWBERRY_DB.exists():
         return
     conn = sqlite3.connect(STRAWBERRY_DB)
@@ -371,11 +402,15 @@ def ensure_collection_dir() -> None:
         rows = conn.execute("SELECT path FROM directories").fetchall()
         if any(Path(r[0]) == MUSIC_DIR for r in rows):
             return
-        log(
-            f"\nnote: {MUSIC_DIR} is not a Strawberry collection directory yet.\n"
-            f"      Add it once via Strawberry → Settings → Collection → Add, and enable\n"
-            f"      'Monitor the collection for changes' so later syncs are picked up."
-        )
+        if strawberry_running():
+            log(
+                f"\nnote: {MUSIC_DIR} is not a Strawberry collection directory yet, and"
+                f"\n      Strawberry is running. Close it and re-run to register it automatically."
+            )
+            return
+        conn.execute("INSERT INTO directories (path, subdirs) VALUES (?, 1)", (str(MUSIC_DIR),))
+        conn.commit()
+        log(f"\nregistered {MUSIC_DIR} as a Strawberry collection directory (scans on next start)")
     finally:
         conn.close()
 
@@ -444,10 +479,10 @@ def main() -> None:
         else:
             log(f"\n{len(orphans)} orphaned file(s) kept; re-run with --prune to move them to the trash dir")
 
+    ensure_collection_dir()
     if args.relink:
         relink_strawberry(new_state)
     else:
-        ensure_collection_dir()
         log("\nrun with --relink (Strawberry closed) to rebuild its playlist tabs")
 
     save_state(new_state)
