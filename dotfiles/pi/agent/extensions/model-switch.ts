@@ -37,6 +37,13 @@ const SWITCHES = [
     model: "claude-sonnet-5",
     thinking: "xhigh",
   },
+  {
+    command: "fable",
+    description: "Switch to Claude Fable 5 (claude-bridge, xhigh thinking)",
+    provider: CLAUDE_BRIDGE,
+    model: "claude-fable-5",
+    thinking: "xhigh",
+  },
 ] as const;
 
 type Switch = (typeof SWITCHES)[number];
