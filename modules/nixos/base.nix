@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, pkgsUnstable, ... }:
 {
   time.timeZone = "Europe/Paris";
   i18n.defaultLocale = "en_US.UTF-8";
@@ -153,6 +153,26 @@
       pango
     ];
   };
+
+  # nix-ld above is enough for the Chromium and Firefox builds Playwright
+  # downloads, but not for its WebKit: that one wants ~70 further libraries at
+  # pinned ABIs (libicuuc.so.74, libjxl, gstreamer, flite, libwoff2dec), so
+  # webkit-smoke dies at launch and a full `npm run check` can never pass.
+  # nixpkgs ships browsers already patched for NixOS, so point Playwright at
+  # those instead of the ones it fetches into ~/.cache/ms-playwright.
+  #
+  # Deliberately from unstable: it tracks playwright-driver 1.61.1, matching the
+  # @playwright/test pin in the projects that need WebKit. Stable 26.05 is on
+  # 1.59.1, whose browser revisions a 1.61 client refuses. Keep this input in
+  # step with that pin -- a client and a driver from different minors will not
+  # find each other's browsers.
+  environment.variables.PLAYWRIGHT_BROWSERS_PATH = "${pkgsUnstable.playwright-driver.browsers}";
+  # Playwright's host check expects a Debian-shaped filesystem and always fails
+  # here, even once the browsers themselves work.
+  environment.variables.PLAYWRIGHT_SKIP_VALIDATE_HOST_REQUIREMENTS = "true";
+  # The path above is a read-only store path, so an install would fail; the
+  # browsers are already there.
+  environment.variables.PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD = "1";
 
   hardware.graphics.extraPackages = with pkgs; [ vulkan-loader ];
   environment.variables.SDL_VULKAN_LIBRARY = "/run/opengl-driver/lib/libvulkan.so.1";
