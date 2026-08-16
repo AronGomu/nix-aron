@@ -409,7 +409,7 @@ in
       mtgtop8-legacy = {
         name = "MTGTop8 - Legacy";
         icon = "brave-browser";
-        exec = "brave https://mtgtop8.com/format?f=LE";
+        exec = ''brave "https://mtgtop8.com/format?f=LE"'';
         terminal = false;
         categories = [ "Network" ];
       };
@@ -452,10 +452,24 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
-      ascencio = {
-        name = "Ascencio";
+      ascencio-duel-simulator = {
+        name = "ASCENCIO - Duel Simulator";
         icon = "brave-browser";
-        exec = "brave https://github.com/AronGomu/ascencio";
+        exec = "brave http://localhost:4300/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      ascencio-deckbuilder = {
+        name = "ASCENCIO - Deckbuilder";
+        icon = "brave-browser";
+        exec = "brave http://localhost:4301/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      ascencio-vn = {
+        name = "ASCENCIO - VN";
+        icon = "brave-browser";
+        exec = "brave http://localhost:4302/";
         terminal = false;
         categories = [ "Network" ];
       };

@@ -28,8 +28,16 @@ let
             url = "https://scryfall.com/";
           }
           {
-            name = "Ascencio";
-            url = "https://github.com/AronGomu/ascencio";
+            name = "ASCENCIO - Duel Simulator";
+            url = "http://localhost:4300/";
+          }
+          {
+            name = "ASCENCIO - Deckbuilder";
+            url = "http://localhost:4301/";
+          }
+          {
+            name = "ASCENCIO - VN";
+            url = "http://localhost:4302/";
           }
           {
             name = "Outlook";
@@ -88,10 +96,6 @@ let
           {
             name = "Essentia :4201";
             url = "http://localhost:4201";
-          }
-          {
-            name = "Ascensio :4202";
-            url = "http://localhost:4202";
           }
         ];
       }
