@@ -343,6 +343,20 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      instagram = {
+        name = "Instagram";
+        icon = "brave-browser";
+        exec = "brave https://www.instagram.com/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
+      x-twitter = {
+        name = "X";
+        icon = "brave-browser";
+        exec = "brave https://x.com/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       youtube-music = {
         name = "YouTube Music";
         icon = "brave-browser";
