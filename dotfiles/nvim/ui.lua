@@ -15,7 +15,8 @@ return {
       -- Document existing key chains
       spec = {
         { '<leader>s', group = '[S]earch', mode = { 'n', 'v' } },
-        { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } }, -- Enable gitsigns recommended keymaps first
+        { '<leader>g', group = '[G]rep and replace', mode = { 'n', 'v' } },
+        { '<leader>l', group = '[L]azy tools', mode = { 'n' } },
         { 'gr', group = 'LSP Actions', mode = { 'n' } },
       },
     },

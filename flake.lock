@@ -107,11 +107,11 @@
     "nvim-config": {
       "flake": false,
       "locked": {
-        "lastModified": 1784415384,
-        "narHash": "sha256-6T373PHd0GXSFPx0ceOpfFVx0fQaD5bOxY4gD3yZSh8=",
+        "lastModified": 1787168066,
+        "narHash": "sha256-jHcQ7yj8GgS0SEOC/ALFF16d7PiRRRz4LVKuJTdYmCs=",
         "owner": "AronGomu",
         "repo": "TRULY_CUSTOM_NVIM_WINDOWS_LINUX",
-        "rev": "b57d35b86a72e6dcee6c8fb81eee3d5291e67273",
+        "rev": "33d6efc5bea28131441eeda52a7853c7cdb9d65d",
         "type": "github"
       },
       "original": {
