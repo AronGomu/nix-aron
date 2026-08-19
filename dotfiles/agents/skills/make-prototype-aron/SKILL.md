@@ -23,16 +23,16 @@ Lazy — read only when req stays ambiguous: `~/.agents/skills/grill-me-aron/SKI
 
 | name              | value                                                          |
 | ----------------- | -------------------------------------------------------------- |
-| Working prototype | `{project_root}/ai-artifacts/PROTOTYPE_{feature_name}.html`    |
+| Working prototype | `{project_root}/artifacts/PROTOTYPE_{feature_name}.html`    |
 | PDDR              | `{project_root}/docs/feature/PDDR-{feature_name}.md`           |
 | Fixed prototype   | `{project_root}/docs/feature/PROTOTYPE_{feature_name}.html`    |
-| Final spec        | `{project_root}/ai-artifacts/PROTOTYPE_SPEC_{feature_name}.md` |
+| Final spec        | `{project_root}/artifacts/PROTOTYPE_SPEC_{feature_name}.md` |
 | Validation phrase | `prototype approved`                                           |
 
 ## Process
 
 1. **Resolve scope** — identify target UI, user flow, adjustable params, mocked behavior, target tech. Ambiguity remains → run 1 `grill-me-aron` round, max 4 questions. Caller says autonomous → use safest defaults, record assumptions.
-2. **Create dirs** — create `{project_root}/ai-artifacts/` and `{project_root}/docs/feature/`. Creation fails → STOP, report exact error.
+2. **Create dirs** — create `{project_root}/artifacts/` and `{project_root}/docs/feature/`. Creation fails → STOP, report exact error.
 3. **Build working prototype** — write standalone HTML to `Working prototype`. Represent target UI faithfully even when target tech is native, terminal, embedded, game, or other non-web tech. HTML fails standalone open → fix before continuing.
 4. **Add toolbar** — expose every adjustable evaluation param. Missing adjustable param → add control before review.
 5. **Start PDDR** — write initial decisions to `PDDR`, including `CHOSEN` and `NOT CHOSEN`. Decision lacks rationale → add it before review.

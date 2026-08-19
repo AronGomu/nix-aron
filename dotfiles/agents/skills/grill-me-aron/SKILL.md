@@ -31,7 +31,7 @@ Model goal as **design tree** : every decision branches into related decisions.
 | ----------- | --------------------------------------------------------------- |
 | Template    | `assets/round-template.html` (this skill dir)                   |
 | Reference   | `assets/reference-round.html` (this skill dir)                  |
-| Out dir     | `./ai-artifacts/GRILL_{YYYY_MM_DD}_{title}/`                    |
+| Out dir     | `./artifacts/GRILL_{YYYY_MM_DD}_{title}/`                    |
 | Round doc   | `{out dir}/round-{n}.html` — `round-1`, `round-2`, … `round-10` |
 | Answer log  | `{out dir}/ANSWERS.md`                                          |
 | Scout role  | `~/.agents/roles/scout.md`                                      |

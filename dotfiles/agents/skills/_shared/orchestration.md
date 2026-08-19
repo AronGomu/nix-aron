@@ -29,9 +29,9 @@ No plan → caller Step 0 generate one first. Never start work planless.
 Plan is **index + one file per ticket**:
 
 ```
-./ai_artefacts/PLAN_{date}_{title}.md          # index: goal, scope, assumptions, flowchart, order table, links
-./ai_artefacts/PLAN_{date}_{title}/T1_{slug}.md  # full ticket body, self-contained
-./ai_artefacts/PLAN_{date}_{title}/T2_{slug}.md
+./artifacts/PLAN_{date}_{title}.md          # index: goal, scope, assumptions, flowchart, order table, links
+./artifacts/PLAN_{date}_{title}/T1_{slug}.md  # full ticket body, self-contained
+./artifacts/PLAN_{date}_{title}/T2_{slug}.md
 ```
 
 Parent parses the **index**: Goal, Scope In/Out, Assumptions, ticket order table (ID / Depends / file path), dep flowchart.

@@ -160,7 +160,7 @@ policy:
 
 - **Procedure, not prose.** Every line must change model behavior. Cut anything a reader would call "background".
 - **Caveman Ultra.** Drop articles, filler, hedging. Arrows for cause/effect. Keep exact paths, cmds, API names verbatim.
-- **Exact over vague.** `./ai-artifacts/PLAN_{YYYY_MM_DD}_{title}.md`, never "an artifacts folder".
+- **Exact over vague.** `./artifacts/PLAN_{YYYY_MM_DD}_{title}.md`, never "an artifacts folder".
 - **Self-contained dir.** Skill needs a template -> ship it in its own `assets/`. Cross-skill asset ref = broken skill.
 - Cross-skill **behavior** ref is fine, by path : `~/.agents/skills/{name}/SKILL.md`. Never inline another skill's body.
 - Subagent spawn -> pass role **by path** : `Read ~/.agents/roles/{role}.md. Follow it.` Never paste role body.

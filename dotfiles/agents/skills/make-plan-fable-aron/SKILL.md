@@ -22,11 +22,11 @@ Lazy — read only when needed :
 1. Parse goal. Scope clear. Ambiguity → grill (load grill-me-aron). Caller said autonomous → safest in-scope default + log under `## Assumptions`. No silent assume either way.
 2. Decompose goal → sequential tickets that build onto predecessors.
 3. Each ticket = **1 commit-sized functional slice**. App **must compile successfuly** after ticket implementation.
-4. Write **1 markdown plan index**. Caveman Ultra. Save `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}.md`. Index holds **no ticket body** — only links.
-5. Write **1 markdown file per ticket**. Caveman Ultra. Save `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}/T{n}_{ticket-slug}.md`.
+4. Write **1 markdown plan index**. Caveman Ultra. Save `./artifacts/PLAN_{YYYY_MM_DD}_{title}.md`. Index holds **no ticket body** — only links.
+5. Write **1 markdown file per ticket**. Caveman Ultra. Save `./artifacts/PLAN_{YYYY_MM_DD}_{title}/T{n}_{ticket-slug}.md`.
    Ticket dir = plan filename minus `.md`. Zero-pad nothing: `T1_`, `T2_`, … `T10_`.
 6. **Detail pass**. Spawn 1 **Fable-xhigh detailer child per ticket** (see `## Step 6 — detail pass`). Each child inspects codebase + rewrites its ticket's `## Impl steps` → main steps + atomic sub-steps. Fold child reports back into tickets.
-7. Write **1 html plan**. Use **make-html-aron** effort=high verbosity=lite. Save `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}.html`.
+7. Write **1 html plan**. Use **make-html-aron** effort=high verbosity=lite. Save `./artifacts/PLAN_{YYYY_MM_DD}_{title}.html`.
 8. Write **X ADR Records markdown doc** about decisions from investigation. Caveman Lite. Save `./docs/ADR/XXX_ADR_{title}.md`.
 9. Write, update, delete **X Architecture Design HTML Documents**. Caveman Lite. Save `./docs/{title}.html`.
 10. Open every HTML doc written in steps 7 and 9 in the default browser (`xdg-open {file}.html`).
@@ -120,7 +120,7 @@ Index carries **no** ticket body. Links + order table + flowchart only.
 ```md
 # T{n}: {title}
 
-**Plan:** `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}.md`  
+**Plan:** `./artifacts/PLAN_{YYYY_MM_DD}_{title}.md`  
 **Depends:** T? / none  
 **Commit outcome:** {one sentence — what works after commit}
 
@@ -189,8 +189,8 @@ Index carries **no** ticket body. Links + order table + flowchart only.
 
 ## Done when
 
-- `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}.md` index written (path returned to caller)
-- `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}/T{n}_{slug}.md` exists for **every** row of the order table, link resolves both ways
+- `./artifacts/PLAN_{YYYY_MM_DD}_{title}.md` index written (path returned to caller)
+- `./artifacts/PLAN_{YYYY_MM_DD}_{title}/T{n}_{slug}.md` exists for **every** row of the order table, link resolves both ways
 - index = goal + scope + assumptions + flowchart + order table + links only
 - **every** ticket passed detail pass — `## Impl steps` = main steps, each with atomic sub-steps, detailer report folded back
 - each ticket file = full template, self-contained, `- [ ]` on every Impl main step, sub-step + Validation line

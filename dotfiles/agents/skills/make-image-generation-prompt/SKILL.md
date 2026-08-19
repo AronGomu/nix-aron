@@ -27,7 +27,7 @@ Lazy — read only when needed :
 
 | name        | value                                                                |
 | ----------- | -------------------------------------------------------------------- |
-| Out dir     | `./ai-artifacts/`                                                    |
+| Out dir     | `./artifacts/`                                                    |
 | Prompt doc  | `{out dir}/IMAGE_PROMPTS_{YYYY_MM_DD}_{slug}.md`                     |
 | Ref dir     | `{out dir}/refs_{slug}/`                                             |
 | Default N   | `5`                                                                  |

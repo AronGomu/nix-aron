@@ -25,7 +25,7 @@ Cleanup protocol defines passive artifact/temp cleanup. This file wins on confli
 1. Read `~/.agents/skills/make-plan-aron/SKILL.md` now and follow it, **interactive**, at tier `deep` (frontier model, high effort): grill until shared understanding, then write plan.
    Session is below `deep` → say so, raise effort if you can, else tell the user which knob to turn before continuing.
 2. Skip make-plan-aron's HTML plan / ADR / architecture docs unless goal asks — they cost time, not needed to implement.
-3. Plan index lands at `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}.md`, one ticket file per ticket in `./ai_artefacts/PLAN_{YYYY_MM_DD}_{title}/T{n}_{slug}.md`. Index as Arg1.
+3. Plan index lands at `./artifacts/PLAN_{YYYY_MM_DD}_{title}.md`, one ticket file per ticket in `./artifacts/PLAN_{YYYY_MM_DD}_{title}/T{n}_{slug}.md`. Index as Arg1.
 4. Show index path + ticket order + ticket file list. Wait for user OK.
 
 Empty input and no goal text → **STOP.** Ask for goal.
@@ -71,7 +71,7 @@ Index carries ticket bodies inline (legacy single-file plan) → split into per-
 | Push                  | every successful ticket commit → `origin` feature branch                                                                                                                                           |
 | PR                    | **no**, unless plan or user said open PR                                                                                                                                                           |
 | Progress              | `./.tmp/MAKE_PROGRESS_{slug}.md`                                                                                                                                                                   |
-| Manual test checklist | `./ai_artefacts/manual_test_checklist.md` — every ticket worker appends/updates its entries, never overwrites others'                                                                              |
+| Manual test checklist | `./artifacts/manual_test_checklist.md` — every ticket worker appends/updates its entries, never overwrites others'                                                                              |
 | Tests                 | run relevant suite; tests mandatory when ticket has TDD                                                                                                                                            |
 | Sanity                | pre-commit hooks honored; no `--no-verify` unless plan says                                                                                                                                        |
 
@@ -108,7 +108,7 @@ Role file owns read scope, checkbox duty, evidence bar, report shape. Below is t
 8. Not `locally-verified` → 1 repair loop inside worker → re-validate.
 9. Still bad → report failed|blocked + evidence. **No commit.** Failed boxes stay unchecked.
 10. Success:
-    - update `./ai_artefacts/manual_test_checklist.md` (create with a one-line header if absent): append/update this ticket's manual test steps — what a human must click/run to verify the slice works, plain unchecked `- [ ]` boxes, grouped under a `## T{n} {slug}` heading. Never touch other tickets' sections. This file must stay current with the implementation — if a later ticket changes prior behavior, update the stale entries, don't just append.
+    - update `./artifacts/manual_test_checklist.md` (create with a one-line header if absent): append/update this ticket's manual test steps — what a human must click/run to verify the slice works, plain unchecked `- [ ]` boxes, grouped under a `## T{n} {slug}` heading. Never touch other tickets' sections. This file must stay current with the implementation — if a later ticket changes prior behavior, update the stale entries, don't just append.
     - review own diff only
     - stage intentional product paths + manual_test_checklist.md (no plan/ticket files, secrets, .env, .tmp)
     - ticket checkbox updates remain local run-state; final cleanup removes them
@@ -139,7 +139,7 @@ After final validation + review repairs:
 1. Capture ticket states/evidence needed for final report.
 2. Run shared **End cleanup**.
 3. Remove current plan index, matching ticket dir, progress file, impl scratch/temp/log files.
-4. Preserve `./ai_artefacts/manual_test_checklist.md`.
+4. Preserve `./artifacts/manual_test_checklist.md`.
 5. Commit + push tracked cleanup changes. No cleanup diff → no empty commit.
 6. Final report lists removed paths; progress path = `removed after successful run`.
 
@@ -151,7 +151,7 @@ After final validation + review repairs:
 - Every index order-table row resolved before plan removed
 - Current + superseded impl plan/ticket artifacts absent
 - Impl progress/scratch/temp files absent
-- `./ai_artefacts/manual_test_checklist.md` exists, covers every shipped ticket, current with final implementation
+- `./artifacts/manual_test_checklist.md` exists, covers every shipped ticket, current with final implementation
 - User gets core Done output + table: ID / state / SHA / blocker + cleanup paths
 - Each hard stop has exact next human action, one line
 
