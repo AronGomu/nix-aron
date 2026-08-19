@@ -301,6 +301,7 @@ in
       sushi # Nautilus Space quick preview (org.gnome.NautilusPreviewer)
       file-roller
       flameshot
+      gimp
       kdePackages.kdenlive
       keepassxc
       mediainfo
