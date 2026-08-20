@@ -399,6 +399,13 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      siinergy-erp = {
+        name = "Siinergy ERP";
+        icon = "brave-browser";
+        exec = "brave http://erpcloud.siinergy.net/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       outlook = {
         name = "Outlook";
         icon = "brave-browser";

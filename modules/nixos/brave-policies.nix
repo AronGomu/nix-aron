@@ -40,6 +40,10 @@ let
             url = "http://localhost:4302/";
           }
           {
+            name = "Siinergy ERP";
+            url = "http://erpcloud.siinergy.net/";
+          }
+          {
             name = "Outlook";
             url = "https://outlook.live.com/mail/";
           }
