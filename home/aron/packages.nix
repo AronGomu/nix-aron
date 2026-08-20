@@ -288,6 +288,16 @@ let
     ];
     text = builtins.readFile ./scripts/cut-silence.sh;
   };
+  social-square = pkgs.writeShellApplication {
+    name = "social-square";
+    runtimeInputs = [
+      pkgs.coreutils
+      pkgs.imagemagick
+      pkgs.oxipng # lossless pass after quantisation
+      pkgs.pngquant # lossy palette pass, the one that actually shrinks photos
+    ];
+    text = builtins.readFile ./scripts/social-square.sh;
+  };
 in
 {
   home.packages =
@@ -366,6 +376,7 @@ in
       grokImagine
       onekeyWallet
       cut-silence
+      social-square
       ytmusic-sync
     ]
     ++ (with pkgsUnstable; [
