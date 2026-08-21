@@ -327,6 +327,10 @@ in
       # there under wine; winetricks is for prefix surgery when it misbehaves.
       # StarCraft.exe is a 32-bit binary, so it needs a WoW64-capable wine —
       # wineWowPackages is the multilib predecessor and is deprecated upstream.
+      # gamescope upscales the game's fixed 640x480 output to the monitor with
+      # the aspect ratio intact; without it the game sits in a corner of a
+      # tiled wine desktop.
+      gamescope
       lutris
       wineWow64Packages.stable
       winetricks

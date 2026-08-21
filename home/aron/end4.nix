@@ -455,6 +455,16 @@ in
         terminal = true;
         categories = [ "Development" ];
       };
+      brood-war = {
+        name = "StarCraft: Brood War";
+        comment = "Retail 1.16.1 client under wine";
+        icon = "applications-games";
+        # The Mono/Gecko overrides stop wine from opening an installer dialog
+        # the game does not need; gamescope scales 640x480 up to the monitor.
+        exec = ''env WINEPREFIX=/home/aron/Games/prefixes/starcraft WINEDLLOVERRIDES="mscoree,mshtml=" gamescope -w 640 -h 480 -W 1920 -H 1080 -f -- wine /home/aron/Games/Starcraft/StarCraft.exe'';
+        terminal = false;
+        categories = [ "Game" ];
+      };
       openbw = {
         name = "OpenBW (BWAPI)";
         comment = "Run a BWAPI bot on the OpenBW engine";
