@@ -441,6 +441,13 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      maps = {
+        name = "Maps";
+        icon = "brave-browser";
+        exec = "brave https://www.google.com/maps";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       github-essentia = {
         name = "Essentia";
         icon = "nvim";

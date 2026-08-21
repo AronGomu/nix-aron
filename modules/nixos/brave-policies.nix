@@ -71,6 +71,10 @@ let
             name = "MTGTop8 - Legacy";
             url = "https://mtgtop8.com/format?f=LE";
           }
+          {
+            name = "Maps";
+            url = "https://www.google.com/maps";
+          }
         ];
       }
       {
