@@ -455,6 +455,16 @@ in
         terminal = true;
         categories = [ "Development" ];
       };
+      openbw = {
+        name = "OpenBW (BWAPI)";
+        comment = "Run a BWAPI bot on the OpenBW engine";
+        icon = "applications-games";
+        # run.sh is quiet while the game runs and prints its diagnostics on
+        # failure, so keep a terminal attached rather than losing them.
+        exec = "/home/aron/projects/openbw-env/run.sh";
+        terminal = true;
+        categories = [ "Game" "Development" ];
+      };
       ygo-mtg-mse-menu = {
         name = "YGO X MTG: Essentia - MSE Menu";
         comment = "Open Essentia projects in Magic Set Editor";

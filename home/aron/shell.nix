@@ -61,6 +61,10 @@ in
     # The roslyn language server and csharpier resolve the SDK through this.
     DOTNET_ROOT = "${pkgs.dotnet-sdk_10}/share/dotnet";
     DOTNET_CLI_TELEMETRY_OPTOUT = "1";
+    # OpenBW reimplements the Brood War engine but ships no game data, so
+    # BWAPILauncher (~/projects/openbw-env) reads StarCraft's MPQ archives from
+    # the game directory instead of its own working directory.
+    OPENBW_MPQ_PATH = "/home/aron/Games/Starcraft";
   };
 
   programs = {

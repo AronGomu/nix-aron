@@ -323,6 +323,14 @@ in
       thunderbird
       unrar
 
+      # Gaming. StarCraft: Brood War lives in ~/Games/Starcraft and runs from
+      # there under wine; winetricks is for prefix surgery when it misbehaves.
+      # StarCraft.exe is a 32-bit binary, so it needs a WoW64-capable wine —
+      # wineWowPackages is the multilib predecessor and is deprecated upstream.
+      lutris
+      wineWow64Packages.stable
+      winetricks
+
       # Development
       bat
       btop
