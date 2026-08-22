@@ -18,6 +18,9 @@
         "!agent/extensions/subagents/index.ts",
         "!agent/extensions/web-access/index.ts"
       ]
+    },
+    {
+      "source": "npm:pi-web-access@0.24.1"
     }
   ],
   "theme": "slop",
