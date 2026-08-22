@@ -500,6 +500,13 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      impeccable = {
+        name = "Impeccable";
+        icon = "brave-browser";
+        exec = "brave https://github.com/pbakaus/impeccable";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       ascencio-duel-simulator = {
         name = "ASCENCIO - Duel Simulator";
         icon = "brave-browser";

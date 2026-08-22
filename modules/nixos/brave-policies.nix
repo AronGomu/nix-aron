@@ -75,6 +75,10 @@ let
             name = "Maps";
             url = "https://www.google.com/maps";
           }
+          {
+            name = "Impeccable";
+            url = "https://github.com/pbakaus/impeccable";
+          }
         ];
       }
       {
