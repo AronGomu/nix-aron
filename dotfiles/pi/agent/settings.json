@@ -15,7 +15,8 @@
       "extensions": [
         "!agent/extensions/footer/index.ts",
         "!agent/extensions/permission-gate/index.ts",
-        "!agent/extensions/subagents/index.ts"
+        "!agent/extensions/subagents/index.ts",
+        "!agent/extensions/web-access/index.ts"
       ]
     }
   ],
