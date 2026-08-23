@@ -9,9 +9,9 @@ set -euo pipefail
 
 # Defaults. Edit here for a permanent change (needs a rebuild), or drop the
 # same assignments into ~/.config/remove-silence.conf to retune without one.
-RS_THRESHOLD="0.014" # linear peak fraction, ~-37dB
+RS_THRESHOLD="0.114" # linear peak fraction, ~-37dB
 RS_STREAM="all"
-RS_MARGIN="0.15sec,0.15sec" # 0.3s of retained breathing room per cut
+RS_MARGIN="0.1sec,0.1sec" # 0.3s of retained breathing room per cut
 RS_WHEN_NORMAL="nil"
 RS_WHEN_SILENT="cut"
 RS_EXPORT="default"
@@ -30,6 +30,7 @@ usage() {
   echo "Usage: remove-silence INPUT [-o OUTPUT] [extra auto-editor flags...]" >&2
   echo "  INPUT must be the first argument" >&2
   echo "  -o, --output OUTPUT  default: sibling <stem>${RS_SUFFIX}<ext>" >&2
+  echo "  taken output path     gets ' (1)', ' (2)', ... appended instead of failing" >&2
   echo "  defaults live in this script and in $RS_CONFIG" >&2
   echo "  any trailing auto-editor flag overrides the matching default" >&2
   exit 1
@@ -70,10 +71,26 @@ if [[ -z $OUT ]]; then
   esac
 fi
 
-[[ -e $OUT ]] && {
-  echo "error: output exists, pass -o to pick another path: $OUT" >&2
-  exit 1
-}
+# Never clobber, never refuse: an occupied path just gets the next free suffix.
+if [[ -e $OUT ]]; then
+  case $OUT in
+    *.*)
+      OUT_STEM=${OUT%.*}
+      OUT_EXT=.${OUT##*.}
+      ;;
+    *)
+      OUT_STEM=$OUT
+      OUT_EXT=
+      ;;
+  esac
+  OUT_N=1
+  while [[ -e "$OUT_STEM ($OUT_N)$OUT_EXT" ]]; do
+    OUT_N=$((OUT_N + 1))
+  done
+  OUT="$OUT_STEM ($OUT_N)$OUT_EXT"
+fi
+
+echo "==> output: $OUT" >&2
 
 exec auto-editor "$IN" \
   --edit "audio:threshold=${RS_THRESHOLD},stream=${RS_STREAM}" \
