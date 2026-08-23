@@ -365,6 +365,10 @@ in
       rofi
       rustc
       rustfmt
+      # bash-language-server shells out to shellcheck for diagnostics. Mason's
+      # shellcheck is a prebuilt binary that does not run on NixOS, so the
+      # Neovim bashls setup takes it from here instead.
+      shellcheck
       smartmontools
       tree
       tree-sitter
