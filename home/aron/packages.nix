@@ -387,6 +387,7 @@ in
       grokImagine
       onekeyWallet
       cut-silence
+      auto-editor # silence-cutting sibling to cut-silence, ffmpeg-based
       social-square
       ytmusic-sync
     ]
