@@ -278,15 +278,13 @@ let
       exec ${ytmusicPythonEnv}/bin/python3 ${./scripts/ytmusic-sync.py} "$@"
     '';
   };
-  cut-silence = pkgs.writeShellApplication {
-    name = "cut-silence";
+  remove-silence = pkgs.writeShellApplication {
+    name = "remove-silence";
     runtimeInputs = [
-      pkgs.bash
+      pkgs.auto-editor
       pkgs.coreutils
-      pkgs.ffmpeg-full
-      pkgs.python3
     ];
-    text = builtins.readFile ./scripts/cut-silence.sh;
+    text = builtins.readFile ./scripts/remove-silence.sh;
   };
   social-square = pkgs.writeShellApplication {
     name = "social-square";
@@ -386,8 +384,8 @@ in
       openwhispr
       grokImagine
       onekeyWallet
-      cut-silence
-      auto-editor # silence-cutting sibling to cut-silence, ffmpeg-based
+      auto-editor
+      remove-silence
       social-square
       ytmusic-sync
     ]
