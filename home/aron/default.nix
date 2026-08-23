@@ -5,6 +5,7 @@
     ./end4.nix
     ./google-drive.nix
     ./herdr.nix
+    ./kdenlive.nix
     ./keepassxc.nix
     ./packages.nix
     ./repos.nix

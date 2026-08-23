@@ -312,7 +312,6 @@ in
       file-roller
       flameshot
       gimp
-      kdePackages.kdenlive
       keepassxc
       mediainfo
       mpv
