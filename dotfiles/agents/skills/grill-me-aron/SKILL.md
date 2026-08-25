@@ -24,6 +24,7 @@ Model goal as **design tree** : every decision branches into related decisions.
 1. **Goal** — text, file path, or ongoing conversation. Missing -> ask user for it, then start.
 2. (Optional) **out dir**. Not given -> `Const` default.
 3. (Optional) **caller mode** — see [Caller override](#caller-override).
+4. (Optional) **target spec level** — 0-8, see [Spec level target](#spec-level-target). Not given -> `Const` default.
 
 ## Const
 
@@ -36,6 +37,7 @@ Model goal as **design tree** : every decision branches into related decisions.
 | Answer log  | `{out dir}/ANSWERS.md`                                          |
 | Scout role  | `~/.agents/roles/scout.md`                                      |
 | Max answers | 4 recommended answers per question, best -> worst               |
+| Spec level  | default **2** — acceptance criteria. Caller may raise           |
 
 ## Process
 
@@ -44,6 +46,7 @@ Loop steps 2-6 per round. Round `n` starts at `n = 1`.
 1. **Seed tree** — parse goal. Write root node + first-level branches. No file yet.
 2. **Compute frontier** — list every open decision with settled prerequisites.
    Decision depending on another **open** decision belongs to a _later_ round. Drop it from this round.
+   Decision "settled" in prose but **not writable at target spec level** -> still open. Ask the missing precision.
    Frontier empty -> jump to step 7.
 3. **Resolve facts, don't ask them** — every frontier question needing environment fact (filesystem, deps, versions, API shape, tool output) -> dispatch `scout` child :
    `Read ~/.agents/roles/scout.md. Follow it.` Read-only, parallel OK.
@@ -55,10 +58,35 @@ Loop steps 2-6 per round. Round `n` starts at `n = 1`.
    - fold answers into tree : settled decisions push frontier outward, unblock dependants
    - fold in any scout report that landed
    - `n = n + 1`, back to step 2
-7. **Close** — frontier empty. Every branch visited. Write final `## Shared understanding` block to `ANSWERS.md` : goal, settled decisions, assumptions, out-of-scope.
+7. **Close** — frontier empty **and** every settled decision writable at target spec level. Every branch visited. Write final `## Shared understanding` block to `ANSWERS.md` : goal, settled decisions, assumptions, out-of-scope.
    Present it. **Wait for user confirm.**
 
 **DO NOT IMPLEMENT.** This skill produces understanding only.
+
+## Spec level target
+
+Stop condition = **"I can now write the spec at level N"**, not question count. Caller sets N.
+
+Detail ladder, vague -> exhaustive : 0 intent · 1 brief · 2 PRD/acceptance criteria · 3 functional spec · 4 tech design (RFC/ADR) · 5 interface contract · 6 executable spec (tests) · 7 formal spec · 8 the code.
+
+| N | Grill must extract | Round stops asking when |
+| --- | --- | --- |
+| 1 | who, pain, why now, success metric | goal + metric agreed |
+| 2 (default) | user stories, Given/When/Then per story, edge cases | every story testable |
+| 3 | screens, flows, states, error copy, permissions | every state reachable + named |
+| 4 | architecture, data model, deps, alternatives rejected, rollout | every component + failure mode named |
+| 5 | every boundary shape : type sigs, API routes + schemas, error codes, invariants, env/CLI names | nothing left where two implementers would pick different names or shapes |
+| 6+ | verification strategy : which behaviors get property/contract/golden tests | every invariant has a check |
+
+Level N implies every level below it. Cost is superlinear — never grill past the level the caller asked for.
+
+**Caller conditions :**
+
+- Caller states a level -> use it.
+- Caller is `make-plan-v2` -> **level 5**. Tickets ship as interface contracts, so a naming or shape decision left open here becomes a parallel writer child inventing it. Grill it out now.
+- Caller is `make-plan-aron` or unstated -> level 2.
+- Level >= 5 : "backend decides" / "whatever fits" / "standard REST" are **not** settled answers. Push for the actual name, shape, or code. User genuinely has no preference -> you propose the concrete shape as a ranked answer and get it confirmed. Never leave it implicit.
+- Level >= 5 : shape that is lookup-able (existing schema, lib signature, framework convention in the repo) -> **scout it**, do not ask.
 
 ## Output
 
@@ -139,8 +167,10 @@ Keep it working. Never strip the button or the clipboard fallback.
 
 ## Shared understanding <!-- final round only -->
 
+- Spec level: {N} — target reached
 - Goal: ...
 - Settled: ...
+- Contracts: {sigs / schemas / routes / error codes, verbatim} <!-- level >= 5 only -->
 - Assumptions: ...
 - Out of scope: ...
 ```
@@ -148,6 +178,7 @@ Keep it working. Never strip the button or the clipboard fallback.
 ## Rules
 
 - **Whole frontier in 1 round.** Never dribble questions one at a time.
+- **Target spec level is the stop condition.** Not round count, not question count. Below target -> keep going. At target -> stop, do not gold-plate.
 - **1 round = 1 HTML doc.** Never 2 docs per round, never 2 rounds in 1 doc.
 - **Facts are your job, decisions are user's.** Anything lookup-able -> scout it. Never ask user what you can read.
 - Question you cannot ask without guessing missing info -> not frontier. Defer.
@@ -161,6 +192,7 @@ Keep it working. Never strip the button or the clipboard fallback.
 - `{out dir}/round-{n}.html` exists for every round run, each opens standalone, each button copies
 - `{out dir}/ANSWERS.md` holds every round's answers + scout facts
 - frontier empty — every design-tree branch visited or explicitly logged out-of-scope
+- every settled decision writable at target spec level — level >= 5 → `Contracts` block filled, verbatim
 - `## Shared understanding` written, presented, and **user confirmed**
 - caller has out dir path
 

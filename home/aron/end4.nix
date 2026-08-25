@@ -193,6 +193,7 @@ in
       kdePackages.ffmpegthumbs # Dolphin video thumbs
       kdePackages.kde-cli-tools # kioclient/kde-open for Dolphin open-with
       kdePackages.kdegraphics-thumbnailers # PDF/image thumbs
+      kdePackages.kimageformats # QImageReader plugins (webp, avif...) for Dolphin previews
       kdePackages.kconfig
       kdePackages.kio-extras # previews, network, thumbnails
       kdePackages.kservice # kbuildsycoca6: without it KIO can't (re)build its app cache
