@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="artifact-kind" content="markdown">
+<meta name="artifact-generated" content="1787294166627">
+<meta name="artifact-project" content="/home/aron/config/nix-aron/dotfiles/agents/skills">
+<title>Rule placement verdicts — system prompt vs skill</title>
+<style data-base>:root { color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1c1c1a;
+  --muted: #6b6862;
+  --border: #e7e5e0;
+  --code-bg: #f7f6f4;
+  --accent: #b95730;
+  --add-bg: #e9f7ee;
+  --add-word-bg: #c8ecd3;
+  --add-fg: #1a7f37;
+  --del-bg: #feeff1;
+  --del-word-bg: #f8d2d7;
+  --del-fg: #c93c4c;
+  --hl-comment: #6e7781;
+  --hl-keyword: #cf222e;
+  --hl-string: #0a3069;
+  --hl-number: #0550ae;
+  --hl-title: #8250df;
+  --hl-type: #953800;
+  --hl-attr: #0550ae;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #171614;
+  --fg: #e6e3de;
+  --muted: #94918a;
+  --border: #2e2d29;
+  --code-bg: #201f1c;
+  --accent: #d67858;
+  --add-bg: #1d2a20;
+  --add-word-bg: #2b4232;
+  --add-fg: #85c793;
+  --del-bg: #2e1c1e;
+  --del-word-bg: #4a292c;
+  --del-fg: #e28a91;
+  --hl-comment: #8b949e;
+  --hl-keyword: #ff7b72;
+  --hl-string: #a5d6ff;
+  --hl-number: #79c0ff;
+  --hl-title: #d2a8ff;
+  --hl-type: #ffa657;
+  --hl-attr: #79c0ff;
+} }
+
+* { box-sizing: border-box; }
+html { font-size: 15px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+article { max-width: 860px; margin: 0 auto; padding: 2.75rem 1.5rem 4rem; }
+h1, h2, h3, h4 { line-height: 1.3; letter-spacing: -0.01em; color: var(--fg); }
+h1 { font-size: 1.45rem; font-weight: 650; margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; font-weight: 650; margin: 2.2em 0 .7em; padding-bottom: .35em; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1rem; font-weight: 600; margin: 1.8em 0 .5em; }
+h4 { font-size: .9rem; font-weight: 600; margin: 1.5em 0 .4em; }
+p { margin: .8em 0; }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 2px; }
+a:hover { text-decoration-color: var(--accent); }
+strong { font-weight: 600; }
+ul, ol { margin: .8em 0; padding-left: 1.5em; }
+li { margin: .3em 0; }
+li > ul, li > ol { margin: .2em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+img, svg, video { max-width: 100%; }
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+blockquote {
+  margin: 1.2em 0;
+  padding: .1em 1.1em;
+  border-left: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--muted);
+}
+blockquote > :first-child { margin-top: .4em; }
+blockquote > :last-child { margin-bottom: .4em; }
+
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .9rem; }
+th {
+  text-align: left; font-weight: 600; font-size: .74rem;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  padding: .5em .75em; border-bottom: 1px solid var(--border);
+}
+td { padding: .55em .75em; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+code, kbd, samp { font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+code { font-size: .85em; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; }
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  font-size: .82rem;
+  line-height: 1.55;
+  margin: 1.2em 0;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+
+input[type="checkbox"] { accent-color: var(--accent); margin-right: .4em; }
+
+
+.artifact-header {
+  display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap;
+  margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.artifact-header h1 { margin: 0; }
+.artifact-badge {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; font-size: .66rem; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px; padding: .2em .7em; white-space: nowrap;
+}
+.artifact-meta { margin-left: auto; color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+.artifact-footer {
+  margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
+}
+.artifact-mermaid { text-align: center; margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+<article>
+<header class="artifact-header">
+<h1>Rule placement verdicts — system prompt vs skill</h1>
+<span class="artifact-badge">markdown</span>
+<span class="artifact-meta">2026-08-21 06:36:06</span>
+</header>
+<h1>Placement verdict per rule — system prompt vs triggerable skill</h1>
+<p>Test used, in order:</p>
+<ol>
+<li><strong>Can it fire with no skill loaded, in a random session?</strong> No → skill.</li>
+<li><strong>Does breaking it cost data, history, secrets, or user trust?</strong> Yes → system prompt, even if verbose.</li>
+<li><strong>Does stating it cost more than 2 caveman-lite lines?</strong> Yes → system prompt keeps the invariant, skill keeps the procedure (<strong>hybrid</strong>).</li>
+<li><strong>Is it a workflow contract between orchestrator and children?</strong> Yes → skill/role file.</li>
+</ol>
+<p>Verdicts: <strong>SYS</strong> = <code>APPEND_SYSTEM.md</code> · <strong>SKILL</strong> = stays where it is · <strong>HYBRID</strong> = one-line invariant in SYS, procedure in skill.</p>
+<hr>
+<h2>Tier A — safety</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Verdict</th>
+<th>Why</th>
+<th>Detail stays in</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A1</td>
+<td>Git history append-only</td>
+<td><strong>SYS</strong></td>
+<td>Any session can <code>git commit --amend</code>. Irreversible, no skill gates it.</td>
+<td><code>_shared/gh.md</code> keeps only <code>gh</code>-specific write ops (issue/PR create)</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>Never push <code>main</code>/open PR unasked</td>
+<td><strong>SYS</strong></td>
+<td>Outward-facing, one line.</td>
+<td><code>make-aron</code> keeps &quot;publish = commit+push feature branch&quot; delta only</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>Staging hygiene (<code>git add</code> new files, no <code>.env</code>/<code>.tmp</code>/unrelated, no empty commit)</td>
+<td><strong>SYS</strong></td>
+<td>Fires on every commit anywhere.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>Secrets never printed/committed, scan diff</td>
+<td><strong>SYS</strong></td>
+<td>Highest-cost failure in the list.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>Conventional why-focused msg, honor hooks, no <code>--no-verify</code></td>
+<td><strong>SYS</strong></td>
+<td>One line, every commit.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>A6</td>
+<td>Irreversible/outward action → stop, report, wait</td>
+<td><strong>SYS</strong></td>
+<td>The parent rule that A7–A10 specialize.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>A7</td>
+<td>Never run system-wide apply</td>
+<td><strong>SYS</strong> (generic wording)</td>
+<td>Generic form covers <code>nixos-rebuild</code>, <code>home-manager switch</code>, <code>apt upgrade</code>, <code>docker prune</code>, prod deploy.</td>
+<td>Nix specifics stay in <code>~/AGENTS.md</code> + <code>nix-aron</code>; <code>make-skill-aron</code> keeps &quot;tell user to rebuild&quot;</td>
+</tr>
+<tr>
+<td>A8</td>
+<td>No <code>git clean</code>, wildcard <code>rm</code>, recursive root cleanup, no deleting unrelated/untracked files</td>
+<td><strong>SYS</strong> (short form)</td>
+<td>Destructive, fires in any cleanup.</td>
+<td><code>_shared/cleanup-implementation.md</code> keeps relation-proof protocol + what counts as an obsolete plan artifact</td>
+</tr>
+<tr>
+<td>A9</td>
+<td>Overwrite user file only on explicit request, else sibling <code>_fixed</code></td>
+<td><strong>SYS</strong></td>
+<td>Applies to any file write, not just <code>fix-text-aron</code>.</td>
+<td><code>fix-text-aron</code> keeps <code>overwrite=</code> flag semantics + <code>_fixed_2</code> increment</td>
+</tr>
+<tr>
+<td>A10</td>
+<td>Read target before delete/overwrite</td>
+<td><strong>SYS</strong></td>
+<td>One line, prevents blind clobber.</td>
+<td>—</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Tier B — execution discipline</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Verdict</th>
+<th>Why</th>
+<th>Detail stays in</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>B1</td>
+<td>Claim ≠ done. Evidence = output/file/behavior</td>
+<td><strong>SYS</strong></td>
+<td>The single rule most worth having unprompted.</td>
+<td><code>impl-worker</code> keeps its report field</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>Run the check, capture real output, quote errors verbatim</td>
+<td><strong>SYS</strong></td>
+<td>Anti-hallucination, universal.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>B3</td>
+<td>Bounded retries then report</td>
+<td><strong>HYBRID</strong></td>
+<td>&quot;Don&#39;t loop forever&quot; is universal; &quot;<strong>exactly 1</strong> repair loop per step, then <code>blocked_user</code>&quot; is orchestration policy.</td>
+<td><code>orchestration.md</code></td>
+</tr>
+<tr>
+<td>B4</td>
+<td>Honest state: done/failed/blocked, name what is missing</td>
+<td><strong>SYS</strong></td>
+<td>Reporting rule, always on.</td>
+<td>Role report shapes</td>
+</tr>
+<tr>
+<td>B5</td>
+<td>Ask-phase rule (unclear goal → ask; confirmed → autonomous + log assumption)</td>
+<td><strong>SYS</strong></td>
+<td>Fixes the live contradiction with §1. Must be global or the conflict persists.</td>
+<td><code>orchestration.md</code> keeps the one-way boundary + no-mid-run-checkin</td>
+</tr>
+<tr>
+<td>B6</td>
+<td>Hard-stop taxonomy</td>
+<td><strong>HYBRID</strong></td>
+<td>SYS gets the short list + the <strong>not-a-stop</strong> half (naming, style, unknown layout, flaky first try, lint noise) — that is what prevents useless questions. Full state machine is orchestration.</td>
+<td><code>orchestration.md</code> (<code>blocked_user</code>/<code>blocked_dep</code>, dependant marking)</td>
+</tr>
+<tr>
+<td>B7</td>
+<td>Findable fact → find it; only user-owned facts get asked</td>
+<td><strong>SYS</strong></td>
+<td>Universal, and cheap.</td>
+<td><code>scout</code> role keeps the citation report shape</td>
+</tr>
+<tr>
+<td>B8</td>
+<td>Out-of-scope thing → drop + log residual risk</td>
+<td><strong>SYS</strong></td>
+<td>Extends existing §3 by one line; closes the &quot;silent fix&quot; hole.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>B9</td>
+<td>Repo facts by inspection not memory; cite <code>path:line</code>/cmd/URL; primary sources</td>
+<td><strong>SYS</strong></td>
+<td>Anti-hallucination, applies to every answer.</td>
+<td><code>research-aron</code>, <code>scout</code>, <code>teach</code> keep source-gathering procedure</td>
+</tr>
+<tr>
+<td>B10</td>
+<td>Uncertain → say uncertain + what settles it</td>
+<td><strong>SYS</strong></td>
+<td>One line.</td>
+<td>—</td>
+</tr>
+<tr>
+<td>B11</td>
+<td>Fixed report template</td>
+<td><strong>HYBRID</strong></td>
+<td>SYS: &quot;evidence first, no essay&quot;. The exact markdown block is a parent↔child contract.</td>
+<td><code>orchestration.md</code> + all 5 roles</td>
+</tr>
+<tr>
+<td>B12</td>
+<td>TDD default when harness exists</td>
+<td><strong>SYS</strong></td>
+<td>§4 already half-states it — finish the sentence rather than add a rule.</td>
+<td><code>make-plan-aron</code>/<code>v2</code> keep red/green/refactor ticket sections</td>
+</tr>
+<tr>
+<td>B13</td>
+<td>Checkbox discipline</td>
+<td><strong>HYBRID</strong></td>
+<td>SYS: &quot;task file → flip on evidence, never batch, never check unproven&quot;. Adding boxes, per-box criteria, sub-step nesting = orchestration.</td>
+<td><code>orchestration.md</code>, <code>impl-worker</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Tier C — delegation</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Verdict</th>
+<th>Why</th>
+<th>Detail stays in</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>C1</td>
+<td>Role by path, never inline body</td>
+<td><strong>SKILL</strong></td>
+<td>Only meaningful when <code>~/.agents/roles/</code> is in play; already enforced by the Claude/pi agent defs, which are one-line <code>Read …</code> stubs.</td>
+<td><code>orchestration.md</code>, <code>make-skill-aron</code></td>
+</tr>
+<tr>
+<td>C2</td>
+<td>Tier policy (plan/review frontier, state model+effort in prompt)</td>
+<td><strong>SKILL</strong></td>
+<td>Cost policy per workflow; now also encoded in agent frontmatter (<code>model:</code>/<code>effort:</code>). Duplicating it globally buys nothing.</td>
+<td><code>orchestration.md</code>, <code>make-aron</code>, agent defs</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>One writer per cwd/worktree</td>
+<td><strong>SYS</strong></td>
+<td>Parallel writers corrupt trees — same risk class as A1. Fires whenever anything fans out, skills or not.</td>
+<td><code>orchestration.md</code> keeps read-only-fanout-OK detail</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>Reviewer/scout never edit</td>
+<td><strong>SKILL</strong></td>
+<td>Enforced at the role file, which is the thing the child actually reads.</td>
+<td><code>roles/reviewer.md</code>, <code>roles/scout.md</code></td>
+</tr>
+<tr>
+<td>C5</td>
+<td>Child gets fresh context + exact read scope; missing fact = brief defect</td>
+<td><strong>SKILL</strong></td>
+<td>Pure orchestration contract.</td>
+<td><code>orchestration.md</code>, <code>impl-worker</code>, <code>ticket-writer</code></td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Tier D — conventions</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Verdict</th>
+<th>Why</th>
+<th>Detail stays in</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>D1</td>
+<td><code>./artifacts</code> output · <code>./.tmp</code> scratch · <code>./docs</code> durable · <code>AGENTS.md</code> context</td>
+<td><strong>SYS</strong></td>
+<td>Every skill assumes it; ad-hoc sessions currently litter the repo root. One line.</td>
+<td><code>make-setup-aron</code> keeps the scaffolding procedure</td>
+</tr>
+<tr>
+<td>D2</td>
+<td>Durable doc never links ephemeral</td>
+<td><strong>SYS</strong></td>
+<td>Prevents dead links in ADRs/docs after cleanup. One line.</td>
+<td><code>_shared/ADR.md</code></td>
+</tr>
+<tr>
+<td>D3</td>
+<td>Agent-to-agent doc must inline facts, no &quot;see plan&quot;</td>
+<td><strong>SKILL</strong></td>
+<td>Only matters for tickets/briefs handed to children.</td>
+<td><code>make-plan-aron</code>/<code>v2</code>, <code>ticket-writer</code>, <code>handoff</code></td>
+</tr>
+<tr>
+<td>D4</td>
+<td>Scratch in <code>./.tmp</code>, remove yours at end</td>
+<td><strong>SYS</strong></td>
+<td>Litter prevention, universal.</td>
+<td><code>cleanup-implementation.md</code></td>
+</tr>
+<tr>
+<td>D5</td>
+<td>Caveman-lite default</td>
+<td><strong>SYS</strong></td>
+<td>Style must not depend on a skill being loaded. Today it lives in <code>~/.claude/CLAUDE.md</code> → Claude-only, pi never sees it.</td>
+<td><code>caveman/SKILL.md</code> stays as the on/off toggle + ultra tier</td>
+</tr>
+<tr>
+<td>D6</td>
+<td>HTML deliverable = standalone file + <code>xdg-open</code>; ad-hoc report = <code>artifact</code> tool</td>
+<td><strong>SYS</strong></td>
+<td>Resolves the §5 conflict. Both halves must be in the same place or the contradiction survives.</td>
+<td><code>make-html-aron</code> keeps styling/effort levels; <code>grill-me-aron</code>/<code>make-prototype-aron</code> keep their templates</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Tally</h2>
+<table>
+<thead>
+<tr>
+<th>Verdict</th>
+<th>Count</th>
+<th>Rules</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>SYS</strong></td>
+<td>25</td>
+<td>A1–A10 · B1,B2,B4,B5,B7,B8,B9,B10,B12 · C3 · D1,D2,D4,D5,D6</td>
+</tr>
+<tr>
+<td><strong>HYBRID</strong></td>
+<td>4</td>
+<td>B3, B6, B11, B13</td>
+</tr>
+<tr>
+<td><strong>SKILL</strong></td>
+<td>5</td>
+<td>C1, C2, C4, C5, D3</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>Reverse move — get tokens back</h2>
+<p>Two blocks currently in <code>APPEND_SYSTEM.md</code> fail test 1 and should leave:</p>
+<table>
+<thead>
+<tr>
+<th>Block</th>
+<th>Move to</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>§5 <code>artifact</code> HTML-fragment styling: CSS variable names, &quot;no <code>&lt;html&gt;</code> boilerplate&quot;, hairline borders/one accent</td>
+<td><code>make-html-aron</code> + an <code>artifact</code> usage note</td>
+<td>Only applies when actually writing an HTML fragment. ~10 lines paid every session.</td>
+</tr>
+<tr>
+<td>§5 Chart.js container/<code>maintainAspectRatio</code> recipe</td>
+<td><code>make-html-aron</code></td>
+<td>Narrow tooling detail, ~4 lines, near-zero hit rate.</td>
+</tr>
+</tbody></table>
+<p>Keeping just the routing sentence from §5 (visual/long → rendered doc; which mechanism per case) preserves the behavior at ~2 lines instead of ~16.</p>
+<hr>
+<h2>Resulting <code>APPEND_SYSTEM.md</code> shape</h2>
+<pre><code>1. Style — caveman-lite default, verbatim code/cmds/errors, normal prose for warnings   [D5]
+2. Think before coding — assumptions, ask-phase rule, uncertainty, push back            [§1 + B5, B10]
+3. Simplicity — existing §2                                                             [§2]
+4. Surgical — existing §3 + drop-and-log-residual-risk                                  [§3 + B8]
+5. Evidence — claim ≠ done, real output, honest state, TDD, bounded retry, checkboxes   [B1,B2,B4,B12,B3,B13,B11]
+6. Facts — inspect not remember, cite source, findable → find it                        [B7,B9]
+7. Stop rules — hard-stop list, not-a-stop list, irreversible, one writer per cwd       [B6,A6,C3]
+8. Files — layout, scratch cleanup, overwrite consent, read before destroy, no wild rm  [D1,D4,A9,A10,A8,D2]
+9. Git — append-only, branch/PR policy, staging, secrets, commit msg                    [A1–A5]
+10. System — never run system-wide apply                                                [A7]
+11. Output — long/visual routing: artifact tool vs standalone HTML + xdg-open           [D6]</code></pre><p>11 sections, ~120 lines caveman-lite. Sections 5–10 are the new ones; 2–4 are today&#39;s §1–§3 lightly extended.</p>
+
+<footer class="artifact-footer">source: /home/aron/config/nix-aron/dotfiles/agents/skills</footer>
+</article>
+
+<script>
+(function () {
+  var slug = "rule-placement-verdicts-system-prompt-vs-skill";
+  var es = new EventSource("/events");
+  es.addEventListener("reload", function (e) {
+    try { if (e.data === slug || e.data === "*") location.reload(); } catch (_) {}
+  });
+})();
+</script>
+</body>
+</html>

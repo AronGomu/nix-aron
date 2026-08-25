@@ -16,6 +16,7 @@ If not already, read :
 Lazy — read only when needed :
 `~/.agents/skills/grill-me-aron/SKILL.md` — only if ambiguity left **and** caller did not say autonomous.
 `~/.agents/skills/make-html-aron/SKILL.md` — only at step 5 / 7 (html plan, architecture docs).
+`~/.agents/skills/_shared/ADR.md` — only at step 7 (ADR records). Owns what is / is not an ADR, the durable-never-links-to-ephemeral rule, status lifecycle.
 
 ## Job
 
@@ -27,6 +28,8 @@ Lazy — read only when needed :
    Ticket dir = plan filename minus `.md`. Zero-pad nothing: `T1_`, `T2_`, … `T10_`.
 6. Write **1 html plan**. Use **make-html-aron** effort=high verbosity=lite. Save `./artifacts/PLAN_{YYYY_MM_DD}_{title}.html`.
 7. Write **X ADR Records markdown doc** about decisions from investigation. Caveman Lite. Save `./docs/ADR/XXX_ADR_{title}.md`.
+   Read `~/.agents/skills/_shared/ADR.md` now and follow it fully.
+   **Durable never links to ephemeral.** ADR must not link `./artifacts/**`, `./.tmp/**`, plan, ticket, progress or feedback file — implementation deletes them. Cite commit SHA, tag, or tracked file, and inline the cited fact.
 8. Write, update, delete **X Architecture Design HTML Documents**. Caveman Lite. Save `./docs/{title}.html`.
 9. Open every HTML doc written in steps 6 and 8 in the default browser (`xdg-open {file}.html`).
 

@@ -9,6 +9,8 @@ triggers:
 
 # Make Html Aron
 
+Rule ids `A1`-`L4` → `~/.agents/GLOBAL_RULES.md` (pi appends it to the system prompt; other harnesses read it).
+
 ## Auto-Triggers
 
 - When more than 100 words of information must be communicated to user.
@@ -45,6 +47,15 @@ If not already, read :
 
 Dark mode by default.
 Focus human readability.
+Deliverable file per L3: standalone, inline CSS + JS, zero network fetch.
+
+### Charts
+
+Chart.js: each canvas in its own container div with explicit height + `width: 100%`, and `maintainAspectRatio: false` — else chart stops at intrinsic size instead of filling width.
+
+### `artifact` fragments (L2/L4)
+
+Fragment injected into pi's shell → no `<html>`/`<head>`, no reset, no CSS framework. Semantic HTML + shell vars `--bg` `--fg` `--muted` `--border` `--code-bg` `--accent` in scoped `<style>`. Never hardcode colors or fonts. Quiet document look: hairline borders, generous whitespace, one accent.
 
 ## Resources paths
 

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Make v2"
+  short_description: "Ticket -> deterministic gate gauntlet -> commit"
+policy:
+  allow_implicit_invocation: false

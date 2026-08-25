@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="artifact-kind" content="markdown">
+<meta name="artifact-generated" content="1787518514279">
+<meta name="artifact-project" content="/home/aron/config/nix-aron/dotfiles/agents/skills">
+<title>Retake cut — what got missed, and a rule set to build on</title>
+<style data-base>:root { color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1c1c1a;
+  --muted: #6b6862;
+  --border: #e7e5e0;
+  --code-bg: #f7f6f4;
+  --accent: #b95730;
+  --add-bg: #e9f7ee;
+  --add-word-bg: #c8ecd3;
+  --add-fg: #1a7f37;
+  --del-bg: #feeff1;
+  --del-word-bg: #f8d2d7;
+  --del-fg: #c93c4c;
+  --hl-comment: #6e7781;
+  --hl-keyword: #cf222e;
+  --hl-string: #0a3069;
+  --hl-number: #0550ae;
+  --hl-title: #8250df;
+  --hl-type: #953800;
+  --hl-attr: #0550ae;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #171614;
+  --fg: #e6e3de;
+  --muted: #94918a;
+  --border: #2e2d29;
+  --code-bg: #201f1c;
+  --accent: #d67858;
+  --add-bg: #1d2a20;
+  --add-word-bg: #2b4232;
+  --add-fg: #85c793;
+  --del-bg: #2e1c1e;
+  --del-word-bg: #4a292c;
+  --del-fg: #e28a91;
+  --hl-comment: #8b949e;
+  --hl-keyword: #ff7b72;
+  --hl-string: #a5d6ff;
+  --hl-number: #79c0ff;
+  --hl-title: #d2a8ff;
+  --hl-type: #ffa657;
+  --hl-attr: #79c0ff;
+} }
+
+* { box-sizing: border-box; }
+html { font-size: 15px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+article { max-width: 860px; margin: 0 auto; padding: 2.75rem 1.5rem 4rem; }
+h1, h2, h3, h4 { line-height: 1.3; letter-spacing: -0.01em; color: var(--fg); }
+h1 { font-size: 1.45rem; font-weight: 650; margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; font-weight: 650; margin: 2.2em 0 .7em; padding-bottom: .35em; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1rem; font-weight: 600; margin: 1.8em 0 .5em; }
+h4 { font-size: .9rem; font-weight: 600; margin: 1.5em 0 .4em; }
+p { margin: .8em 0; }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 2px; }
+a:hover { text-decoration-color: var(--accent); }
+strong { font-weight: 600; }
+ul, ol { margin: .8em 0; padding-left: 1.5em; }
+li { margin: .3em 0; }
+li > ul, li > ol { margin: .2em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+img, svg, video { max-width: 100%; }
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+blockquote {
+  margin: 1.2em 0;
+  padding: .1em 1.1em;
+  border-left: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--muted);
+}
+blockquote > :first-child { margin-top: .4em; }
+blockquote > :last-child { margin-bottom: .4em; }
+
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .9rem; }
+th {
+  text-align: left; font-weight: 600; font-size: .74rem;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  padding: .5em .75em; border-bottom: 1px solid var(--border);
+}
+td { padding: .55em .75em; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+code, kbd, samp { font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+code { font-size: .85em; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; }
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  font-size: .82rem;
+  line-height: 1.55;
+  margin: 1.2em 0;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+
+input[type="checkbox"] { accent-color: var(--accent); margin-right: .4em; }
+
+
+.artifact-header {
+  display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap;
+  margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.artifact-header h1 { margin: 0; }
+.artifact-badge {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; font-size: .66rem; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px; padding: .2em .7em; white-space: nowrap;
+}
+.artifact-meta { margin-left: auto; color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+.artifact-footer {
+  margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
+}
+.artifact-mermaid { text-align: center; margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+<article>
+<header class="artifact-header">
+<h1>Retake cut — what got missed, and a rule set to build on</h1>
+<span class="artifact-badge">markdown</span>
+<span class="artifact-meta">2026-08-23 20:55:14</span>
+</header>
+<h1>Retake cut — evidence, then a rule set</h1>
+<h2>1. Full file is done, watch that instead of the 3-min test</h2>
+<p><code>/mnt/data/Videos/retake-test/full_retakecut.mp4</code> — <strong>17:51 → 15:10, 39 retakes cut, 157.7s removed</strong>, 33 segments.</p>
+<p>The 3-min test was a bad sample: it contains <strong>1 real retake in its first 75s</strong>. Retake density explodes later (e.g. 3 consecutive attempts at &quot;C&#39;est évident maintenant que les personnes qui écrivent l&#39;histoire…&quot; at 5:16–5:30, 3 attempts at &quot;Pour moi le meilleur exemple…&quot; at 3:49–3:58). You quit mpv at 1:12 of output — that window genuinely had nothing left to cut.</p>
+<h2>2. Two scans for &quot;repetitions still in the cut&quot;</h2>
+<table>
+<thead>
+<tr>
+<th>Scan</th>
+<th>Method</th>
+<th>Result on the material you watched</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Text</td>
+<td>fuzzy compare of every kept chunk against the next 4 chunks (<code>partial_ratio ≥ 80</code>)</td>
+<td><strong>0 leftover pairs</strong> — in the 3-min cut <em>and</em> in the full 18-min cut</td>
+</tr>
+<tr>
+<td>Audio</td>
+<td>log-mel self-similarity, diagonal-stripe search, 0.8–40s lag</td>
+<td><strong>0 real repeats</strong> in 0–80s; top hits are breaths/silence (score 0.73 on 1.3s of &quot;…&quot;, nothing lexical)</td>
+</tr>
+<tr>
+<td>Coverage</td>
+<td>speech energy not covered by any transcribed word</td>
+<td>7.7s total, 3 runs, all pauses — the ASR is not swallowing repeated audio</td>
+</tr>
+</tbody></table>
+<p>So the tool did not skip verbatim retakes there. What it does <strong>not</strong> currently treat as a retake:</p>
+<ul>
+<li><strong>reworded restatement</strong> — same idea, different words, no backward jump in the script alignment (rejected today by the text-similarity guard: 6 such near-misses on the full file, e.g. 9:38 &quot;je ne connais pas de communauté active…&quot;, 13:34 &quot;je ne vois pas comment on pourrait s&#39;enlacer…&quot;)</li>
+<li><strong>rhetorical repetition that is in the script</strong> — the script itself repeats (&quot;Pour que vous compreniez bien comment je catégorise… voici comment je catégorise…&quot; is one written sentence, line 41)</li>
+<li><strong>partial deliveries that stop early</strong> and get re-said better, when the second attempt is <em>shorter</em> than the first</li>
+<li><strong>fillers / abandon markers</strong> (&quot;euh&quot;, &quot;alors&quot;, &quot;attends&quot;, &quot;merde&quot;) — never cut today</li>
+</ul>
+<p><strong>I need 2–3 timestamps from you</strong> of what you heard as a repetition. That single input decides whether the gap is category 1, 2 or 3 above — the fix is different for each, and I can&#39;t infer your taste from the audio.</p>
+<h2>3. The rule set worth building</h2>
+<h3>Units (fix these first, everything else hangs off them)</h3>
+<pre><code>word            whisperx, ~10 ms
+chunk           words separated by a pause ≥ 0.30s
+take            words between two backward jumps in the script alignment
+script sentence the unit a viewer perceives as "one line"</code></pre><p>Today the tool reasons in <em>takes</em>. Takes are too coarse (a 361-word take covered a third of the script) and too fragile (one bad jump changes everything). <strong>Move the invariant to script sentences.</strong></p>
+<h3>The one invariant</h3>
+<blockquote>
+<p>For each script sentence S, keep exactly <strong>one</strong> delivery: the <strong>last</strong> one that covers at least <code>X%</code> of S&#39;s tokens (default 70%). Every earlier delivery of S dies, truncated at the word where the surviving delivery starts.</p>
+</blockquote>
+<p>Everything below is either a way of <em>finding</em> deliveries, or an exception to that invariant.</p>
+<h3>Rules, ordered by confidence</h3>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Rule</th>
+<th>Signal</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>R1</td>
+<td>verbatim restart</td>
+<td>exact repeat of ≥2 normalised words, adjacent</td>
+<td>cut first copy, auto</td>
+</tr>
+<tr>
+<td>R2</td>
+<td>script regression</td>
+<td>backward jump in DP alignment</td>
+<td>cut earlier take from the restart word, auto</td>
+</tr>
+<tr>
+<td>R3</td>
+<td>incomplete delivery</td>
+<td>chunk covers &lt;70% of sentence S, a later chunk covers more of S</td>
+<td>cut the partial, auto</td>
+</tr>
+<tr>
+<td>R4</td>
+<td>reworded restart</td>
+<td>two deliveries of S with high <em>script-coverage</em> overlap but low text similarity</td>
+<td><strong>candidate</strong>, review</td>
+</tr>
+<tr>
+<td>R5</td>
+<td>off-script duplicate</td>
+<td>adjacent chunks, no script anchor, embedding cosine ≥ 0.85 (multilingual sentence model)</td>
+<td><strong>candidate</strong>, review</td>
+</tr>
+<tr>
+<td>R6</td>
+<td>filler head</td>
+<td>chunk starts with <code>euh/ben/alors euh/donc euh</code> then a pause</td>
+<td>trim tokens, auto</td>
+</tr>
+<tr>
+<td>R7</td>
+<td>abandon marker</td>
+<td><code>on refait / je reprends / merde / putain</code> + laugh</td>
+<td>cut back to start of current sentence, auto</td>
+</tr>
+<tr>
+<td>R8</td>
+<td>acoustic repeat net</td>
+<td>mel self-similarity stripe ≥1.2s at 0.8–40s lag, no matching text pair</td>
+<td><strong>candidate</strong>, catches what the ASR collapsed</td>
+</tr>
+</tbody></table>
+<p>R1/R2/R6 exist today (R1 as <code>--stutter-words</code>, R2 as the DP, R6 not at all). R3/R4 are the highest-value additions: they replace the text-similarity guard, which is the thing currently rejecting real retakes (6 rejections logged in <code>full_plan.json</code> under <code>rejected</code>, each with its reason).</p>
+<h3>Guards, so it never eats good takes</h3>
+<ul>
+<li>a delivery may only be superseded by a <strong>later, more complete</strong> one (never by a shorter fragment)</li>
+<li>a take still running when the analysed window ends supersedes nothing (already in)</li>
+<li>never cut across a sentence the script does not contain — improvisation is protected unless R5 fires</li>
+<li>every cut boundary stays in silence between two words (already in)</li>
+</ul>
+<h2>4. How to <em>build</em> the rule set, not guess it</h2>
+<p>The rules are cheap; the thresholds are the product. Loop:</p>
+<ol>
+<li><strong>Recall-first pass</strong> — run <code>plan</code> with loose thresholds, emit <code>candidates.json</code> = drops <strong>plus</strong> near-misses, each tagged with the rule id and the reason it fired or didn&#39;t. (<code>rejected[]</code> already exists; needs the rule tag.)</li>
+<li><strong>Review page</strong> — single HTML with the source video, one row per candidate: text of the dropped span, text of the survivor, timestamps, ▶ button seeking the video, and keep/cut buttons. Export <code>decisions.json</code>.</li>
+<li><strong>Regression set</strong> — your decisions become labels. <code>retake-cut eval decisions.json</code> reports precision/recall per rule and sweeps each threshold, so a change is measurable instead of vibes.</li>
+<li><strong>Ship thresholds</strong> in <code>~/.config/retake-cut.conf</code> (same shape as <code>remove-silence.conf</code>), re-render without re-transcribing.</li>
+</ol>
+<p>After ~2 videos of labels, the thresholds stop being my guesses and start being your editing taste, and R4/R5 can graduate from &quot;candidate&quot; to auto.</p>
+<h2>5. Order I&#39;d implement it</h2>
+<ol>
+<li>sentence units + the one invariant (R3) — biggest recall win, no new dependency</li>
+<li>R4 on script coverage instead of text similarity — recovers the 6 logged rejections</li>
+<li>review page + <code>decisions.json</code> — turns the rest into data</li>
+<li>R6/R7 filler + abandon markers — cheap, visible polish</li>
+<li>R5 embeddings and R8 acoustic net — only if labels show they are needed</li>
+</ol>
+<p>Say the word and I start at 1. Send timestamps first if what you heard is not on this map.</p>
+
+<footer class="artifact-footer">source: /home/aron/config/nix-aron/dotfiles/agents/skills</footer>
+</article>
+
+<script>
+(function () {
+  var slug = "retake-cut-what-got-missed-and-a-rule-set-to-build-on";
+  var es = new EventSource("/events");
+  es.addEventListener("reload", function (e) {
+    try { if (e.data === slug || e.data === "*") location.reload(); } catch (_) {}
+  });
+})();
+</script>
+</body>
+</html>

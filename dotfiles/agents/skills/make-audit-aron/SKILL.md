@@ -7,6 +7,8 @@ argument-hint: "[project-path]"
 
 # make-audit-aron
 
+Rule ids `A1`-`L4` → `~/.agents/GLOBAL_RULES.md` (pi appends it to the system prompt; other harnesses read it).
+
 Project in → swarm audit → validated GitHub issues → autonomous plans → serial impl directly on `main`.
 
 ## Pre-flight
@@ -27,7 +29,7 @@ Conflict override:
 - `make-plan-aron` output limited to Markdown index/ticket files. Skip HTML/ADR/architecture docs plus `xdg-open` unconditionally.
 - Deep-tier knob unavailable → highest available model/effort, record mismatch in `PROGRESS.md`, continue without prompt.
 - Parent owns orchestration, state, issue publish, main synchronization. Children own audit, plan, code writes.
-- Git history is append-only. Never amend, rebase, reset, revert, force-push, cherry-pick, squash, drop commits, delete branches, or rewrite refs/history.
+- J1 holds throughout: history append-only, additive commits only.
 
 ## Inputs
 
@@ -139,13 +141,12 @@ States: discovered|validated|issue_open|planning|plan_valid|implementing|impleme
 
 - Serial issue impl directly on `main`. Audit/validation fanout read-only only.
 - One validated root cause → one GitHub issue → one plan → additive commit(s) on `main`.
-- Git history append-only: commit then normal push. Never amend, rebase, reset, revert, force-push, cherry-pick, squash, drop commits, delete branches, or rewrite refs/history.
-- Existing unrelated commits remain untouched. Dirty worktree or local/remote divergence → hard stop.
+- J1: commit then normal push, never rewrite. Existing unrelated commits untouched. Dirty worktree or local/remote divergence → hard stop.
 - No fabricated findings. Evidence absent → drop candidate.
 - No unbounded cleanup. Refactor/perf ticket needs observable gain plus validation.
 - Existing issue marker or recorded commit → resume, never duplicate.
 - External write result recorded immediately.
-- Secret/credential/PII never enters state, issue, plan, commit, or output.
+- J4 extends to state files, issue bodies, and plan artifacts.
 - Hard stop one finding when possible; continue independent queue only from clean synchronized `main`.
 
 ## Done when

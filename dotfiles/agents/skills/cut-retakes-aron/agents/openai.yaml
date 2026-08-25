@@ -1,0 +1,5 @@
+interface:
+  display_name: "Cut Retakes Aron"
+  short_description: "Drop retakes from a recording, keep the last take"
+policy:
+  allow_implicit_invocation: false

@@ -6,6 +6,8 @@ disable-model-invocation: true
 
 # make-skill-aron
 
+Rule ids `A1`-`L4` → `~/.agents/GLOBAL_RULES.md` (pi appends it to the system prompt; other harnesses read it).
+
 ## Pre-flight
 
 Read `~/.agents/skills/caveman/SKILL.md` if not already — skill bodies are written Caveman Ultra.
@@ -57,7 +59,7 @@ Lazy — read only when needed :
    Skill appears in `~/.agents/skills/{name}` and, through it, in claude / pi / codex.
 10. **Report** — files written, shape chosen, rebuild cmd, how to invoke (`/{name}`).
 
-**DO NOT run the rebuild yourself** unless user says install / apply. It is a system-wide switch.
+**DO NOT run the rebuild yourself** (K1) unless user says install / apply. It is a system-wide switch.
 
 ## Output
 

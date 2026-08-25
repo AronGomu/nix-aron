@@ -98,9 +98,15 @@ in
       recursive = true;
     };
 
+    # Harness-neutral global rules (ids A1-L4). Skills cite the ids, so every
+    # harness must see the same file: pi appends it to the system prompt
+    # automatically, Claude/Codex reach it through a pointer line in
+    # CLAUDE.md / AGENTS.md.
+    ".agents/GLOBAL_RULES.md".source = ../../dotfiles/agents/GLOBAL_RULES.md;
+
     ".pi/skills".source =
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
-    ".pi/agent/APPEND_SYSTEM.md".source = ../../dotfiles/pi/agent/APPEND_SYSTEM.md;
+    ".pi/agent/APPEND_SYSTEM.md".source = ../../dotfiles/agents/GLOBAL_RULES.md;
     ".pi/agent/keybindings.json".source = ../../dotfiles/pi/agent/keybindings.json;
     ".pi/agent/claude-bridge.json".source = ../../dotfiles/pi/agent/claude-bridge.json;
     ".pi/agent/configs" = {

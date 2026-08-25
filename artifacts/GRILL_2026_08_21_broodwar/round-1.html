@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brood War on NixOS — what to actually install</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0a08; --panel:#17130d; --panel-2:#1f190f; --text:#fff7ed; --muted:#c9b99f; --line:#4a3b25; --accent:#fbbf24; --accent-2:#fb923c; --focus:#facc15; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.55 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(960px,calc(100% - 32px)); margin:0 auto; padding:48px 0 96px; }
+    header { display:grid; gap:12px; margin-bottom:32px; }
+    .eyebrow { color:var(--accent); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1,h2,p { margin:0; } h1 { font-size:clamp(2rem,5vw,3.5rem); line-height:1.08; letter-spacing:-.035em; }
+    .lede { max-width:70ch; color:var(--muted); }
+    .tree { display:flex; align-items:center; gap:8px; overflow:auto; padding:16px; margin:24px 0 32px; border:1px solid var(--line); border-radius:12px; background:var(--panel); color:var(--muted); white-space:nowrap; }
+    .tree b { color:var(--text); } .node { padding:6px 10px; border:1px solid var(--line); border-radius:999px; } .node.active { border-color:var(--accent); color:var(--accent); } .arrow { color:var(--line); }
+    .visuals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:0 0 32px; }
+    figure { min-width:0; margin:0; padding:18px; border:1px solid var(--line); border-radius:14px; background:var(--panel); }
+    figcaption { margin-bottom:14px; color:var(--muted); font-size:.85rem; } figcaption b { display:block; color:var(--text); font-size:1rem; }
+    svg { display:block; width:100%; height:auto; } svg text { font-family:ui-sans-serif,system-ui,sans-serif; }
+    .svg-node { fill:var(--panel-2); stroke:var(--line); stroke-width:2; } .svg-node.active { stroke:var(--accent); } .svg-line { fill:none; stroke:var(--line); stroke-width:2; } .svg-arrow { fill:var(--line); } .svg-label { fill:var(--text); font-size:12px; } .svg-note { fill:var(--muted); font-size:10px; } .svg-accent { fill:var(--accent); }
+    form { display:grid; gap:20px; }
+    fieldset { min-width:0; margin:0; padding:24px; border:1px solid var(--line); border-radius:16px; background:var(--panel); }
+    legend { max-width:100%; padding:0 8px; font-size:1.15rem; font-weight:750; }
+    .why { margin:0 0 18px; color:var(--muted); font-size:.925rem; }
+    .choices { display:grid; gap:10px; }
+    .choice { display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start; padding:14px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2); cursor:pointer; }
+    .choice:has(input:checked) { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+    input { width:18px; height:18px; margin-top:3px; accent-color:var(--accent); }
+    .rank { display:inline-block; margin-left:7px; color:var(--accent-2); font-size:.72rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+    .detail { display:block; margin-top:3px; color:var(--muted); font-size:.875rem; }
+    label.precision { display:block; margin-top:18px; font-size:.85rem; font-weight:700; color:var(--muted); }
+    textarea { width:100%; min-height:90px; margin-top:7px; padding:12px; resize:vertical; border:1px solid var(--line); border-radius:10px; background:#100d08; color:var(--text); font:inherit; }
+    input:focus-visible,textarea:focus-visible,button:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+    .actions { position:sticky; bottom:16px; display:flex; gap:12px; align-items:center; justify-content:space-between; padding:14px; border:1px solid var(--line); border-radius:14px; background:rgba(19,23,28,.96); box-shadow:0 16px 40px #0008; backdrop-filter:blur(10px); }
+    button { padding:11px 16px; border:0; border-radius:9px; background:var(--accent); color:#211500; font:inherit; font-weight:800; cursor:pointer; }
+    #status { color:var(--muted); font-size:.875rem; }
+    @media (max-width:700px) { .visuals { grid-template-columns:1fr; } }
+    @media (max-width:600px) { main { width:min(100% - 20px,960px); padding-top:28px; } fieldset { padding:18px 14px; } .actions { align-items:flex-start; flex-direction:column; } button { width:100%; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="eyebrow">Grill me · Round 1 · Target &amp; delivery path</span>
+    <h1>Brood War on NixOS — what to actually install</h1>
+    <p class="lede">"install me broodwar" has no single safe implementation: nixpkgs has no StarCraft package, the game data is Blizzard's and only reachable through a Windows installer under Wine, and the config repo can carry the runner in two different layers. Six decisions below; tick answers, add precision, hit copy, paste back.</p>
+  </header>
+
+  <nav class="tree" aria-label="Design tree progress">
+    <span class="node"><b>Goal: Brood War on desk-main</b></span>
+    <span class="arrow">→</span>
+    <span class="node active">Purpose</span>
+    <span class="arrow">→</span>
+    <span class="node active">Game source</span>
+    <span class="arrow">→</span>
+    <span class="node active">Wine runner</span>
+    <span class="arrow">→</span>
+    <span class="node active">Config layer</span>
+    <span class="arrow">→</span>
+    <span class="node active">MPQ handoff</span>
+    <span class="arrow">→</span>
+    <span class="node">Install run (later round)</span>
+  </nav>
+
+  <section class="visuals" aria-label="Technical context">
+    <figure>
+      <figcaption><b>What nix can and cannot give you</b>The config repo installs the runner; the game itself arrives through a Windows installer at runtime.</figcaption>
+      <svg viewBox="0 0 400 250" role="img" aria-labelledby="v1t v1d">
+        <title id="v1t">Split between nix-managed runner and non-nix game data</title>
+        <desc id="v1d">Left column: nix-aron installs wine, lutris, winetricks. Right column: Battle.net installer downloads StarCraft into a wine prefix, producing MPQ files that neither nix nor this repo can hold.</desc>
+        <rect class="svg-node active" x="8" y="10" width="176" height="30" rx="8"/>
+        <text class="svg-label" x="20" y="30">nix-aron (this repo)</text>
+        <rect class="svg-node" x="8" y="52" width="176" height="26" rx="6"/>
+        <text class="svg-label" x="20" y="70">wine / lutris / winetricks</text>
+        <rect class="svg-node" x="8" y="88" width="176" height="26" rx="6"/>
+        <text class="svg-label" x="20" y="106">desktop entry, unfree list</text>
+        <text class="svg-note" x="8" y="136">declarative · rebuildable · in git</text>
+
+        <rect class="svg-node active" x="216" y="10" width="176" height="30" rx="8"/>
+        <text class="svg-label" x="228" y="30">Blizzard data (not in git)</text>
+        <rect class="svg-node" x="216" y="52" width="176" height="26" rx="6"/>
+        <text class="svg-label" x="228" y="70">Battle.net installer</text>
+        <rect class="svg-node" x="216" y="88" width="176" height="26" rx="6"/>
+        <text class="svg-label" x="228" y="106">~/Games/&lt;prefix&gt;/…/StarCraft</text>
+        <text class="svg-note" x="216" y="136">imperative · account-bound · copyrighted</text>
+
+        <path class="svg-line" d="M96 118 V 170 H 200"/>
+        <path class="svg-line" d="M304 118 V 170 H 200"/>
+        <path class="svg-line" d="M200 170 V 196"/>
+        <polygon class="svg-arrow" points="200,208 194,196 206,196"/>
+        <rect class="svg-node active" x="104" y="210" width="192" height="30" rx="8"/>
+        <text class="svg-label" x="132" y="230">playable StarCraft: Brood War</text>
+      </svg>
+    </figure>
+    <figure>
+      <figcaption><b>Where the MPQs end up</b>Same three files feed both the Wine install and the OpenBW build from earlier today.</figcaption>
+      <svg viewBox="0 0 400 250" role="img" aria-labelledby="v2t v2d">
+        <title id="v2t">MPQ data flow from wine prefix to OpenBW</title>
+        <desc id="v2d">Battle.net installs StarCraft into a wine prefix; the three MPQ files Patch_rt, BrooDat and StarDat can then be copied or symlinked into the OpenBW run data directory, feeding BWAPILauncher.</desc>
+        <rect class="svg-node active" x="90" y="8" width="220" height="28" rx="8"/>
+        <text class="svg-label" x="112" y="27">Battle.net app (under Wine)</text>
+        <path class="svg-line" d="M200 36 V 56"/>
+        <polygon class="svg-arrow" points="200,68 194,56 206,56"/>
+        <rect class="svg-node" x="70" y="70" width="260" height="28" rx="8"/>
+        <text class="svg-label" x="88" y="89">drive_c/…/StarCraft/*.mpq</text>
+        <path class="svg-line" d="M140 98 V 126 H 96"/>
+        <path class="svg-line" d="M260 98 V 126 H 304"/>
+        <polygon class="svg-arrow" points="84,126 96,120 96,132"/>
+        <polygon class="svg-arrow" points="316,126 304,120 304,132"/>
+        <rect class="svg-node" x="8" y="140" width="168" height="46" rx="8"/>
+        <text class="svg-label" x="24" y="160">StarCraft.exe</text>
+        <text class="svg-note" x="24" y="176">play the real game</text>
+        <rect class="svg-node active" x="224" y="140" width="168" height="46" rx="8"/>
+        <text class="svg-label" x="240" y="160">openbw-env/run/data/</text>
+        <text class="svg-note" x="240" y="176">BWAPILauncher + bots</text>
+        <text class="svg-accent" x="8" y="216" font-size="11">Patch_rt.mpq · BrooDat.mpq · StarDat.mpq</text>
+        <text class="svg-note" x="8" y="234">exact capitalization required on Linux</text>
+      </svg>
+    </figure>
+  </section>
+
+  <form id="questions">
+    <fieldset data-question="What does 'installed' have to mean when this is done?">
+      <legend>1. What does "installed" have to mean when this is done?</legend>
+      <p class="why">The whole design tree hangs on this: a playable game needs a Wine stack and a desktop entry, while MPQ data for OpenBW needs neither once the files are extracted.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Both: playable Brood War under Wine AND its MPQs wired into openbw-env"><span><b>Both — playable game + MPQs for OpenBW</b><span class="rank">Recommended</span><span class="detail">One install serves both; the Wine prefix is the source of the data files you already need.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Playable Brood War only, OpenBW irrelevant"><span><b>Playable game only</b><span class="rank">Second</span><span class="detail">Simplest: Wine runner + install, no handoff scripting.</span></span></label>
+        <label class="choice"><input type="checkbox" value="MPQ data only, no need to run the retail game"><span><b>MPQ data only</b><span class="rank">Third</span><span class="detail">Still needs Wine once to run the installer, but no launcher, no desktop entry, no config polish.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. also want to play multiplayer / only care about bot dev"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Which StarCraft do you have access to?">
+      <legend>2. Which StarCraft do you have access to?</legend>
+      <p class="why">Nothing here can download the game for you without your Blizzard account, and Remastered vs classic changes both the installer path and which MPQ versions OpenBW gets.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Free classic StarCraft Anthology via a Battle.net account I have or will create"><span><b>Free classic (Anthology) via Battle.net</b><span class="rank">Recommended</span><span class="detail">No purchase; you log into Battle.net under Wine and install. Ships the classic MPQs OpenBW targets.</span></span></label>
+        <label class="choice"><input type="checkbox" value="I own StarCraft: Remastered on Battle.net"><span><b>I own Remastered</b><span class="rank">Second</span><span class="detail">Nicer to play; MPQ compatibility with OpenBW is likely but unverified — I would test and report.</span></span></label>
+        <label class="choice"><input type="checkbox" value="I have installer files or an existing install elsewhere (ISO/CD/other machine/backup)"><span><b>I already have files somewhere</b><span class="rank">Third</span><span class="detail">Fastest path: skip Battle.net entirely, point at the files.</span></span></label>
+        <label class="choice"><input type="checkbox" value="No Blizzard account yet and I don't want to make one"><span><b>No account, don't want one</b><span class="rank">Fourth</span><span class="detail">Then this is blocked: no legal source of the data. I'd stop and say so.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. account exists, 2FA on phone / files on the Samsung disk at …"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Which Wine runner should the config carry?">
+      <legend>3. Which Wine runner should the config carry?</legend>
+      <p class="why">This is the one thing that actually lands in nix-aron, and the three options differ in how much of the prefix work is scripted for you versus done by hand.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Lutris (0.5.22) with community install script for Battle.net/StarCraft"><span><b>Lutris</b><span class="rank">Recommended</span><span class="detail">Community scripts handle the Battle.net prefix, DXVK and the winetricks verbs; least manual fiddling, and it manages the prefix under ~/Games.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Bare wine (wineWowPackages) + winetricks, hand-made prefix"><span><b>Bare wine + winetricks</b><span class="rank">Second</span><span class="detail">Fewest moving parts and fully scriptable, but you own every prefix tweak; Battle.net is fussy.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Bottles (63.2)"><span><b>Bottles</b><span class="rank">Third</span><span class="detail">GUI prefix manager; on NixOS it is usually run as a Flatpak, which fits this repo's style worse.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. wine-staging vs stable, want DXVK, prefer 32-bit-only prefix"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Which config layer should hold it: Home Manager or NixOS module?">
+      <legend>4. Which config layer: Home Manager or NixOS module?</legend>
+      <p class="why">The repo already splits these — user apps sit in <code>home/aron/packages.nix</code>, system-wide gaming bits in <code>modules/nixos/gaming.nix</code> (currently Steam only).</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Home Manager: home/aron/packages.nix"><span><b>Home Manager (<code>home/aron/packages.nix</code>)</b><span class="rank">Recommended</span><span class="detail">It's a single-user desktop app with a per-user prefix; matches how gimp, mpv, obsidian are handled.</span></span></label>
+        <label class="choice"><input type="checkbox" value="System: extend modules/nixos/gaming.nix next to Steam"><span><b>System module (<code>gaming.nix</code>)</b><span class="rank">Second</span><span class="detail">Keeps all gaming in one file next to Steam; also where 32-bit graphics driver support would go if it turns out to be needed.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Your call — pick whichever fits the repo"><span><b>Your call</b><span class="rank">Third</span><span class="detail">I take the first option and log it as an assumption.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. keep gaming.nix for anything with a system service"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Should a desktop/rofi entry be created for Brood War?">
+      <legend>5. Should a launcher entry be created?</legend>
+      <p class="why">Your rofi launcher is fed by <code>xdg.desktopEntries</code> in <code>home/aron/end4.nix</code>; Lutris also creates its own entries imperatively, which is exactly the kind of state this repo tries to keep declarative.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Yes, declarative xdg.desktopEntries entry for Brood War in end4.nix"><span><b>Yes, declarative entry</b><span class="rank">Recommended</span><span class="detail">Rofi-searchable and reproducible; needs the final launch command, so it lands after the install run.</span></span></label>
+        <label class="choice"><input type="checkbox" value="No, launching from Lutris/terminal is fine"><span><b>No, launch from Lutris</b><span class="rank">Second</span><span class="detail">Less config churn; entry appears anyway once Lutris installs the game.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. also want an OpenBW entry"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="How should the MPQs reach ~/projects/openbw-env/run/data?">
+      <legend>6. How should the MPQs reach OpenBW?</legend>
+      <p class="why">Copies drift and eat ~1 GB twice; symlinks break if the prefix is rebuilt; env var keeps one source of truth but must be remembered per shell.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Symlink the three MPQs from the wine prefix into openbw-env/run/data"><span><b>Symlink into <code>run/data/</code></b><span class="rank">Recommended</span><span class="detail">One copy on disk, works with the existing run.sh preflight check unchanged.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Set OPENBW_MPQ_PATH to the wine prefix StarCraft dir"><span><b><code>OPENBW_MPQ_PATH</code> to the prefix</b><span class="rank">Second</span><span class="detail">Zero file duplication; run.sh already honours it, but capitalization inside the prefix must match.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Plain copy of the MPQs into run/data"><span><b>Plain copy</b><span class="rank">Third</span><span class="detail">Immune to prefix deletion, costs ~1 GB extra and can go stale after a game patch.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Nothing — I'll wire OpenBW myself later"><span><b>Leave it to me</b><span class="rank">Fourth</span><span class="detail">Scope shrinks to the Wine install only.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. keep a pristine 1.16.1 copy separate from a patched install"></textarea></label>
+    </fieldset>
+
+    <div class="actions">
+      <span id="status" role="status">Selections stay in this page until copied.</span>
+      <button type="button" id="copy-summary">Copy answer summary</button>
+    </div>
+  </form>
+</main>
+<script>
+  const button = document.querySelector('#copy-summary');
+  const status = document.querySelector('#status');
+
+  function buildSummary() {
+    const sections = [...document.querySelectorAll('fieldset[data-question]')].map((field, index) => {
+      const question = field.dataset.question;
+      const selected = [...field.querySelectorAll('input[type="checkbox"]:checked')].map(input => `- ${input.value}`);
+      const precision = field.querySelector('textarea').value.trim();
+      const answers = selected.length ? selected.join('\n') : '- No recommended answer selected';
+      return `${index + 1}. ${question}\n${answers}${precision ? `\nPrecision: ${precision}` : ''}`;
+    });
+    return `Round 1 · Target & delivery path — Brood War on NixOS — what to actually install\n\n${sections.join('\n\n')}`;
+  }
+
+  button.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(buildSummary());
+      status.textContent = 'Summary copied to clipboard.';
+    } catch (_) {
+      const fallback = document.createElement('textarea');
+      fallback.value = buildSummary();
+      document.body.appendChild(fallback);
+      fallback.select();
+      document.execCommand('copy');
+      fallback.remove();
+      status.textContent = 'Summary copied to clipboard.';
+    }
+  });
+</script>
+</body>
+</html>

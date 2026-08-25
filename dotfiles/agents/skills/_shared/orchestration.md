@@ -1,5 +1,7 @@
 # Orchestration core
 
+Rule ids `A1`-`L4` → `~/.agents/GLOBAL_RULES.md` (pi appends it to the system prompt; other harnesses read it).
+
 Shared machinery for `make-aron`.
 Caller own: domain gate, artifact shape, publish rule, pre-flight.
 This file own: stance, loop, state, checkboxes, evidence, stop rules.
@@ -41,14 +43,7 @@ Index has ticket bodies inline (old single-file plan) → parent splits it into 
 
 ## Success criteria — before any work
 
-Write into progress file:
-
-1. **Observable outcome** — what exists / works after.
-2. **Validation checks** — exact cmds or observable checks, runnable.
-3. **Out-of-scope** — explicit list.
-
-Done = every check pass **with evidence** (cmd output, file exist, behavior observed).
-Claim without evidence = **not done**.
+Global E1 + E2. Here they live in the **progress file**: observable outcome, exact validation cmds, out-of-scope list.
 
 ## Validation state
 
@@ -63,12 +58,11 @@ Every ticket **and** every step carry state:
 
 ## Checkbox protocol — mandatory
 
-1. Before work: open the **ticket file**. Every step **and sub-step** action line → `- [ ]` if missing. Covers Impl steps, Validation lines, sub-steps. Index holds no boxes.
+Global E7 governs flipping + evidence. Orchestration adds:
+
+1. Boxes live in the **ticket file**, on every step **and sub-step**. Index holds no boxes.
 2. Add boxes only. No scope rewrite.
-3. Finish step → flip `- [ ]` → `- [x]` **immediately**. Continuous, never end-batch.
-4. Never `[x]` without validation evidence for **that** step.
-5. Failed / blocked step → leave unchecked + record state in progress Log.
-6. Every box needs validation criterion. Missing → write one (cmd | file exist | observable behavior) **before** checking.
+3. Failed / blocked step → leave unchecked + record state in progress Log.
 
 Shape:
 
@@ -100,16 +94,8 @@ Caller adds: branch, commit, push, PR, gate depth, artifact paths.
 
 ## Hard stop — only stop reasons
 
-Stop ticket (`blocked_user`) when:
-
-- Need secret / cred / API key / human auth / paid account user must supply
-- Irreversible prod or data-loss action needs explicit human OK
-- `TODO(user)` in plan blocks the slice
-- External system unreachable after retry + no local substitute
-- Repair loop exhausted (1 per step)
-- Publish rejected (auth / protected branch / permission) with no safe fix
-
-**Not** hard stop: unclear naming, style, minor design, missing test name, unknown file layout, flaky first try, lint noise, micro scope gap inside goal.
+Global G1 list → ticket state `blocked_user`. Not-a-stop = G2.
+Job-specific addition: `TODO(user)` in plan blocks the slice.
 
 **End run when:** all tickets terminal, **or** every remaining ticket is `blocked_user` / depends only on blocked chain. Then report. Do not spin.
 
@@ -246,25 +232,15 @@ States: pending|running|done|failed|blocked_user|blocked_dep|skipped
 
 ## Safety
 
-- Never commit / print secrets. Scan diff before publish.
-- No force-push. No rewrite published history. No amend others.
-- No prod destroy, mass delete, credential print.
-- Stay Scope In. Drive-by refactor → drop.
-- Match existing style. Surgical edits.
-- Irreversible → hard stop, report, wait.
-- Residual risk → log it. Never silent ignore.
+Global J1-J5 (git), H3-H5 (destructive writes), G3 (irreversible), D1-D6 (scope + style) apply. Orchestration adds:
+
+- Parent never edits the work product. Children write.
+- Publish only per caller policy. Caller override never widens it.
 
 ## Anti-patterns
 
 - Parent does the work instead of orchestrating
-- Ask user trivia / preference / "should I?"
-- Mark done without evidence
 - Skip Depends
-- Many writers one cwd
-- Infinite repair (>1 retry per step)
-- Publish unasked (PR, main branch, external post)
-- Expand scope "while here"
-- Batch-check boxes at end, or `[x]` without evidence
 - Ticket body inline in the index, or two tickets in one file
 - Hand worker the index / sibling tickets / a pasted body instead of its ticket file path
 - Spawn a child with no role line / no tier line, or with the role body pasted inline
@@ -272,8 +248,6 @@ States: pending|running|done|failed|blocked_user|blocked_dep|skipped
 - Plan breakdown at anything below `deep`, then pay for it in failed tickets
 - Give `reviewer` or `scout` write access, or let them touch the work product
 - Ticket file that says "see plan" / "see T2" instead of inlining the fact
-- Abandon mid-run without summary
-- Stop because "might be wrong" without trying safest path
 
 ## Done output — to user
 

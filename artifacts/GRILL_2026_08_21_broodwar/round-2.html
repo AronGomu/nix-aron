@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lutris path — packages, prefix, and who logs in</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0a08; --panel:#17130d; --panel-2:#1f190f; --text:#fff7ed; --muted:#c9b99f; --line:#4a3b25; --accent:#fbbf24; --accent-2:#fb923c; --focus:#facc15; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.55 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(960px,calc(100% - 32px)); margin:0 auto; padding:48px 0 96px; }
+    header { display:grid; gap:12px; margin-bottom:32px; }
+    .eyebrow { color:var(--accent); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1,h2,p { margin:0; } h1 { font-size:clamp(2rem,5vw,3.5rem); line-height:1.08; letter-spacing:-.035em; }
+    .lede { max-width:70ch; color:var(--muted); }
+    .tree { display:flex; align-items:center; gap:8px; overflow:auto; padding:16px; margin:24px 0 32px; border:1px solid var(--line); border-radius:12px; background:var(--panel); color:var(--muted); white-space:nowrap; }
+    .tree b { color:var(--text); } .node { padding:6px 10px; border:1px solid var(--line); border-radius:999px; } .node.active { border-color:var(--accent); color:var(--accent); } .node.done { color:var(--muted); opacity:.65; } .arrow { color:var(--line); }
+    .visuals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:0 0 32px; }
+    figure { min-width:0; margin:0; padding:18px; border:1px solid var(--line); border-radius:14px; background:var(--panel); }
+    figcaption { margin-bottom:14px; color:var(--muted); font-size:.85rem; } figcaption b { display:block; color:var(--text); font-size:1rem; }
+    svg { display:block; width:100%; height:auto; } svg text { font-family:ui-sans-serif,system-ui,sans-serif; }
+    .svg-node { fill:var(--panel-2); stroke:var(--line); stroke-width:2; } .svg-node.active { stroke:var(--accent); } .svg-line { fill:none; stroke:var(--line); stroke-width:2; } .svg-arrow { fill:var(--line); } .svg-label { fill:var(--text); font-size:12px; } .svg-note { fill:var(--muted); font-size:10px; } .svg-accent { fill:var(--accent); }
+    form { display:grid; gap:20px; }
+    fieldset { min-width:0; margin:0; padding:24px; border:1px solid var(--line); border-radius:16px; background:var(--panel); }
+    legend { max-width:100%; padding:0 8px; font-size:1.15rem; font-weight:750; }
+    .why { margin:0 0 18px; color:var(--muted); font-size:.925rem; }
+    .choices { display:grid; gap:10px; }
+    .choice { display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start; padding:14px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2); cursor:pointer; }
+    .choice:has(input:checked) { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+    input { width:18px; height:18px; margin-top:3px; accent-color:var(--accent); }
+    .rank { display:inline-block; margin-left:7px; color:var(--accent-2); font-size:.72rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+    .detail { display:block; margin-top:3px; color:var(--muted); font-size:.875rem; }
+    label.precision { display:block; margin-top:18px; font-size:.85rem; font-weight:700; color:var(--muted); }
+    textarea { width:100%; min-height:90px; margin-top:7px; padding:12px; resize:vertical; border:1px solid var(--line); border-radius:10px; background:#100d08; color:var(--text); font:inherit; }
+    input:focus-visible,textarea:focus-visible,button:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+    .actions { position:sticky; bottom:16px; display:flex; gap:12px; align-items:center; justify-content:space-between; padding:14px; border:1px solid var(--line); border-radius:14px; background:rgba(19,23,28,.96); box-shadow:0 16px 40px #0008; backdrop-filter:blur(10px); }
+    button { padding:11px 16px; border:0; border-radius:9px; background:var(--accent); color:#211500; font:inherit; font-weight:800; cursor:pointer; }
+    #status { color:var(--muted); font-size:.875rem; }
+    .settled { margin:0 0 32px; padding:18px; border:1px solid var(--line); border-radius:14px; background:var(--panel); color:var(--muted); font-size:.9rem; }
+    .settled b { color:var(--text); } .settled ul { margin:10px 0 0; padding-left:20px; } .settled li { margin:4px 0; }
+    code { background:var(--panel-2); border:1px solid var(--line); border-radius:5px; padding:1px 5px; font-size:.9em; }
+    @media (max-width:700px) { .visuals { grid-template-columns:1fr; } }
+    @media (max-width:600px) { main { width:min(100% - 20px,960px); padding-top:28px; } fieldset { padding:18px 14px; } .actions { align-items:flex-start; flex-direction:column; } button { width:100%; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="eyebrow">Grill me · Round 2 · Package set, prefix, install run</span>
+    <h1>Lutris path — packages, prefix, and who logs in</h1>
+    <p class="lede">Round 1 settled the shape: Lutris in Home Manager, free Anthology through Battle.net, rofi entry, <code>OPENBW_MPQ_PATH</code> for the data. Five decisions left before I touch <code>home/aron/packages.nix</code> — most of them about the imperative half, which nix cannot own.</p>
+  </header>
+
+  <nav class="tree" aria-label="Design tree progress">
+    <span class="node done">Purpose ✓</span>
+    <span class="arrow">→</span>
+    <span class="node done">Anthology ✓</span>
+    <span class="arrow">→</span>
+    <span class="node done">Lutris ✓</span>
+    <span class="arrow">→</span>
+    <span class="node done">HM layer ✓</span>
+    <span class="arrow">→</span>
+    <span class="node active">Package set</span>
+    <span class="arrow">→</span>
+    <span class="node active">Prefix path</span>
+    <span class="arrow">→</span>
+    <span class="node active">Install run</span>
+    <span class="arrow">→</span>
+    <span class="node active">Env var + entry</span>
+  </nav>
+
+  <section class="settled" aria-label="Facts already resolved">
+    <b>Already checked — not asking you about these</b>
+    <ul>
+      <li><code>hardware.graphics.enable32Bit = true</code> is already set in <code>modules/nixos/nvidia.nix</code> → 32-bit Wine works, no system-layer edit needed.</li>
+      <li><code>lutris</code> evaluates under the repo's existing <code>lib/allow-unfree.nix</code> → no allowlist change.</li>
+      <li>nixpkgs <code>lutris</code> is a bwrap/FHS wrapper → its downloaded Wine runners and community install scripts run fine on NixOS.</li>
+      <li>808 GB free on <code>/home</code>; <code>~/Games</code> does not exist yet.</li>
+    </ul>
+  </section>
+
+  <section class="visuals" aria-label="Technical context">
+    <figure>
+      <figcaption><b>Declarative vs imperative split</b>Only the left box lands in git; everything right of the line is account-bound runtime state.</figcaption>
+      <svg viewBox="0 0 400 240" role="img" aria-labelledby="v1t v1d">
+        <title id="v1t">What the commit contains versus what the install run produces</title>
+        <desc id="v1d">The nix commit adds lutris and optional wine CLI tools plus a desktop entry and an environment variable. The install run, done interactively, produces a Battle.net prefix containing StarCraft and its MPQ files.</desc>
+        <rect class="svg-node active" x="6" y="8" width="180" height="26" rx="8"/>
+        <text class="svg-label" x="18" y="26">commit (this round decides)</text>
+        <rect class="svg-node" x="6" y="44" width="180" height="24" rx="6"/>
+        <text class="svg-label" x="18" y="60">lutris [+ wine/winetricks?]</text>
+        <rect class="svg-node" x="6" y="76" width="180" height="24" rx="6"/>
+        <text class="svg-label" x="18" y="92">xdg.desktopEntries entry</text>
+        <rect class="svg-node" x="6" y="108" width="180" height="24" rx="6"/>
+        <text class="svg-label" x="18" y="124">OPENBW_MPQ_PATH</text>
+        <path class="svg-line" d="M200 8 V 232" stroke-dasharray="5 5"/>
+        <rect class="svg-node active" x="212" y="8" width="182" height="26" rx="8"/>
+        <text class="svg-label" x="224" y="26">install run (interactive)</text>
+        <rect class="svg-node" x="212" y="44" width="182" height="24" rx="6"/>
+        <text class="svg-label" x="224" y="60">Battle.net login + 2FA</text>
+        <rect class="svg-node" x="212" y="76" width="182" height="24" rx="6"/>
+        <text class="svg-label" x="224" y="92">download ≈ 1–2 GB</text>
+        <rect class="svg-node" x="212" y="108" width="182" height="24" rx="6"/>
+        <text class="svg-label" x="224" y="124">prefix + StarCraft + MPQs</text>
+        <text class="svg-note" x="6" y="160">rebuild reproduces this</text>
+        <text class="svg-note" x="212" y="160">a wipe means logging in again</text>
+        <text class="svg-accent" x="6" y="200" font-size="11">the desktop entry's exec line depends on the right side</text>
+        <text class="svg-note" x="6" y="220">so it gets filled in after the install, in a follow-up commit</text>
+      </svg>
+    </figure>
+    <figure>
+      <figcaption><b>Prefix layout under Lutris</b>Where the three MPQs will sit, and what <code>OPENBW_MPQ_PATH</code> has to point at.</figcaption>
+      <svg viewBox="0 0 400 240" role="img" aria-labelledby="v2t v2d">
+        <title id="v2t">Directory tree of a Lutris Battle.net prefix</title>
+        <desc id="v2d">Games directory contains a battlenet prefix, which contains drive_c, Program Files x86, StarCraft, and inside it the three MPQ files that OPENBW_MPQ_PATH must reference.</desc>
+        <text class="svg-label" x="10" y="24">~/Games/</text>
+        <text class="svg-label" x="30" y="46">battlenet/</text>
+        <text class="svg-label" x="50" y="68">drive_c/</text>
+        <text class="svg-label" x="70" y="90">Program Files (x86)/</text>
+        <text class="svg-accent" x="90" y="112">StarCraft/</text>
+        <text class="svg-note" x="110" y="132">StarCraft.exe</text>
+        <text class="svg-note" x="110" y="150">StarDat.mpq</text>
+        <text class="svg-note" x="110" y="168">BrooDat.mpq</text>
+        <text class="svg-note" x="110" y="186">Patch_rt.mpq</text>
+        <path class="svg-line" d="M20 30 V 200 H 100" stroke-dasharray="3 4"/>
+        <rect class="svg-node active" x="110" y="192" width="270" height="26" rx="8"/>
+        <text class="svg-label" x="122" y="210">OPENBW_MPQ_PATH → this dir</text>
+        <text class="svg-note" x="10" y="234">exact path is only known after the install; the var is written then</text>
+      </svg>
+    </figure>
+  </section>
+
+  <form id="questions">
+    <fieldset data-question="Besides lutris, which Wine CLI tools go into home/aron/packages.nix?">
+      <legend>1. Which packages exactly?</legend>
+      <p class="why">Lutris ships its own runners inside its FHS sandbox, so host Wine is optional — but without it you cannot poke the prefix, run <code>wine</code> from a terminal, or use winetricks outside Lutris.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="lutris + wineWowPackages.stable + winetricks"><span><b>lutris + wine (64/32) + winetricks</b><span class="rank">Recommended</span><span class="detail">Covers Lutris plus terminal debugging of the prefix; ~1 GB of closure, no system impact.</span></span></label>
+        <label class="choice"><input type="checkbox" value="lutris only, rely on its bundled runners"><span><b>lutris only</b><span class="rank">Second</span><span class="detail">Smallest diff and closure; if the prefix misbehaves you'd be doing everything through the Lutris GUI.</span></span></label>
+        <label class="choice"><input type="checkbox" value="lutris + wineWowPackages.stagingFull + winetricks + protontricks"><span><b>lutris + wine-staging + winetricks + protontricks</b><span class="rank">Third</span><span class="detail">Most tools, biggest closure; staging matters for modern titles, rarely for a 1998 game.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. add dxvk / vulkan tools / mangohud"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Where should the Wine prefix live?">
+      <legend>2. Where should the prefix live?</legend>
+      <p class="why">This decides what <code>OPENBW_MPQ_PATH</code> will hardcode and how easy the MPQs are to find later; <code>~/Games</code> does not exist yet, so either choice is a fresh directory.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Lutris default: ~/Games/battlenet"><span><b>Lutris default (<code>~/Games/battlenet</code>)</b><span class="rank">Recommended</span><span class="detail">Zero friction with the install script; matches every Lutris doc you'll hit when it breaks.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Dedicated ~/Games/starcraft prefix, Battle.net installed inside it"><span><b><code>~/Games/starcraft</code></b><span class="rank">Second</span><span class="detail">Clearer name, one game per prefix; you have to set it during the install script's prompt.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Somewhere else entirely (say where in precision)"><span><b>Elsewhere</b><span class="rank">Third</span><span class="detail">Fine, but say the exact path — the env var and docs will bake it in.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. /home/aron/Games/bw, or a separate disk"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Who drives the Battle.net install after the rebuild?">
+      <legend>3. Who drives the actual install?</legend>
+      <p class="why">Battle.net needs your account, your password and your 2FA; I can prepare and narrate, but I will not type your credentials, and an unattended install is not possible.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="You launch Lutris and log in; I stay available and handle any NixOS-specific breakage"><span><b>You click, I fix breakage</b><span class="rank">Recommended</span><span class="detail">You own the login; I handle prefix/driver/library errors and the post-install wiring.</span></span></label>
+        <label class="choice"><input type="checkbox" value="I run the lutris CLI install script up to the login screen, then hand over"><span><b>I run the script to the login screen</b><span class="rank">Second</span><span class="detail">I do the Lutris/runner setup in the terminal and stop at the Battle.net login window.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Just commit the packages; I'll do the whole install myself later"><span><b>Config only</b><span class="rank">Third</span><span class="detail">Smallest scope; the OpenBW handoff and desktop entry stay unfinished until you come back.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. I'll install tonight, leave me a checklist"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Where should OPENBW_MPQ_PATH be defined?">
+      <legend>4. Where does <code>OPENBW_MPQ_PATH</code> get defined?</legend>
+      <p class="why">A session-wide variable is visible everywhere but bakes a game path into your login environment; a project-local one keeps the coupling inside the OpenBW workspace.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Home Manager home.sessionVariables in home/aron/*.nix"><span><b>HM <code>home.sessionVariables</code></b><span class="rank">Recommended</span><span class="detail">Declarative and in git, matching your answer in round 1; needs a re-login (or fresh shell) to take effect.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Default inside ~/projects/openbw-env/run.sh only"><span><b>Local to <code>openbw-env/run.sh</code></b><span class="rank">Second</span><span class="detail">Keeps the game path out of your global env; that file is outside the nix repo, so it's not tracked there.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Both: HM variable, and run.sh falls back to it"><span><b>Both</b><span class="rank">Third</span><span class="detail">Belt and braces, slight duplication of the same path in two places.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. prefer a direnv .envrc in the project"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="What should the rofi/desktop entry launch, and when do I write it?">
+      <legend>5. What does the launcher entry run?</legend>
+      <p class="why">The exec line only exists after the install (Lutris assigns the game slug), so this decides whether the entry ships in the same commit or a follow-up one.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="lutris:rungame/<slug> URI, written in a follow-up commit after the install"><span><b>Lutris URI, follow-up commit</b><span class="rank">Recommended</span><span class="detail">Honest ordering: entry lands once the slug is real and verified to launch.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Direct wine invocation of StarCraft.exe with WINEPREFIX set"><span><b>Direct <code>wine StarCraft.exe</code></b><span class="rank">Second</span><span class="detail">Independent of Lutris state, but you lose Lutris's runner/env configuration for the game.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Skip the nix entry; Lutris's own generated .desktop file is enough"><span><b>Use Lutris's own entry</b><span class="rank">Third</span><span class="detail">Reverses round 1's answer; nothing to maintain, but the entry is imperative state.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. name it 'Brood War', want an icon from the game files"></textarea></label>
+    </fieldset>
+
+    <div class="actions">
+      <span id="status" role="status">Selections stay in this page until copied.</span>
+      <button type="button" id="copy-summary">Copy answer summary</button>
+    </div>
+  </form>
+</main>
+<script>
+  const button = document.querySelector('#copy-summary');
+  const status = document.querySelector('#status');
+
+  function buildSummary() {
+    const sections = [...document.querySelectorAll('fieldset[data-question]')].map((field, index) => {
+      const question = field.dataset.question;
+      const selected = [...field.querySelectorAll('input[type="checkbox"]:checked')].map(input => `- ${input.value}`);
+      const precision = field.querySelector('textarea').value.trim();
+      const answers = selected.length ? selected.join('\n') : '- No recommended answer selected';
+      return `${index + 1}. ${question}\n${answers}${precision ? `\nPrecision: ${precision}` : ''}`;
+    });
+    return `Round 2 · Package set, prefix, install run — Lutris path — packages, prefix, and who logs in\n\n${sections.join('\n\n')}`;
+  }
+
+  button.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(buildSummary());
+      status.textContent = 'Summary copied to clipboard.';
+    } catch (_) {
+      const fallback = document.createElement('textarea');
+      fallback.value = buildSummary();
+      document.body.appendChild(fallback);
+      fallback.select();
+      document.execCommand('copy');
+      fallback.remove();
+      status.textContent = 'Summary copied to clipboard.';
+    }
+  });
+</script>
+</body>
+</html>

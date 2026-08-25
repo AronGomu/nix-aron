@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="artifact-kind" content="markdown">
+<meta name="artifact-generated" content="1787504496062">
+<meta name="artifact-project" content="/home/aron/config/nix-aron/dotfiles/agents/skills">
+<title>Design make-aron-v2</title>
+<style data-base>:root { color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1c1c1a;
+  --muted: #6b6862;
+  --border: #e7e5e0;
+  --code-bg: #f7f6f4;
+  --accent: #b95730;
+  --add-bg: #e9f7ee;
+  --add-word-bg: #c8ecd3;
+  --add-fg: #1a7f37;
+  --del-bg: #feeff1;
+  --del-word-bg: #f8d2d7;
+  --del-fg: #c93c4c;
+  --hl-comment: #6e7781;
+  --hl-keyword: #cf222e;
+  --hl-string: #0a3069;
+  --hl-number: #0550ae;
+  --hl-title: #8250df;
+  --hl-type: #953800;
+  --hl-attr: #0550ae;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #171614;
+  --fg: #e6e3de;
+  --muted: #94918a;
+  --border: #2e2d29;
+  --code-bg: #201f1c;
+  --accent: #d67858;
+  --add-bg: #1d2a20;
+  --add-word-bg: #2b4232;
+  --add-fg: #85c793;
+  --del-bg: #2e1c1e;
+  --del-word-bg: #4a292c;
+  --del-fg: #e28a91;
+  --hl-comment: #8b949e;
+  --hl-keyword: #ff7b72;
+  --hl-string: #a5d6ff;
+  --hl-number: #79c0ff;
+  --hl-title: #d2a8ff;
+  --hl-type: #ffa657;
+  --hl-attr: #79c0ff;
+} }
+
+* { box-sizing: border-box; }
+html { font-size: 15px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+article { max-width: 860px; margin: 0 auto; padding: 2.75rem 1.5rem 4rem; }
+h1, h2, h3, h4 { line-height: 1.3; letter-spacing: -0.01em; color: var(--fg); }
+h1 { font-size: 1.45rem; font-weight: 650; margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; font-weight: 650; margin: 2.2em 0 .7em; padding-bottom: .35em; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1rem; font-weight: 600; margin: 1.8em 0 .5em; }
+h4 { font-size: .9rem; font-weight: 600; margin: 1.5em 0 .4em; }
+p { margin: .8em 0; }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 2px; }
+a:hover { text-decoration-color: var(--accent); }
+strong { font-weight: 600; }
+ul, ol { margin: .8em 0; padding-left: 1.5em; }
+li { margin: .3em 0; }
+li > ul, li > ol { margin: .2em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+img, svg, video { max-width: 100%; }
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+blockquote {
+  margin: 1.2em 0;
+  padding: .1em 1.1em;
+  border-left: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--muted);
+}
+blockquote > :first-child { margin-top: .4em; }
+blockquote > :last-child { margin-bottom: .4em; }
+
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .9rem; }
+th {
+  text-align: left; font-weight: 600; font-size: .74rem;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  padding: .5em .75em; border-bottom: 1px solid var(--border);
+}
+td { padding: .55em .75em; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+code, kbd, samp { font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+code { font-size: .85em; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; }
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  font-size: .82rem;
+  line-height: 1.55;
+  margin: 1.2em 0;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+
+input[type="checkbox"] { accent-color: var(--accent); margin-right: .4em; }
+
+
+.artifact-header {
+  display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap;
+  margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.artifact-header h1 { margin: 0; }
+.artifact-badge {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; font-size: .66rem; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px; padding: .2em .7em; white-space: nowrap;
+}
+.artifact-meta { margin-left: auto; color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+.artifact-footer {
+  margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
+}
+.artifact-mermaid { text-align: center; margin: 1.5rem 0; }
+</style>
+<style data-hljs>
+.hljs { color: var(--fg); background: transparent; }
+.hljs-comment, .hljs-quote { color: var(--hl-comment); font-style: italic; }
+.hljs-keyword, .hljs-selector-tag, .hljs-literal, .hljs-deletion { color: var(--hl-keyword); }
+.hljs-string, .hljs-regexp, .hljs-addition { color: var(--hl-string); }
+.hljs-number, .hljs-symbol, .hljs-bullet, .hljs-meta, .hljs-link { color: var(--hl-number); }
+.hljs-title, .hljs-section, .hljs-function .hljs-title { color: var(--hl-title); }
+.hljs-type, .hljs-class .hljs-title, .hljs-built_in { color: var(--hl-type); }
+.hljs-variable, .hljs-template-variable, .hljs-attr, .hljs-attribute, .hljs-property { color: var(--hl-attr); }
+.hljs-emphasis { font-style: italic; }
+.hljs-strong { font-weight: 600; }
+</style>
+</head>
+<body>
+<article>
+<header class="artifact-header">
+<h1>Design make-aron-v2</h1>
+<span class="artifact-badge">markdown</span>
+<span class="artifact-meta">2026-08-23 17:01:36</span>
+</header>
+<h1>Design: <code>make-aron-v2</code></h1>
+<p><strong>Status:</strong> draft for review. Nothing built yet.
+<strong>Supersedes:</strong> <code>make-aron</code> (v1) for the implementation phase only. <code>make-plan-aron</code> unchanged, still the ticket source.
+<strong>Date:</strong> 2026-08-23</p>
+<hr>
+<h2>1. Goal</h2>
+<p>One command. One arg. Ticket in → verified commit out, or hard stop with the exact failing gate.</p>
+<pre><code>make-aron-v2 &lt;ticket.md&gt; [ticket2.md ...]
+make-aron-v2 ./artifacts/PLAN_2026_08_23_auth/     # dir → all T*.md, topo-sorted</code></pre><p>Three properties v1 does not have:</p>
+<ul>
+<li><strong>P1. Self-contained.</strong> No <code>ship</code>. No <code>AgentSystemLabs/core</code>. No skill-to-skill dependency outside <code>~/.agents/</code>.</li>
+<li><strong>P2. Deterministic gates.</strong> Quality is decided by scripts that exit non-zero, not by an LLM reading code.</li>
+<li><strong>P3. One entry point.</strong> No plan phase, no mode flags, no depth argument, no interactive step.</li>
+</ul>
+<hr>
+<h2>2. The thesis, stated so it can be argued with</h2>
+<p>v1 + <code>ship</code> compute <strong>zero numbers</strong>. Every quality judgment is a model reading a diff. That works — <code>ship</code> benchmarked 47.0/50 vs 43.2 plain prompting — but it degrades exactly the way Uncle Bob describes: rules in the middle of a long context lose attention weight, and a threshold written in prose (<em>&quot;files &gt;300 lines… a cohesive 400-line file is fine&quot;</em>) is a threshold the agent negotiates with.</p>
+<p>v2&#39;s bet: <strong>move every rule that can be computed into a script, and keep the LLM only for what cannot be computed.</strong></p>
+<p>Bob&#39;s formulation, which the whole design serves:</p>
+<blockquote>
+<p>The key with agents is to trim that initial prompt down to its absolute minimum so that you can get as much of it as possible into its priority — then do deterministic tools after the fact.</p>
+</blockquote>
+<p>Consequence: <code>SKILL.md</code> for v2 should be <strong>shorter</strong> than v1&#39;s, not longer. If v2 ends up with more prose than v1, the design failed.</p>
+<h3>2.1 Honest tension</h3>
+<p>&quot;No dependencies&quot; cannot mean <em>no external tools</em>. The deterministic gates <strong>are</strong> external tools — <code>lizard</code>, a coverage reporter, a mutation engine. What v2 removes is <strong>skill</strong> dependencies (another agent&#39;s prose pipeline you don&#39;t control). What it adds is <strong>binary</strong> dependencies (versioned, offline, exit-code-typed). That trade is the entire point: a binary dependency cannot drift, cannot be argued with, and cannot silently reinterpret its own instructions.</p>
+<hr>
+<h2>3. What v2 absorbs, what it drops</h2>
+<h3>3.1 Absorbed from <code>ship</code> (re-implemented, not vendored)</h3>
+<table>
+<thead>
+<tr>
+<th>Kept</th>
+<th>Why</th>
+<th>New home</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Final candidate gate, <strong>recursive</strong> — <em>&quot;a fix is not allowed to certify itself&quot;</em></td>
+<td>best idea in ship</td>
+<td><code>G1</code>–<code>G9</code> re-run loop</td>
+</tr>
+<tr>
+<td>Risk signals list (auth/pay/secrets/webhooks/migrations/jobs/multi-subsystem)</td>
+<td>good, stable, cheap</td>
+<td><code>risk-signals.md</code>, drives thresholds not phases</td>
+</tr>
+<tr>
+<td>Read-only reviewer subagents, findings contract, <code>auto-fixable</code> flag</td>
+<td>real API, mechanically consumed</td>
+<td><code>roles/advisor.md</code> + <code>findings-contract.md</code></td>
+</tr>
+<tr>
+<td><code>reviewer-test-quality</code> detectors A–F</td>
+<td><strong>complementary to mutation, not replaced by it</strong> — Detector F (defining invariant unasserted) catches what no mutator can</td>
+<td><code>roles/hardener-auditor.md</code></td>
+</tr>
+<tr>
+<td><code>simplify</code> code-smell catalog</td>
+<td>prose companion to CRAP</td>
+<td><code>references/code-smells.md</code></td>
+</tr>
+<tr>
+<td>Run ledger, base-SHA validated, survives compaction</td>
+<td>fixes v1&#39;s discarded-evidence leak</td>
+<td>merged into progress file</td>
+</tr>
+<tr>
+<td>&quot;NEVER declare done without running the new code path&quot;</td>
+<td>the one non-scriptable check that matters</td>
+<td><code>G9</code> QA</td>
+</tr>
+<tr>
+<td><code>headless</code> semantics — <em>removes questions, never gates</em></td>
+<td>v2 is headless by definition</td>
+<td>default and only mode</td>
+</tr>
+</tbody></table>
+<h3>3.2 Dropped deliberately</h3>
+<table>
+<thead>
+<tr>
+<th>Dropped</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Intent classification (CREATE/EVOLVE/POLISH/REMOVE/FIX/AUDIT)</td>
+<td>The ticket already says what to do. Classification exists for free-text goals; v2&#39;s input is a spec.</td>
+</tr>
+<tr>
+<td><code>mode=fast|balanced|production</code></td>
+<td>Depth-by-mode means gates get skipped. v2 runs <strong>all</strong> gates always; risk signals move <em>thresholds</em>, never remove a gate.</td>
+</tr>
+<tr>
+<td>17-reviewer fleet</td>
+<td>Reduced to 5 advisors, gated by diff content, run <strong>after</strong> deterministic gates pass. Cheap checks first.</td>
+</tr>
+<tr>
+<td><code>AskUserQuestion</code> anywhere</td>
+<td>v2 has no interactive path.</td>
+</tr>
+<tr>
+<td>Plan generation</td>
+<td><code>make-plan-aron</code> owns it. v2 takes tickets only.</td>
+</tr>
+<tr>
+<td>v1&#39;s <code>blocker/should-fix/note</code> scale</td>
+<td>Replaced by ship&#39;s <code>CRITICAL/HIGH/MEDIUM/LOW</code> + <code>auto-fixable</code>. One vocabulary.</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>4. Pipeline</h2>
+<p>Five roles per ticket, each a fresh-context child, each dying after its report. Bob&#39;s ordering, with his hardener split in two to satisfy his own read-only-auditor rule.</p>
+<div class="artifact-mermaid"><pre class="mermaid">flowchart TD
+  IN["make-aron-v2 T1.md T2.md"] --&gt; BOOT["bootstrap&lt;br/&gt;detect stack → .make-aron/gates.json"]
+  BOOT --&gt; PRE["pre-flight&lt;br/&gt;branch · ledger · G10 flake guard"]
+  PRE --&gt; NEXT{"next ticket&lt;br/&gt;deps met?"}
+  NEXT --&gt;|none| FIN["final report"]
+
+  NEXT --&gt; R1["R1 SPECIFIER&lt;br/&gt;writes failing acceptance test + QA script"]
+  R1 --&gt; G0{{"G0 · spec is RED"}}
+  G0 --&gt; R2["R2 CODER&lt;br/&gt;impl until G0 green"]
+  R2 --&gt; GA{{"G1 build · G2 suite · G8 acceptance"}}
+  GA --&gt; R3["R3 CLEANER&lt;br/&gt;refactor until CRAP ≤ threshold"]
+  R3 --&gt; GC{{"G3 coverage · G4 CRAP"}}
+  GC --&gt; R4["R4 HARDENER-AUDITOR&lt;br/&gt;read-only · survivors → cases"]
+  R4 --&gt; R5["R5 TEST-WRITER&lt;br/&gt;one test per case"]
+  R5 --&gt; GM{{"G5 mutation · G11 prove-test"}}
+  GM --&gt; R6["R6 QA&lt;br/&gt;runs the system test"]
+  R6 --&gt; GQ{{"G6 dep-rules · G7 residue · G9 QA"}}
+  GQ --&gt; FCG{{"final candidate gate&lt;br/&gt;re-run G1-G9 on combined tree"}}
+  FCG --&gt;|"any fix mutated code"| FCG
+  FCG --&gt; ADV["advisors fanout&lt;br/&gt;read-only · gated by diff"]
+  ADV --&gt; CMT["commit + push"]
+  CMT --&gt; NEXT</pre></div><h3>4.1 Roles</h3>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Role</th>
+<th>Writes?</th>
+<th>Sees</th>
+<th>Trajectory</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>R1</code></td>
+<td>specifier</td>
+<td>tests + QA script only</td>
+<td>ticket file</td>
+<td>&quot;encode the contract&quot;</td>
+</tr>
+<tr>
+<td><code>R2</code></td>
+<td>coder</td>
+<td>source</td>
+<td>ticket + failing spec</td>
+<td>&quot;make it pass&quot;</td>
+</tr>
+<tr>
+<td><code>R3</code></td>
+<td>cleaner</td>
+<td>source</td>
+<td><strong>CRAP report only</strong> — not the mutation report</td>
+<td>&quot;reduce branching&quot;</td>
+</tr>
+<tr>
+<td><code>R4</code></td>
+<td>hardener-auditor</td>
+<td><strong>nothing</strong></td>
+<td>mutation report + diff</td>
+<td>&quot;find unverified behaviour&quot;</td>
+</tr>
+<tr>
+<td><code>R5</code></td>
+<td>test-writer</td>
+<td>tests only</td>
+<td>R4&#39;s plain-language case list</td>
+<td>&quot;assert the case&quot;</td>
+</tr>
+<tr>
+<td><code>R6</code></td>
+<td>qa</td>
+<td>nothing (runs)</td>
+<td>QA script + running system</td>
+<td>&quot;does it actually work&quot;</td>
+</tr>
+</tbody></table>
+<p><code>R3</code> and <code>R4/R5</code> must never share a context. Bob&#39;s reason, restated: the cleaner&#39;s goal is <em>fewer branches</em>; the cheapest way to kill a mutant is often to <em>add</em> a branch. One agent holding both goals oscillates or satisfies neither honestly.</p>
+<p><code>R4</code> cannot write. This is Bob&#39;s step-4 guardrail against the model deleting the mutable construct or writing an assertion on the mutated line and calling it a kill.</p>
+<hr>
+<h2>5. Gates</h2>
+<p>Every gate is a script in <code>gates/</code>. Contract:</p>
+<pre><code>gates/&lt;name&gt;.sh  [--json]
+  stdin:  nothing
+  stdout: human-readable findings, or JSON with --json
+  exit 0: pass
+  exit 1: fail (findings on stdout)
+  exit 2: cannot run (tool missing, config missing) → hard stop, never "pass"</code></pre><p>Exit 2 is load-bearing. A missing mutation engine must <strong>not</strong> read as a clean scan.</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Gate</th>
+<th>Deterministic</th>
+<th>Threshold</th>
+<th>Blocks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>G0</code></td>
+<td>spec-red — acceptance test exists and <strong>fails</strong></td>
+<td>yes</td>
+<td>exit 1 if it passes</td>
+<td>coder starts</td>
+</tr>
+<tr>
+<td><code>G1</code></td>
+<td>build — typecheck + lint + build</td>
+<td>yes</td>
+<td>zero errors</td>
+<td>everything</td>
+</tr>
+<tr>
+<td><code>G2</code></td>
+<td>suite — full test suite green</td>
+<td>yes</td>
+<td>zero failures</td>
+<td>everything</td>
+</tr>
+<tr>
+<td><code>G3</code></td>
+<td>coverage — line coverage on <strong>changed lines</strong></td>
+<td>yes</td>
+<td><code>100</code> (Bob&#39;s stance, diff-scoped)</td>
+<td>cleaner exit</td>
+</tr>
+<tr>
+<td><code>G4</code></td>
+<td>crap — CRAP per changed function</td>
+<td>yes</td>
+<td><code>≤ 6</code>, <code>≤ 4</code> on risk-signal files</td>
+<td>cleaner exit</td>
+</tr>
+<tr>
+<td><code>G5</code></td>
+<td>mutation — incremental, diff-scoped</td>
+<td>yes</td>
+<td><code>score = 1.0</code> minus allowlist</td>
+<td>hardener exit</td>
+</tr>
+<tr>
+<td><code>G6</code></td>
+<td>dep-rules — module layering</td>
+<td>yes</td>
+<td>zero violations</td>
+<td>commit</td>
+</tr>
+<tr>
+<td><code>G7</code></td>
+<td>residue — secrets, merge markers, debug leftovers</td>
+<td>yes</td>
+<td>zero</td>
+<td>commit</td>
+</tr>
+<tr>
+<td><code>G8</code></td>
+<td>acceptance — the <code>G0</code> test now passes</td>
+<td>yes</td>
+<td>pass</td>
+<td>commit</td>
+</tr>
+<tr>
+<td><code>G9</code></td>
+<td>qa — executable system test</td>
+<td>yes</td>
+<td>pass</td>
+<td>commit</td>
+</tr>
+<tr>
+<td><code>G10</code></td>
+<td>flake — suite run 2×, identical result</td>
+<td>yes</td>
+<td>identical</td>
+<td><strong>run start</strong></td>
+</tr>
+<tr>
+<td><code>G11</code></td>
+<td>prove-test — each new test fails against reverted impl</td>
+<td>yes</td>
+<td>all fail</td>
+<td>test-writer exit</td>
+</tr>
+</tbody></table>
+<h3>5.1 <code>G4</code> — CRAP</h3>
+<pre><code>CRAP(m) = comp(m)² × (1 − cov(m))³ + comp(m)</code></pre><p>Because <code>G3</code> pins diff coverage at 1.0 before <code>G4</code> runs, the first term is zero and <strong><code>CRAP = cyclomatic complexity</code></strong>. The score is a pure complexity dial, which is why 6 is the right number here and 30 (the published figure, for triaging legacy at partial coverage) is not.</p>
+<p>Implementation: <code>lizard --csv</code> for complexity + lcov for coverage, joined by line range. ~40 lines of Python. Bob&#39;s advice applies — don&#39;t vendor his; point the agent at the formula and have it build ours.</p>
+<p><strong>Upgrade over Bob&#39;s version:</strong> once <code>G5</code> produces mutation data, feed <em>that</em> as the coverage term instead of lcov:</p>
+<pre><code>CRAP′(m) = comp(m)² × (1 − mutation_score(m))³ + comp(m)</code></pre><p>Not a published standard. It is what CRAP was reaching for — complexity weighted by <em>verified</em> behaviour rather than <em>executed</em> lines. Same join by line range. Deferred to phase 3 (§9).</p>
+<h3>5.2 <code>G5</code> — mutation</h3>
+<p>Never full-project inside the loop. Diff-scoped + per-test coverage analysis → 10–50× reduction, which is what turns Bob&#39;s overnight run into minutes.</p>
+<p><strong>Equivalent mutants are undecidable.</strong> A <code>score = 1.0</code> gate is unsatisfiable without an escape valve, so:</p>
+<pre><code class="hljs language-jsonc"><span class="hljs-comment">// .make-aron/equivalent-mutants.json  — committed, reviewed like code</span>
+<span class="hljs-punctuation">[</span>
+  <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;file&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;src/pricing.ts&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;line&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">42</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;mutator&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;EqualityOperator&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;original&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;i &lt; 10&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;mutated&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;i != 10&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;justification&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;loop steps by 1 from 0; observationally identical&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;added_by&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;T4&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;sha&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;abc1234&quot;</span>
+  <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">]</span></code></pre><p>Rules: an entry needs a prose justification; the auditor may <strong>propose</strong> entries but cannot write the file (it&#39;s read-only); the parent writes it after the entry survives one advisor pass. Growth of this file is the metric to watch — it is where the gate goes to die.</p>
+<h3>5.3 <code>G11</code> — prove-test</h3>
+<p>Bob names the failure mode (&quot;agents write fake tests to kill mutants&quot;) but leaves the defense as prose. It is scriptable:</p>
+<pre><code>for each test added in this ticket:
+  1. git stash the production hunks this ticket touched
+  2. run only that test
+  3. expect FAIL
+  4. restore
+  exit 1 on any test that passed against the reverted implementation</code></pre><p>A test that passes without the implementation tests nothing. This turns Bob&#39;s strongest prose guardrail into an exit code, and it is the single most valuable script in the design.</p>
+<h3>5.4 <code>G6</code> — dep-rules</h3>
+<p>The fully-missing phase in both v1 and <code>ship</code>. <code>ship</code>&#39;s <code>reviewer-dependencies</code> is supply-chain (npm audit, licenses, install scripts) — not module layering.</p>
+<pre><code class="hljs language-jsonc"><span class="hljs-comment">// .make-aron/layers.json</span>
+<span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;layers&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;domain&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;application&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;adapters&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;ui&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;rules&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span>
+    <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;domain&quot;</span><span class="hljs-punctuation">,</span>      <span class="hljs-attr">&quot;may_depend_on&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-punctuation">]</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;application&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;may_depend_on&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;domain&quot;</span><span class="hljs-punctuation">]</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;adapters&quot;</span><span class="hljs-punctuation">,</span>    <span class="hljs-attr">&quot;may_depend_on&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;application&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;domain&quot;</span><span class="hljs-punctuation">]</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;ui&quot;</span><span class="hljs-punctuation">,</span>          <span class="hljs-attr">&quot;may_depend_on&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;application&quot;</span><span class="hljs-punctuation">]</span> <span class="hljs-punctuation">}</span>
+  <span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;map&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;src/domain/**&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;domain&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;src/app/**&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;application&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;...&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;...&quot;</span> <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span></code></pre><p>Violation is not auto-fixable. Three legal repairs, all structural: invert the dependency, insert an interface, split the module. The gate states which files violate; a worker picks the repair.</p>
+<p>Absent <code>layers.json</code> → <code>G6</code> exits 0 with <code>not configured</code> on stdout, and the final report says so. Silence is not a pass.</p>
+<hr>
+<h2>6. Config and bootstrap</h2>
+<p>Commands differ per stack. v2 never guesses at runtime — it resolves once, writes the resolution down, and reads the file thereafter.</p>
+<pre><code class="hljs language-jsonc"><span class="hljs-comment">// .make-aron/gates.json   — generated on first run, committed</span>
+<span class="hljs-punctuation">{</span>
+  <span class="hljs-attr">&quot;version&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;stack&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;node-ts&quot;</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;detected_from&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">[</span><span class="hljs-string">&quot;package.json&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;vitest.config.ts&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-string">&quot;tsconfig.json&quot;</span><span class="hljs-punctuation">]</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;cmd&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span>
+    <span class="hljs-attr">&quot;typecheck&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;npx tsc --noEmit&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;lint&quot;</span><span class="hljs-punctuation">:</span>      <span class="hljs-string">&quot;npx eslint . --max-warnings 0&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;build&quot;</span><span class="hljs-punctuation">:</span>     <span class="hljs-string">&quot;npm run build&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;test&quot;</span><span class="hljs-punctuation">:</span>      <span class="hljs-string">&quot;npx vitest run&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;coverage&quot;</span><span class="hljs-punctuation">:</span>  <span class="hljs-string">&quot;npx vitest run --coverage --coverage.reporter=lcov&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;complexity&quot;</span><span class="hljs-punctuation">:</span><span class="hljs-string">&quot;lizard src/ --csv&quot;</span><span class="hljs-punctuation">,</span>
+    <span class="hljs-attr">&quot;mutation&quot;</span><span class="hljs-punctuation">:</span>  <span class="hljs-string">&quot;npx stryker run --since=main --reporters json&quot;</span>
+  <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;paths&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;lcov&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;coverage/lcov.info&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;mutation_json&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;reports/mutation/mutation.json&quot;</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;thresholds&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;crap&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">6</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;crap_risk&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">4</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;coverage&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1.0</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;mutation&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">1.0</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;max_file_lines&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-number">400</span> <span class="hljs-punctuation">}</span><span class="hljs-punctuation">,</span>
+  <span class="hljs-attr">&quot;determinism&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-punctuation">{</span> <span class="hljs-attr">&quot;TZ&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;UTC&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;seed_env&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-string">&quot;SEED=0&quot;</span><span class="hljs-punctuation">,</span> <span class="hljs-attr">&quot;freeze_clock&quot;</span><span class="hljs-punctuation">:</span> <span class="hljs-literal"><span class="hljs-keyword">true</span></span> <span class="hljs-punctuation">}</span>
+<span class="hljs-punctuation">}</span></code></pre><p><strong>Bootstrap</strong> (first run only, no config present):</p>
+<ol>
+<li>Detect stack from marker files.</li>
+<li>Resolve each command; verify each by running it once.</li>
+<li>Any command unresolvable → <strong>exit 2, hard stop</strong>, name the missing tool and the exact install command. Never proceed with a gate disabled.</li>
+<li>Write the file, log an Assumption, continue.</li>
+</ol>
+<p>Detection is evidence-based (the file exists, the command ran), so it is not a guess under <code>B1</code>.</p>
+<h3>6.1 Tool matrix</h3>
+<table>
+<thead>
+<tr>
+<th>Stack</th>
+<th>complexity</th>
+<th>coverage</th>
+<th>mutation (incremental flag)</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>JS/TS</td>
+<td><code>lizard</code> or <code>eslint complexity</code></td>
+<td>vitest/jest lcov</td>
+<td>Stryker <code>--since=main</code></td>
+</tr>
+<tr>
+<td>Python</td>
+<td><code>lizard</code> / <code>radon cc -j</code></td>
+<td><code>pytest --cov-report=lcov</code></td>
+<td>mutmut <code>--paths-to-mutate $(git diff --name-only main)</code></td>
+</tr>
+<tr>
+<td>Go</td>
+<td><code>gocyclo</code> / <code>lizard</code></td>
+<td><code>-coverprofile</code> + gcov2lcov</td>
+<td>go-mutesting + diff file list</td>
+</tr>
+<tr>
+<td>Rust</td>
+<td><code>lizard</code></td>
+<td><code>cargo-llvm-cov --lcov</code></td>
+<td><strong>cargo-mutants <code>--in-diff</code></strong> — cleanest of the lot</td>
+</tr>
+<tr>
+<td>Java</td>
+<td>PMD / <code>lizard</code></td>
+<td>JaCoCo → lcov</td>
+<td>PIT <code>--changedSinceLastCommit</code></td>
+</tr>
+<tr>
+<td>PHP</td>
+<td><code>lizard</code></td>
+<td>PHPUnit clover→lcov</td>
+<td>Infection <code>--git-diff-filter=AM</code></td>
+</tr>
+</tbody></table>
+<p><code>lizard</code> covers 12+ languages and is the default; native tools are opt-in overrides in <code>gates.json</code>.</p>
+<hr>
+<h2>7. Layering — where each check runs</h2>
+<p>Cost varies by three orders of magnitude, so placement does too.</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Runs</th>
+<th>When</th>
+<th>Consumer</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>hook</strong></td>
+<td>format + lint + typecheck, changed file only</td>
+<td>every file write</td>
+<td>coder, immediately, in its working set</td>
+</tr>
+<tr>
+<td><strong>coder</strong></td>
+<td><code>G1</code> <code>G2</code> <code>G8</code></td>
+<td>end of R2</td>
+<td>coder loop</td>
+</tr>
+<tr>
+<td><strong>cleaner</strong></td>
+<td><code>G3</code> <code>G4</code> + code-smell prose</td>
+<td>end of R3</td>
+<td>cleaner loop</td>
+</tr>
+<tr>
+<td><strong>hardener</strong></td>
+<td><code>G5</code> <code>G11</code></td>
+<td>end of R5</td>
+<td>test-writer loop</td>
+</tr>
+<tr>
+<td><strong>commit</strong></td>
+<td><code>G6</code> <code>G7</code> <code>G9</code> + final candidate gate</td>
+<td>before git</td>
+<td>parent</td>
+</tr>
+<tr>
+<td><strong>advisors</strong></td>
+<td>LLM fanout, gated by diff</td>
+<td>after all gates green</td>
+<td>parent, findings ledger</td>
+</tr>
+<tr>
+<td><strong>run start</strong></td>
+<td><code>G10</code> flake guard</td>
+<td>once per invocation</td>
+<td>parent — mutation on a flaky suite is noise</td>
+</tr>
+</tbody></table>
+<p>The hook is not optional. It is the cheapest layer and the one <code>ship</code> expresses as prose (&quot;after each file, run type-check&quot;) that agents forget. Implemented as a <code>PostToolUse</code> matcher on <code>Edit|Write</code> where the harness supports it; where it doesn&#39;t, the coder role carries the rule and <code>G1</code> catches the drift late.</p>
+<p><strong>Advisors run last, not first.</strong> Deterministic checks are cheap and cannot be argued with; run them while the code is cheap to change. LLM review is expensive and probabilistic; spend it on what&#39;s left. This inverts v1, where the LLM reviewer fanout was the <em>primary</em> quality mechanism.</p>
+<p>Advisor set (reduced from ship&#39;s 17): <code>security-authz</code>, <code>contracts</code>, <code>concurrency</code>, <code>data-integrity</code>, <code>test-quality</code>. Each read-only, one dimension, <code>findings-contract.md</code> output. <code>CRITICAL</code>/<code>HIGH</code> → one fix worker. <code>MEDIUM</code>/<code>LOW</code> → logged, shipped.</p>
+<hr>
+<h2>8. Loop control</h2>
+<p>Bob&#39;s loop is <em>&quot;change the code until this tool says it&#39;s okay&quot;</em> — unbounded, because a deterministic gate is always eventually satisfiable. Mostly true, except <code>G5</code> (equivalent mutants) and <code>G4</code> (a genuinely irreducible function). So: bounded, with the bound visible.</p>
+<table>
+<thead>
+<tr>
+<th>id</th>
+<th>Budget</th>
+<th>On exhaustion</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>B1</code></td>
+<td><code>G0</code>–<code>G2</code> — 3 attempts per role</td>
+<td><code>blocked</code> + last gate output verbatim</td>
+</tr>
+<tr>
+<td><code>B2</code></td>
+<td><code>G4</code> cleaner — 5 attempts</td>
+<td><code>blocked</code>, report the function + its CC</td>
+</tr>
+<tr>
+<td><code>B3</code></td>
+<td><code>G5</code> hardener — 3 rounds of (audit → write → re-run)</td>
+<td><code>blocked</code>, list survivors + proposed equivalents</td>
+</tr>
+<tr>
+<td><code>B4</code></td>
+<td>final candidate gate — 3 recursions</td>
+<td><code>blocked</code>, the pipeline is oscillating; that is a finding</td>
+</tr>
+<tr>
+<td><code>B5</code></td>
+<td>advisors — 1 fix pass, <code>CRITICAL</code>/<code>HIGH</code> only</td>
+<td>rest logged as residual risk</td>
+</tr>
+</tbody></table>
+<p>Every budget exhaustion is a <strong>hard stop with a one-line next human action</strong>, not a silent downgrade. Terminal states per ticket: <code>done | blocked_gate:&lt;id&gt; | blocked_user | blocked_dep</code>.</p>
+<p><strong>Anti-Goodhart, non-scriptable, carried as prose in the cleaner role</strong> (Bob&#39;s second failure mode — complexity limits cause function shredding into meaningless helpers):</p>
+<ul>
+<li>extracted function must be nameable without &quot;and&quot;</li>
+<li><code>max_file_lines</code> capped so shredding isn&#39;t free</li>
+<li>helper used exactly once and named after its call site → not an extraction, revert it</li>
+</ul>
+<hr>
+<h2>9. Delivery phases</h2>
+<p>Build in this order; each phase is independently useful and independently abandonable.</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Contents</th>
+<th>Unblocks</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>1</strong></td>
+<td>CLI + arg parse, topo-sort, bootstrap, ledger, <code>G1</code> <code>G2</code> <code>G7</code> <code>G8</code> <code>G10</code>, coder role, git layer</td>
+<td>replaces v1 minus quality gates</td>
+</tr>
+<tr>
+<td><strong>2</strong></td>
+<td>hook layer, <code>G3</code> <code>G4</code>, cleaner role, code-smells reference</td>
+<td>the CLEANER phase</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><code>G5</code> <code>G11</code>, hardener-auditor + test-writer roles, equivalent-mutant allowlist</td>
+<td>the HARDENER phase — the expensive one</td>
+</tr>
+<tr>
+<td><strong>4</strong></td>
+<td><code>G0</code> <code>G9</code>, specifier + qa roles</td>
+<td>executable spec + executable system test</td>
+</tr>
+<tr>
+<td><strong>5</strong></td>
+<td><code>G6</code> layers.json, advisor fanout, <code>CRAP′</code> mutation-weighted score</td>
+<td>architecture + the LLM layer back on top</td>
+</tr>
+</tbody></table>
+<p>Phase 3 is the risk. If mutation tooling for the target stack is bad, phases 1/2/4/5 still ship and <code>G5</code> stays a no-op that reports <code>not configured</code> — loudly.</p>
+<hr>
+<h2>10. Layout</h2>
+<pre><code>~/.agents/skills/make-aron-v2/
+  SKILL.md                    # thin. routing + loop + budgets. target &lt; 120 lines
+  gates.md                    # gate contract, exit codes, threshold rationale
+  references/
+    code-smells.md            # cleaner's prose companion to CRAP
+    risk-signals.md           # auth/pay/migrate/webhook/jobs/multi-subsystem
+    findings-contract.md      # CRITICAL/HIGH/MEDIUM/LOW + auto-fixable
+  gates/
+    crap.py  mutation.sh  prove-test.sh  deprules.py
+    coverage.sh  residue.sh  flake.sh  build.sh  suite.sh  qa.sh
+  bootstrap/
+    detect.py                 # stack → gates.json
+~/.agents/roles/
+  specifier.md  coder.md  cleaner.md  hardener-auditor.md  test-writer.md  qa.md  advisor.md
+&lt;project&gt;/.make-aron/
+  gates.json  layers.json  equivalent-mutants.json  runs/&lt;run-id&gt;.md</code></pre><p><code>.make-aron/</code> is <strong>committed</strong>, not scratch. Thresholds, layer rules, and the equivalent-mutant allowlist are project decisions with the same review weight as source. Only <code>runs/</code> is ignored.</p>
+<hr>
+<h2>11. Success criteria</h2>
+<ul>
+<li><code>S1</code> — <code>make-aron-v2 T1.md</code> on a clean repo produces a pushed commit, or a hard stop naming one gate id.</li>
+<li><code>S2</code> — every threshold in the pipeline is a number in <code>gates.json</code>, reachable by <code>grep</code>. Zero numeric thresholds in prose.</li>
+<li><code>S3</code> — deleting any <code>gates/*.sh</code> makes the run <strong>fail</strong> (exit 2), never quietly pass.</li>
+<li><code>S4</code> — <code>SKILL.md</code> is shorter than v1&#39;s <code>SKILL.md</code>. If not, the design failed §2.</li>
+<li><code>S5</code> — a deliberately assertion-free test added by hand is caught by <code>G11</code>, not by an advisor.</li>
+<li><code>S6</code> — the final report prints, per ticket: gate id → pass/fail → exact command → exact output.</li>
+</ul>
+<hr>
+<h2>12. Open risks</h2>
+<ul>
+<li><code>R1</code> — <strong>Multi-language burden.</strong> Every gate needs a per-stack incantation. <code>lizard</code> covers complexity broadly; mutation does not. Mitigation: <code>gates.json</code> is per-project and written once; unresolvable → exit 2, no silent degradation.</li>
+<li><code>R2</code> — <strong>Cost.</strong> Bob&#39;s own open question: <em>&quot;there must be a point where too many checks slow the agents below human speed, at which point you&#39;ve lost the game.&quot;</em> He hasn&#39;t found it and is still adding tools. v2 is more gates than he runs, on top of a stack already costing +81% tokens. <strong>Measure wall-clock-to-merged-commit from phase 1 onward</strong> or this is unfalsifiable.</li>
+<li><code>R3</code> — <strong><code>equivalent-mutants.json</code> becomes a dumping ground.</strong> Growth rate is the health metric. Consider a cap: N entries per ticket, exceeded → blocked.</li>
+<li><code>R4</code> — <strong><code>G3</code> at 100% diff coverage</strong> is right for fresh commit-sized slices (which tickets are, by <code>make-plan-aron</code>&#39;s contract) and wrong for anything else. Never point it at the whole project.</li>
+<li><code>R5</code> — <strong>CRAP 6 is Bob&#39;s number, and he admits he argued it with the agents themselves</strong> — <em>&quot;you can&#39;t trust a debate with an agent.&quot;</em> Treat 6 as a starting point in <code>gates.json</code>, tune toward 8, and log what you changed and why.</li>
+<li><code>R6</code> — <strong>Losing ship&#39;s advisor depth.</strong> 17 reviewers → 5 is a real reduction on a benchmarked component. Deterministic gates do not cover a11y, loading states, observability, client bundle, error boundaries. Accept the loss knowingly, or add advisors back in phase 5.</li>
+<li><code>R7</code> — <strong>No benchmark.</strong> <code>ship</code> shipped a 3-arm controlled benchmark with a limitations section. v2 replaces a measured component with an unmeasured one. Re-run the same shape — v2 vs v1+ship on identical briefs — before trusting the swap.</li>
+<li><code>R8</code> — <strong><code>G10</code> flake guard fails on most real suites.</strong> Two identical runs is a low bar that many projects still miss. Expect the first invocation on an existing codebase to hard-stop here. That is correct behaviour and will feel like a bug.</li>
+</ul>
+<hr>
+<h2>13. Decisions taken (log these, don&#39;t re-litigate)</h2>
+<ul>
+<li><code>A1</code> — No plan phase in v2. Tickets are input. <code>make-plan-aron</code> stays as-is.</li>
+<li><code>A2</code> — No modes. All gates always. Risk signals move thresholds only.</li>
+<li><code>A3</code> — Headless by definition. No <code>AskUserQuestion</code> path exists.</li>
+<li><code>A4</code> — Gates block; advisors advise. Only <code>CRITICAL</code>/<code>HIGH</code> advisor findings earn a fix pass.</li>
+<li><code>A5</code> — <code>.make-aron/</code> is committed. Thresholds are code.</li>
+<li><code>A6</code> — Exit 2 ≠ exit 0. A gate that cannot run stops the pipeline.</li>
+<li><code>A7</code> — Cleaner before hardener, always, separate contexts. No exceptions, including the tail.</li>
+<li><code>A8</code> — v1 stays installed until v2 reaches phase 4. They do not share state.</li>
+</ul>
+
+<footer class="artifact-footer">source: /home/aron/config/nix-aron/dotfiles/agents/skills</footer>
+</article>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  var mode = "auto";
+  function init() {
+    try {
+      var dark = mode === "dark" || (mode === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      var css = getComputedStyle(document.documentElement);
+      var t = function (name) { return css.getPropertyValue(name).trim(); };
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        themeVariables: {
+          darkMode: dark,
+          background: t("--bg"),
+          mainBkg: t("--code-bg"),
+          primaryColor: t("--code-bg"),
+          primaryTextColor: t("--fg"),
+          primaryBorderColor: t("--border"),
+          secondaryColor: t("--code-bg"),
+          tertiaryColor: t("--bg"),
+          lineColor: t("--muted"),
+          textColor: t("--fg"),
+          noteBkgColor: t("--code-bg"),
+          noteTextColor: t("--fg"),
+          noteBorderColor: t("--border"),
+          edgeLabelBackground: t("--code-bg"),
+          clusterBkg: t("--bg"),
+          clusterBorder: t("--border"),
+          actorLineColor: t("--muted"),
+          signalTextColor: t("--fg"),
+          labelTextColor: t("--fg"),
+          fontFamily: getComputedStyle(document.body).fontFamily
+        }
+      });
+      mermaid.run({ querySelector: "pre.mermaid" });
+    } catch (e) { console.warn("mermaid init failed", e); }
+  }
+  if (typeof mermaid !== "undefined") init();
+  else window.addEventListener("load", init);
+})();
+</script>
+
+<script>
+(function () {
+  var slug = "design-make-aron-v2";
+  var es = new EventSource("/events");
+  es.addEventListener("reload", function (e) {
+    try { if (e.data === slug || e.data === "*") location.reload(); } catch (_) {}
+  });
+})();
+</script>
+</body>
+</html>

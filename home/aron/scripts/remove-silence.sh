@@ -9,9 +9,9 @@ set -euo pipefail
 
 # Defaults. Edit here for a permanent change (needs a rebuild), or drop the
 # same assignments into ~/.config/remove-silence.conf to retune without one.
-RS_THRESHOLD="0.114" # linear peak fraction, ~-37dB
+RS_THRESHOLD="0.001" # linear peak fraction, ~-37dB
 RS_STREAM="all"
-RS_MARGIN="0.1sec,0.1sec" # 0.3s of retained breathing room per cut
+RS_MARGIN="0.5sec,0.5sec"
 RS_WHEN_NORMAL="nil"
 RS_WHEN_SILENT="cut"
 RS_EXPORT="default"

@@ -1,3 +1,7 @@
+# Global rules
+
+Read `~/.agents/GLOBAL_RULES.md` now and follow it fully. It carries the global implementation rules, id'd `A1`-`L4`; skills cite those ids instead of restating them.
+
 # Caveman mode (ultra) — ACTIVE BY DEFAULT
 
 Respond in ultra-compressed Caveman mode unless the user runs `/caveman off`.

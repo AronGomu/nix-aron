@@ -9,6 +9,8 @@ disable-model-invocation: true
 
 # nix-aron
 
+Rule ids `A1`-`L4` → `~/.agents/GLOBAL_RULES.md` (pi appends it to the system prompt; other harnesses read it).
+
 One prompt in → clear change on active nix config → commit → push → **ask** rebuild.
 
 ## Fixed context
@@ -102,19 +104,16 @@ After grill rounds finish and user confirms shared understanding → continue fr
 - **HM vs NixOS:** GUI user apps/dotfiles → often `home/aron/`; system services, boot, hardware, system-wide → `hosts/` + `modules/nixos/`.
 - **Desktop stack:** end4/Hyprland bits live in `home/aron/end4.nix` and related; do not fight that layout.
 - **No legacy `/etc/nixos` edits.**
-- **No secrets in git.** Point to sops/agenix/existing secret pattern if repo has one; else hard-stop and ask.
-- **Do not** run `nixos-rebuild` / `home-manager switch` in this skill. User confirms rebuild.
-- **Do not** open PR unless user asked. Push branch only.
+- **Secrets (J4):** point to sops/agenix/existing secret pattern if repo has one; else hard-stop and ask.
+- **K1 here:** never run `nixos-rebuild` / `home-manager switch`. User confirms rebuild.
 - Unrelated dirty tree: commit only your files; leave other dirty files unstaged. If dirty overlap blocks safe edit → stop and report.
 
 ## Commit / push rules
 
+Global J1-J5. Nix layer adds:
+
 - Repo cwd: `/home/aron/config/nix-aron`
-- No force-push. No `--no-verify` unless user said.
-- No amend of others' commits. No rewrite published history.
-- Scan diff for secrets before commit.
-- Push fail network → retry once. Auth/protected → hard-stop, show state.
-- If nothing to change after investigation → say so; no empty commit.
+- New `.nix` files **must** `git add` — flake ignores untracked.
 
 ## Rebuild ask (mandatory end)
 
@@ -155,11 +154,8 @@ Stop + report when:
 
 - Silent assume on multi-path nix design
 - Edit `/etc/nixos/configuration.nix`
-- Rebuild without asking
-- Empty commit / commit unrelated junk / commit `.tmp`
-- Broad reformat of nix files
-- Scope creep "while here"
-- Force-push main
+- Rebuild without asking (K1)
+- HM change applied with `home-manager switch` instead of `nixos-rebuild`
 
 ## Done when
 

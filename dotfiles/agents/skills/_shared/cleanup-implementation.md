@@ -1,5 +1,7 @@
 # Implementation cleanup
 
+Rule ids `A1`-`L4` → `~/.agents/GLOBAL_RULES.md` (pi appends it to the system prompt; other harnesses read it).
+
 Passive protocol for implementation skills. No direct invocation.
 
 Goal: obsolete AI planning artifacts + impl temp files removed. Product files + manual checklist preserved.
@@ -36,11 +38,10 @@ Run after final validation + review fixes, before final commit/push/report.
 
 ## Rules
 
-- Relation proof required: matching plan slug, explicit path ref, progress metadata, or current impl provenance.
-- Never broad-delete `./artifacts/` or `./.tmp/`.
-- Never delete user-authored or unrelated files.
-- Never delete untracked file solely because untracked.
-- Never use `git clean`, wildcard `rm`, or recursive root cleanup.
+Global H3 + H5 own the destructive-write guardrails. This protocol adds:
+
+- Relation proof required before removal: matching plan slug, explicit path ref, progress metadata, or current impl provenance.
+- Never broad-delete `./artifacts/` or `./.tmp/` — only proven-obsolete impl files.
 - Cleanup failure → implementation incomplete unless filesystem permission/external lock causes hard stop.
 
 ## Done when

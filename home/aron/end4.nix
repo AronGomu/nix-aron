@@ -643,9 +643,13 @@ in
       # Under activation's `set -e` a jq failure would abort the whole switch
       # before linkGeneration, so warn and leave the file alone instead.
       tmp_file="$(${pkgs.coreutils}/bin/mktemp)"
+      # audio.protection latches lastVolume at 0 when PipeWire recreates the
+      # sink (headphone unplug), then rewrites every raise back to 0 — silence
+      # no volume tool can undo. Upstream default is false; keep it false.
       if ${pkgs.jq}/bin/jq --arg wallpaper "${wallpaper}" \
         'if .bar.screenList == ["HDMI-A-2"] then .bar.screenList = [] else . end
-        | .background.wallpaperPath = $wallpaper' "$config_file" > "$tmp_file"; then
+        | .background.wallpaperPath = $wallpaper
+        | .audio.protection.enable = false' "$config_file" > "$tmp_file"; then
         ${pkgs.coreutils}/bin/mv -f "$tmp_file" "$config_file"
       else
         echo "warning: $config_file is not valid JSON — leaving it untouched" >&2

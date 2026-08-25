@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="artifact-kind" content="markdown">
+<meta name="artifact-generated" content="1787293225507">
+<meta name="artifact-project" content="/home/aron/config/nix-aron/dotfiles/agents/skills">
+<title>APPEND_SYSTEM vs Skills — rule overlap</title>
+<style data-base>:root { color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1c1c1a;
+  --muted: #6b6862;
+  --border: #e7e5e0;
+  --code-bg: #f7f6f4;
+  --accent: #b95730;
+  --add-bg: #e9f7ee;
+  --add-word-bg: #c8ecd3;
+  --add-fg: #1a7f37;
+  --del-bg: #feeff1;
+  --del-word-bg: #f8d2d7;
+  --del-fg: #c93c4c;
+  --hl-comment: #6e7781;
+  --hl-keyword: #cf222e;
+  --hl-string: #0a3069;
+  --hl-number: #0550ae;
+  --hl-title: #8250df;
+  --hl-type: #953800;
+  --hl-attr: #0550ae;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #171614;
+  --fg: #e6e3de;
+  --muted: #94918a;
+  --border: #2e2d29;
+  --code-bg: #201f1c;
+  --accent: #d67858;
+  --add-bg: #1d2a20;
+  --add-word-bg: #2b4232;
+  --add-fg: #85c793;
+  --del-bg: #2e1c1e;
+  --del-word-bg: #4a292c;
+  --del-fg: #e28a91;
+  --hl-comment: #8b949e;
+  --hl-keyword: #ff7b72;
+  --hl-string: #a5d6ff;
+  --hl-number: #79c0ff;
+  --hl-title: #d2a8ff;
+  --hl-type: #ffa657;
+  --hl-attr: #79c0ff;
+} }
+
+* { box-sizing: border-box; }
+html { font-size: 15px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+article { max-width: 860px; margin: 0 auto; padding: 2.75rem 1.5rem 4rem; }
+h1, h2, h3, h4 { line-height: 1.3; letter-spacing: -0.01em; color: var(--fg); }
+h1 { font-size: 1.45rem; font-weight: 650; margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; font-weight: 650; margin: 2.2em 0 .7em; padding-bottom: .35em; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1rem; font-weight: 600; margin: 1.8em 0 .5em; }
+h4 { font-size: .9rem; font-weight: 600; margin: 1.5em 0 .4em; }
+p { margin: .8em 0; }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 2px; }
+a:hover { text-decoration-color: var(--accent); }
+strong { font-weight: 600; }
+ul, ol { margin: .8em 0; padding-left: 1.5em; }
+li { margin: .3em 0; }
+li > ul, li > ol { margin: .2em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+img, svg, video { max-width: 100%; }
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+blockquote {
+  margin: 1.2em 0;
+  padding: .1em 1.1em;
+  border-left: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--muted);
+}
+blockquote > :first-child { margin-top: .4em; }
+blockquote > :last-child { margin-bottom: .4em; }
+
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .9rem; }
+th {
+  text-align: left; font-weight: 600; font-size: .74rem;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  padding: .5em .75em; border-bottom: 1px solid var(--border);
+}
+td { padding: .55em .75em; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+code, kbd, samp { font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+code { font-size: .85em; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; }
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  font-size: .82rem;
+  line-height: 1.55;
+  margin: 1.2em 0;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+
+input[type="checkbox"] { accent-color: var(--accent); margin-right: .4em; }
+
+
+.artifact-header {
+  display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap;
+  margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.artifact-header h1 { margin: 0; }
+.artifact-badge {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; font-size: .66rem; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px; padding: .2em .7em; white-space: nowrap;
+}
+.artifact-meta { margin-left: auto; color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+.artifact-footer {
+  margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
+}
+.artifact-mermaid { text-align: center; margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+<article>
+<header class="artifact-header">
+<h1>APPEND_SYSTEM vs Skills — rule overlap</h1>
+<span class="artifact-badge">markdown</span>
+<span class="artifact-meta">2026-08-21 06:20:25</span>
+</header>
+<h1>APPEND_SYSTEM.md vs skill corpus — rule overlap</h1>
+<p>Corpus: <code>dotfiles/agents/skills/</code> (20 skills + <code>_shared/orchestration.md</code>, <code>_shared/cleanup-implementation.md</code>, <code>_shared/gh.md</code>, <code>_shared/ADR.md</code>) + <code>dotfiles/agents/roles/</code> (planner, impl-worker, reviewer, scout, ticket-writer) vs <code>dotfiles/pi/agent/APPEND_SYSTEM.md</code> (5 sections, 74 lines).</p>
+<hr>
+<h2>A. In common — APPEND ∩ skills</h2>
+<p>Rule stated globally <strong>and</strong> re-stated inside skills. Duplication = redundancy, unless the skill version is stricter.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>APPEND §</th>
+<th>Skill restatements</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>A1</td>
+<td>Never assume silently — log assumption</td>
+<td>§1 &quot;State your assumptions explicitly&quot;</td>
+<td><code>orchestration.md</code> (Stance, Auto-decide, progress <code>## Assumptions</code>), <code>make-plan-aron</code>, <code>make-plan-v2</code>, <code>make-aron</code>, <code>make-audit-aron</code>, <code>make-prototype-aron</code>, <code>make-skill-aron</code>, <code>make-image-generation-prompt</code>, <code>grill-me-aron</code> (&quot;Never assume silently&quot;), <code>nix-aron</code>, roles impl-worker/planner/ticket-writer</td>
+<td>Common. Skills stricter: they name the <strong>file + heading</strong> the assumption lands in.</td>
+</tr>
+<tr>
+<td>A2</td>
+<td>Surgical changes — touch only what request implies</td>
+<td>§3 whole section</td>
+<td><code>orchestration.md</code> Safety (&quot;Stay Scope In. Drive-by refactor → drop. Match existing style. Surgical edits.&quot;), <code>roles/impl-worker.md</code>, <code>nix-aron</code> Impl rules + anti-patterns, <code>make-prototype-aron</code> (&quot;Touch only prototype artifacts&quot;), <code>make-audit-aron</code> (&quot;No unbounded cleanup&quot;)</td>
+<td>Common, near-verbatim. APPEND §3 is the general case; skills add <em>residual-risk logging</em> for what got dropped.</td>
+</tr>
+<tr>
+<td>A3</td>
+<td>Match existing style, no drive-by refactor</td>
+<td>§3</td>
+<td><code>orchestration.md</code>, <code>impl-worker</code>, <code>nix-aron</code> (&quot;Broad reformat of nix files&quot; = anti-pattern)</td>
+<td>Common.</td>
+</tr>
+<tr>
+<td>A4</td>
+<td>Goal-driven: success criteria then verify loop</td>
+<td>§4</td>
+<td><code>orchestration.md</code> &quot;Success criteria — before any work&quot; + validation state machine; <strong>every</strong> skill ships a <code>## Done when</code> block; <code>impl-worker</code> Evidence</td>
+<td>Common. Skills much stronger (evidence bar, per-step state).</td>
+</tr>
+<tr>
+<td>A5</td>
+<td>Brief numbered plan with per-step verify</td>
+<td>§4 code block</td>
+<td><code>orchestration.md</code> checkbox protocol (<code>- [ ] step — validate: cmd</code>), <code>make-plan-aron</code>/<code>v2</code> ticket template <code>## Impl steps</code> + <code>## Validation</code></td>
+<td>Common; skills = the durable-file version of the same idea.</td>
+</tr>
+<tr>
+<td>A6</td>
+<td>TDD as the shape of a fix</td>
+<td>§4 (&quot;write a test that reproduces it, then make it pass&quot;)</td>
+<td><code>make-plan-aron</code>/<code>v2</code> (&quot;TDD mandatory each ticket. No &#39;test later&#39;&quot;), <code>make-aron</code> worker loop step 5, ticket template Red/Green/Refactor</td>
+<td>Common.</td>
+</tr>
+<tr>
+<td>A7</td>
+<td>Simplicity / no gold-plating</td>
+<td>§2</td>
+<td><code>make-skill-aron</code> (&quot;Procedure, not prose. Cut anything a reader would call background&quot;), <code>grill-me-aron</code> (&quot;At target → stop, do not gold-plate&quot;), <code>make-plan-v2</code> (&quot;Cost is superlinear — level 7 only if…&quot;), <code>reviewer</code> (&quot;style taste → not a finding&quot;)</td>
+<td>Common in <em>spirit</em>, different domain: APPEND = code volume, skills = doc/question volume. No skill states &quot;no speculative features&quot; for code.</td>
+</tr>
+<tr>
+<td>A8</td>
+<td>Long/visual output → rendered doc, not terminal</td>
+<td>§5</td>
+<td><code>make-html-aron</code> (auto-trigger &gt;100 words, dark mode, <code>xdg-open</code>), <code>research-aron</code>, <code>grill-me-aron</code> round docs, <code>make-prototype-aron</code>, <code>teach</code> lessons</td>
+<td>Common intent, <strong>incompatible mechanism</strong> — see C1.</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>B. Global in skills, absent from APPEND_SYSTEM</h2>
+<p>Rules repeated across many skills, so effectively global, but nothing in APPEND says them. These are the promotion candidates.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Rule</th>
+<th>Where it recurs</th>
+<th>Why it is global</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>B1</td>
+<td><strong>Autonomy boundary</strong>: plan phase = ask freely; implementation phase = zero user question except hard stop, one-way</td>
+<td><code>orchestration.md</code> Stance, <code>make-aron</code> Autonomy boundary, <code>make-audit-aron</code> Pre-flight, <code>impl-worker</code>, <code>planner</code>, <code>scout</code>, <code>ticket-writer</code></td>
+<td>Governs every run. Directly <strong>contradicts</strong> APPEND §1 (see C2).</td>
+</tr>
+<tr>
+<td>B2</td>
+<td><strong>Evidence bar</strong>: claim ≠ done. Only cmd output / file exists / observed behavior counts</td>
+<td><code>orchestration.md</code> (&quot;Claim without evidence = not done&quot;), <code>impl-worker</code> Evidence, <code>make-audit-aron</code> (&quot;No fabricated findings&quot;), <code>reviewer</code> finding bar</td>
+<td>Applies to any task, not just plan runs.</td>
+</tr>
+<tr>
+<td>B3</td>
+<td><strong>Checkbox protocol</strong>: add <code>- [ ]</code>, flip immediately, never <code>[x]</code> without per-step evidence, never batch at end</td>
+<td><code>orchestration.md</code>, <code>make-aron</code>, <code>impl-worker</code>, <code>make-plan-aron</code>/<code>v2</code> templates</td>
+<td>Domain-independent execution discipline.</td>
+</tr>
+<tr>
+<td>B4</td>
+<td><strong>Model tier discipline</strong>: plan + review = frontier/high; implementation per table; state tier in prompt even when knob exists</td>
+<td><code>orchestration.md</code> &quot;Model tier&quot;, <code>make-aron</code> Auto-decide, <code>make-plan-aron</code> Tier, <code>make-audit-aron</code> Const, all 5 roles</td>
+<td>Cost/quality policy for every delegation.</td>
+</tr>
+<tr>
+<td>B5</td>
+<td><strong>Role by path, never inline</strong>: <code>Read ~/.agents/roles/{role}.md. Follow it.</code> + fresh context + one writer per cwd + children never spawn orchestration</td>
+<td><code>orchestration.md</code> worker launch, <code>make-aron</code>, <code>make-plan-v2</code>, <code>make-audit-aron</code>, <code>make-skill-aron</code>, <code>make-image-generation-prompt</code>, <code>grill-me-aron</code></td>
+<td>Every subagent spawn anywhere.</td>
+</tr>
+<tr>
+<td>B6</td>
+<td><strong>Artifact path convention</strong>: <code>./artifacts/</code> agent output, <code>./.tmp/</code> scratch, <code>./docs/</code> durable, <code>AGENTS.md</code> single context file, <code>PLAN_{YYYY_MM_DD}_{title}</code> naming</td>
+<td><code>make-setup-aron</code> (defines layout), <code>make-plan-aron</code>/<code>v2</code>, <code>make-aron</code>, <code>make-prototype-aron</code>, <code>make-image-generation-prompt</code>, <code>grill-me-aron</code>, <code>research-aron</code>, <code>make-audit-aron</code></td>
+<td>Cross-skill filesystem contract; no global statement of it.</td>
+</tr>
+<tr>
+<td>B7</td>
+<td><strong>Caveman style</strong> default for agent-written docs</td>
+<td><code>caveman/SKILL.md</code> (active by default per <code>~/.claude/CLAUDE.md</code>), linked by <code>make-plan-aron</code>, <code>make-plan-v2</code>, <code>make-html-aron</code>, <code>make-skill-aron</code>, <code>make-prototype-aron</code>, <code>make-audit-aron</code></td>
+<td>Declared &quot;active by default&quot; yet only lives in a skill + a Claude-only file. Pi has no global equivalent.</td>
+</tr>
+<tr>
+<td>B8</td>
+<td><strong>Git discipline</strong>: append-only history — no amend/rebase/reset/revert/cherry-pick/force-push/branch-delete; feature branch; no PR unless asked; never push <code>main</code> unasked; no <code>--no-verify</code>; new files must be <code>git add</code>-ed; conventional why-focused msg</td>
+<td><code>_shared/gh.md</code>, <code>orchestration.md</code> Safety, <code>make-aron</code> Git rules, <code>make-audit-aron</code> Rules, <code>nix-aron</code> Commit/push rules</td>
+<td>Applies to every repo touch.</td>
+</tr>
+<tr>
+<td>B9</td>
+<td><strong>Secrets</strong>: never commit/print; scan diff before publish; redact in handoffs; no secret in issue/plan/state file</td>
+<td><code>orchestration.md</code>, <code>gh.md</code>, <code>impl-worker</code>, <code>make-audit-aron</code>, <code>nix-aron</code>, <code>handoff</code></td>
+<td>Safety-critical, currently skill-local only.</td>
+</tr>
+<tr>
+<td>B10</td>
+<td><strong>Hard-stop taxonomy</strong>: stop only for secret/cred, irreversible prod action, <code>TODO(user)</code>, unreachable external system, repair loop exhausted, publish rejected — explicitly <em>not</em> for naming/style/flaky/unknown layout</td>
+<td><code>orchestration.md</code> Hard stop, <code>make-aron</code>, <code>nix-aron</code> Hard stop, <code>make-audit-aron</code></td>
+<td>Defines when asking is legitimate; APPEND has no stop list.</td>
+</tr>
+<tr>
+<td>B11</td>
+<td><strong>Never run system-level switch</strong> — user runs rebuild; skills only print the cmd</td>
+<td><code>nix-aron</code> (&quot;Do not rebuild. Ask user.&quot;), <code>make-skill-aron</code> (&quot;DO NOT run the rebuild yourself&quot;), <code>/home/aron/AGENTS.md</code> (no <code>home-manager switch</code>)</td>
+<td>Machine-wide invariant; lives in two skills + project AGENTS.md.</td>
+</tr>
+<tr>
+<td>B12</td>
+<td><strong>Self-contained artifact</strong>: never &quot;see plan&quot; / &quot;see T2&quot;; duplication across files is correct</td>
+<td><code>make-plan-aron</code>, <code>make-plan-v2</code>, <code>ticket-writer</code>, <code>impl-worker</code> read scope</td>
+<td>Doc-authoring invariant beyond planning.</td>
+</tr>
+<tr>
+<td>B13</td>
+<td><strong>Spec-level ladder 0–8</strong>, stop condition = target level N, never grill past it</td>
+<td><code>grill-me-aron</code>, <code>make-plan-v2</code>, <code>ticket-writer</code></td>
+<td>Shared vocabulary across three files, defined in one.</td>
+</tr>
+<tr>
+<td>B14</td>
+<td><strong>Primary sources only, cite every claim</strong>; never trust parametric knowledge</td>
+<td><code>research-aron</code>, <code>roles/scout.md</code>, <code>teach</code> (&quot;Never trust your parametric knowledge&quot;), <code>ticket-writer</code> (&quot;by inspection, never from memory&quot;)</td>
+<td>General epistemic rule.</td>
+</tr>
+<tr>
+<td>B15</td>
+<td><strong>Cleanup own artifacts</strong>: remove plan/progress/scratch at end, preserve deliverables; never <code>git clean</code>, wildcard <code>rm</code>, or delete unrelated/untracked files</td>
+<td><code>_shared/cleanup-implementation.md</code>, <code>make-aron</code> Final cleanup</td>
+<td>Destructive-action guardrail.</td>
+</tr>
+<tr>
+<td>B16</td>
+<td><strong>Open every generated HTML</strong> in browser (<code>xdg-open</code>)</td>
+<td><code>make-html-aron</code>, <code>make-plan-aron</code>/<code>v2</code> step 9, <code>research-aron</code>, <code>grill-me-aron</code>, <code>teach</code>, <code>make-prototype-aron</code></td>
+<td>6 skills; no global statement.</td>
+</tr>
+<tr>
+<td>B17</td>
+<td><strong>Fixed report shapes</strong>, evidence first, &quot;No essay&quot;</td>
+<td><code>orchestration.md</code> Done output, all 5 roles</td>
+<td>Output contract for every delegated result.</td>
+</tr>
+<tr>
+<td>B18</td>
+<td><strong>Caller override wins over this file</strong> + <code>autonomous</code> mode semantics</td>
+<td><code>make-plan-aron</code>, <code>make-plan-v2</code>, <code>make-prototype-aron</code>, <code>make-skill-aron</code>, <code>make-image-generation-prompt</code>, <code>make-aron</code>, <code>make-audit-aron</code></td>
+<td>Skill-composition protocol, restated 7×.</td>
+</tr>
+<tr>
+<td>B19</td>
+<td><strong>Never delete/replace user files silently</strong>; irreversible write needs explicit flag + warning</td>
+<td><code>fix-text-aron</code> (<code>overwrite=true</code>, irreversibility warning, <code>_fixed</code> sibling, <code>_fixed_2</code> increment), <code>cleanup-implementation</code>, <code>impl-worker</code> (&quot;Irreversible → stop&quot;)</td>
+<td>Safety rule with the clearest concrete implementation in <code>fix-text-aron</code>.</td>
+</tr>
+<tr>
+<td>B20</td>
+<td><strong>Read scope limits</strong> for children: worker reads own ticket only; missing fact = plan defect, report not hunt</td>
+<td><code>orchestration.md</code>, <code>make-aron</code>, <code>impl-worker</code>, <code>ticket-writer</code></td>
+<td>Context-hygiene rule.</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>C. APPEND-only — nothing in skills, or actively at odds</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>APPEND rule</th>
+<th>Status in skills</th>
+<th>Note</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>C1</td>
+<td>§5 emit via <strong><code>artifact</code> tool</strong> (localhost server, <code>.pi/artifacts/</code>, <code>--bg</code>/<code>--fg</code> CSS vars, no <code>&lt;html&gt;</code> boilerplate, Chart.js container rules)</td>
+<td><strong>Contradicted.</strong> Every HTML-producing skill writes a <em>standalone single file with inline CSS/JS, zero network fetch, dark mode by default</em>, to <code>./artifacts/</code> or <code>./docs/</code>, then <code>xdg-open</code>s it: <code>make-html-aron</code>, <code>grill-me-aron</code> (template shell, must preserve its CSS), <code>make-prototype-aron</code> (&quot;standalone <code>.html</code>, inline CSS + JS&quot;), <code>research-aron</code>, <code>teach</code></td>
+<td>Two rendering doctrines. Skills need portable files (user opens, prints, ships them); APPEND assumes the pi artifact server + injected shell. Pick per-output-type, or scope §5 to &quot;ad-hoc reports only, not skill deliverables&quot;.</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>§1 &quot;If uncertain, ask&quot; / &quot;present interpretations, don&#39;t pick silently&quot; / &quot;If something is unclear, stop&quot;</td>
+<td><strong>Contradicted after the autonomy boundary.</strong> <code>orchestration.md</code>: &quot;Implementation phase — <strong>Zero user question</strong> except hard stop&quot;; <code>make-aron</code> anti-pattern: &quot;Ask user anything after implementation started&quot;; roles: &quot;Zero user question&quot; (impl-worker, reviewer, scout, ticket-writer)</td>
+<td>Not a real conflict <em>if</em> §1 is read as plan-phase-only — but APPEND never says that. Add the phase qualifier to §1.</td>
+</tr>
+<tr>
+<td>C3</td>
+<td>§2 &quot;No error handling for impossible scenarios&quot;</td>
+<td>No skill echoes it; <code>make-skill-aron</code> requires the opposite shape for skill text (&quot;every step imperative <strong>with a failure branch</strong>&quot;)</td>
+<td>Different objects (runtime code vs procedure docs). Harmless, worth not confusing.</td>
+</tr>
+<tr>
+<td>C4</td>
+<td>§1 &quot;If a simpler approach exists, say so. Push back when warranted.&quot;</td>
+<td>Absent everywhere. Closest is <code>reviewer</code> (&quot;style taste → not a finding&quot;) which <em>suppresses</em> opinion</td>
+<td>Genuinely APPEND-only. Keep.</td>
+</tr>
+<tr>
+<td>C5</td>
+<td>§3 &quot;If you notice unrelated dead code, mention it — don&#39;t delete it&quot;</td>
+<td>Skills have the drop-and-log-residual-risk analogue (<code>impl-worker</code>, <code>orchestration.md</code>) but never the &quot;mention dead code&quot; case</td>
+<td>APPEND-only refinement.</td>
+</tr>
+<tr>
+<td>C6</td>
+<td>§2 &quot;If you write 200 lines and it could be 50, rewrite it&quot;</td>
+<td>Absent — skills never bound implementation size</td>
+<td>APPEND-only.</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>D. What to do with it</h2>
+<ol>
+<li><strong>Promote to APPEND</strong> (true globals, currently skill-local, cheap to state): B2 evidence bar, B8 git append-only, B9 secrets, B11 never run rebuild/system switch, B15 destructive-cleanup guardrails, B19 irreversible-write consent. These are safety rules that should not depend on a skill being loaded.</li>
+<li><strong>Fix C2 first</strong> — one clause in §1: <em>&quot;Plan phase: ask. Implementation phase (plan confirmed): zero questions, safest in-scope default + logged assumption.&quot;</em> Right now the global file and every orchestration skill give opposite instructions.</li>
+<li><strong>Scope C1</strong> — §5 covers ad-hoc reports; skill-authored HTML deliverables stay standalone single-file + <code>xdg-open</code>. Say which wins, in both places.</li>
+<li><strong>Leave in skills, don&#39;t promote</strong>: B3 checkboxes, B4 tiers, B5 role-by-path, B6 paths, B12 self-contained tickets, B13 spec ladder, B17 report shapes, B18 caller override, B20 read scope — these only apply when an orchestration skill is running, and they cost context in every unrelated session.</li>
+<li><strong>Deduplicate A1–A6</strong> only if you want a shorter APPEND — the skill copies are stricter and load-bearing; the APPEND copies are the fallback for sessions with no skill loaded. Duplication here is deliberate and worth keeping.</li>
+<li><strong>B7 caveman</strong> is declared &quot;active by default&quot; via <code>~/.claude/CLAUDE.md</code> — Claude-only. Pi gets it only when a skill links it. Move the toggle line into APPEND if you want it harness-wide.</li>
+</ol>
+
+<footer class="artifact-footer">source: /home/aron/config/nix-aron/dotfiles/agents/skills</footer>
+</article>
+
+<script>
+(function () {
+  var slug = "append-system-vs-skills-rule-overlap";
+  var es = new EventSource("/events");
+  es.addEventListener("reload", function (e) {
+    try { if (e.data === slug || e.data === "*") location.reload(); } catch (_) {}
+  });
+})();
+</script>
+</body>
+</html>

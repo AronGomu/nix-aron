@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="artifact-kind" content="markdown">
+<meta name="artifact-generated" content="1787503759223">
+<meta name="artifact-project" content="/home/aron/config/nix-aron/dotfiles/agents/skills">
+<title>make-aron vs Uncle Bob Loop Engineering</title>
+<style data-base>:root { color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1c1c1a;
+  --muted: #6b6862;
+  --border: #e7e5e0;
+  --code-bg: #f7f6f4;
+  --accent: #b95730;
+  --add-bg: #e9f7ee;
+  --add-word-bg: #c8ecd3;
+  --add-fg: #1a7f37;
+  --del-bg: #feeff1;
+  --del-word-bg: #f8d2d7;
+  --del-fg: #c93c4c;
+  --hl-comment: #6e7781;
+  --hl-keyword: #cf222e;
+  --hl-string: #0a3069;
+  --hl-number: #0550ae;
+  --hl-title: #8250df;
+  --hl-type: #953800;
+  --hl-attr: #0550ae;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #171614;
+  --fg: #e6e3de;
+  --muted: #94918a;
+  --border: #2e2d29;
+  --code-bg: #201f1c;
+  --accent: #d67858;
+  --add-bg: #1d2a20;
+  --add-word-bg: #2b4232;
+  --add-fg: #85c793;
+  --del-bg: #2e1c1e;
+  --del-word-bg: #4a292c;
+  --del-fg: #e28a91;
+  --hl-comment: #8b949e;
+  --hl-keyword: #ff7b72;
+  --hl-string: #a5d6ff;
+  --hl-number: #79c0ff;
+  --hl-title: #d2a8ff;
+  --hl-type: #ffa657;
+  --hl-attr: #79c0ff;
+} }
+
+* { box-sizing: border-box; }
+html { font-size: 15px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+article { max-width: 860px; margin: 0 auto; padding: 2.75rem 1.5rem 4rem; }
+h1, h2, h3, h4 { line-height: 1.3; letter-spacing: -0.01em; color: var(--fg); }
+h1 { font-size: 1.45rem; font-weight: 650; margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; font-weight: 650; margin: 2.2em 0 .7em; padding-bottom: .35em; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1rem; font-weight: 600; margin: 1.8em 0 .5em; }
+h4 { font-size: .9rem; font-weight: 600; margin: 1.5em 0 .4em; }
+p { margin: .8em 0; }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 2px; }
+a:hover { text-decoration-color: var(--accent); }
+strong { font-weight: 600; }
+ul, ol { margin: .8em 0; padding-left: 1.5em; }
+li { margin: .3em 0; }
+li > ul, li > ol { margin: .2em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+img, svg, video { max-width: 100%; }
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+blockquote {
+  margin: 1.2em 0;
+  padding: .1em 1.1em;
+  border-left: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--muted);
+}
+blockquote > :first-child { margin-top: .4em; }
+blockquote > :last-child { margin-bottom: .4em; }
+
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .9rem; }
+th {
+  text-align: left; font-weight: 600; font-size: .74rem;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  padding: .5em .75em; border-bottom: 1px solid var(--border);
+}
+td { padding: .55em .75em; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+code, kbd, samp { font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+code { font-size: .85em; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; }
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  font-size: .82rem;
+  line-height: 1.55;
+  margin: 1.2em 0;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+
+input[type="checkbox"] { accent-color: var(--accent); margin-right: .4em; }
+
+
+.artifact-header {
+  display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap;
+  margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.artifact-header h1 { margin: 0; }
+.artifact-badge {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; font-size: .66rem; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px; padding: .2em .7em; white-space: nowrap;
+}
+.artifact-meta { margin-left: auto; color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+.artifact-footer {
+  margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
+}
+.artifact-mermaid { text-align: center; margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+<article>
+<header class="artifact-header">
+<h1>make-aron vs Uncle Bob Loop Engineering</h1>
+<span class="artifact-badge">markdown</span>
+<span class="artifact-meta">2026-08-23 16:49:19</span>
+</header>
+<h1>make-aron + ship vs Bob&#39;s gauntlet</h1>
+<p><strong>v2 — rewritten after reading the actual <code>ship</code> implementation.</strong></p>
+<p>Sources: local <code>skills/make-aron/SKILL.md</code>, <code>_shared/orchestration.md</code>, <code>_shared/cleanup-implementation.md</code>, <code>roles/impl-worker.md</code>, <code>roles/reviewer.md</code>, <code>make-plan-aron/SKILL.md</code> · remote <code>AgentSystemLabs/core</code> @ <code>1174de2</code>, files <code>plugins/agentsystem-core/skills/ship/**</code>, <code>findings-contract.md</code>, <code>docs/experiments/2026-07-three-arm-benchmark.md</code>.</p>
+<hr>
+<h2>What v1 got wrong</h2>
+<p>v1 analysed <code>make-aron</code> as if the worker step was a black box. It isn&#39;t — <code>make-aron/SKILL.md:102-106</code> hands every ticket to <code>ship</code>, and <code>ship</code> is where the engineering pipeline lives. Four v1 claims retract:</p>
+<table>
+<thead>
+<tr>
+<th>v1 claim</th>
+<th>Verdict</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>D4</code> nothing ever reduces complexity</td>
+<td><strong>wrong</strong></td>
+<td><code>playbooks/simplify/</code> is a cleaner. Runs twice per feature: Phase 7b (ALWAYS) + post-step.</td>
+</tr>
+<tr>
+<td><code>D5</code> test quality never measured</td>
+<td><strong>wrong</strong></td>
+<td><code>subagents/reviewer-test-quality.md</code> is a hardener. Detectors A–F target exactly the mutation-testing bug class.</td>
+</tr>
+<tr>
+<td><code>D11</code> no inner loop</td>
+<td><strong>wrong</strong></td>
+<td>Per-file typecheck loops in <code>add-observability</code>, <code>harden-types</code>, <code>add-empty-error-states</code>; per-fix test loop in <code>simplify</code>, <code>audit</code>.</td>
+</tr>
+<tr>
+<td><code>D2</code> zero project-invariant deterministic gates</td>
+<td><strong>wrong</strong></td>
+<td><code>add-feature/PLAYBOOK.md:342</code> &quot;Final candidate gate — AFTER every mutation&quot; is fixed, identical every run, and self-recursive.</td>
+</tr>
+</tbody></table>
+<p>Restated correctly, the stack is:</p>
+<ul>
+<li><strong><code>make-aron</code></strong> = Bob&#39;s <em>outer</em> orchestration (which task, in what order, who writes, when to commit). Bob barely has this.</li>
+<li><strong><code>ship</code></strong> = Bob&#39;s <em>inner</em> gauntlet (coder + cleaner + hardener + QA).</li>
+<li>Combined, 4 of Bob&#39;s 5 phases exist. The gap is not phases — it&#39;s <strong>mechanism</strong>.</li>
+</ul>
+<hr>
+<h2>Phase map — three columns</h2>
+<table>
+<thead>
+<tr>
+<th>Bob phase</th>
+<th>Bob mechanism</th>
+<th>Your stack</th>
+<th>Your mechanism</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>SPECIFIER → Gherkin + QA doc</td>
+<td>executable spec</td>
+<td><code>make-plan-aron</code> tickets; <code>ship</code> Phase 1 Clarify + Phase 3 Design</td>
+<td>prose + <strong><code>plan-red-team</code></strong> subagent (production) — Bob has no analogue</td>
+</tr>
+<tr>
+<td>CODER</td>
+<td>—</td>
+<td><code>impl-worker</code> → <code>ship</code> Phase 5 Implement</td>
+<td>—</td>
+</tr>
+<tr>
+<td>CLEANER → CRAP loop</td>
+<td><code>lizard</code> + lcov + formula, <code>exit 1</code></td>
+<td><code>simplify</code> Phase 3–4: DRY, long files/functions, nested conditionals 3+, magic numbers, coupling</td>
+<td><strong>LLM fan-out</strong>, 3 agents, prose thresholds</td>
+</tr>
+<tr>
+<td>HARDENER → mutation</td>
+<td>Stryker/PIT, <code>break: 100</code></td>
+<td><code>reviewer-test-quality</code> detectors A–F</td>
+<td><strong>LLM reading tests</strong>, read-only, <code>findings-contract</code> severities</td>
+</tr>
+<tr>
+<td>QA → executable system test</td>
+<td>script, deterministic</td>
+<td><code>add-e2e-test</code> (Playwright) + <code>manual_test_checklist.md</code></td>
+<td>gated on harness existing; checklist is human</td>
+</tr>
+<tr>
+<td>Inner loop (per write)</td>
+<td><code>PostToolUse</code> hook, <code>exit 1</code></td>
+<td>&quot;after each file, run typecheck&quot;; &quot;one structural fix, run the test, then next&quot;</td>
+<td><strong>prose discipline</strong></td>
+</tr>
+<tr>
+<td>CI / nightly trend</td>
+<td>scheduled, unbypassable</td>
+<td><code>scripts/check-skill-routing.mjs</code>, <code>tests/reliability-contracts.test.js</code></td>
+<td>real CI — <strong>but on the skill pack, not your project</strong></td>
+</tr>
+<tr>
+<td>—</td>
+<td>—</td>
+<td><code>ship</code> final candidate gate (typecheck+lint+suite+build+rerun path+secret sweep, recursive)</td>
+<td><strong>deterministic, loop-to-green</strong></td>
+</tr>
+<tr>
+<td>—</td>
+<td>—</td>
+<td><code>run-ledger.md</code> durable control plane, base-SHA validated</td>
+<td>Bob has no analogue</td>
+</tr>
+<tr>
+<td>—</td>
+<td>—</td>
+<td><code>make-aron</code> git/branch/commit/push/cleanup/state machine</td>
+<td>Bob has no analogue</td>
+</tr>
+</tbody></table>
+<hr>
+<h2>The one difference that survives</h2>
+<p><strong>Every quality judgment in your stack is an LLM reading code. Bob&#39;s are arithmetic.</strong></p>
+<p>Not a single number is computed anywhere in <code>make-aron</code> or <code>ship</code>: no cyclomatic complexity, no coverage percentage, no CRAP score, no mutation score. The closest thing is <code>simplify/references/code-smells.md:12</code> — <em>&quot;files &gt;300 lines or functions &gt;50 lines that have natural seams. A cohesive 400-line file is fine; an incoherent 200-line file is not.&quot;</em></p>
+<p>That sentence is precisely what Bob&#39;s whole talk is about. It is a threshold that <strong>an agent argues with</strong>. <code>lizard --csv | crap.py --threshold 6</code> is a threshold that <strong>exits 1</strong>.</p>
+<p>Everything below is a consequence of that one difference.</p>
+<hr>
+<h2>Remaining differences</h2>
+<h3>Mechanism</h3>
+<p><strong>D1. Prose thresholds vs computed thresholds.</strong>
+<code>ship</code> names the same smells Bob&#39;s cleaner targets — nested conditionals 3+ deep, long functions, tight coupling — but every one is judged, and each carries an explicit escape hatch (<code>&quot;A cohesive 400-line file is fine&quot;</code>, <code>&quot;NEVER split a file just because it&#39;s long&quot;</code>). Bob&#39;s counter-position: with 100% coverage <code>CRAP = comp</code>, <em>&quot;a crap score of six means there are six pathways through the function&quot;</em> — no judgment, no escape hatch, no negotiation.
+Your escape hatches are <strong>well-reasoned</strong> (they defend against Bob&#39;s own documented function-shredding failure mode). They are also unfalsifiable.</p>
+<p><strong>D2. <code>reviewer-test-quality</code> is a reader; mutation is a generator.</strong>
+Detectors A–F are the best LLM approximation of a hardener I&#39;ve seen — Detector C (<em>&quot;changed lines never executed&quot;</em>) is coverage-by-reasoning, Detector F (<em>&quot;defining invariant unasserted&quot;</em>) is arguably <strong>stronger than mutation testing</strong>, since mutation cannot tell you a stated business rule went unasserted.
+But the technique gap is real: a reader checks the assertions it thinks to check. A mutator enumerates the operator space — every <code>&lt;</code>→<code>&lt;=</code>, every <code>&amp;&amp;</code>→<code>||</code>, every deleted call — and reports survivors exhaustively. Bob shelved mutation testing for 20 years <em>because</em> reading tests doesn&#39;t find what mutating them finds.
+No mutation score exists, so no threshold, so nothing to gate.</p>
+<p><strong>D3. Inner loop is discipline, not a hook.</strong>
+<code>add-observability/PLAYBOOK.md:75</code> — <em>&quot;After each file, run type-check … Do not bulk-edit then verify at the end.&quot;</em> Correct instruction, same intent as Bob&#39;s <code>PostToolUse</code>. Difference: a hook fires whether or not the agent remembers. This is exactly the steering/constraining split, applied to the cheapest layer. Adding the hook costs an hour and makes the prose rule redundant.</p>
+<p><strong>D4. No architecture enforcement.</strong>
+Bob: a dependency specification file + deterministic checker; violation → invert the dependency, insert an interface, or split the module. Non-negotiable.
+Your stack: <code>audit/PLAYBOOK.md:39</code> <em>records</em> architecture smells (circular deps, cross-layer imports) as findings during a whole-repo sweep; <code>reviewer-dependencies</code> is supply-chain (npm audit, install scripts, licenses), <strong>not</strong> module layering. <code>make-plan-aron</code> writes architecture docs to <code>./docs/</code>, never checked afterward.
+Net: nothing prevents ticket T7 introducing a banned dependency, and both <code>impl-worker</code> (<code>Stay inside the ticket … drop</code>) and global <code>D6</code> tell the worker to log it as residual risk rather than fix it. This is the largest phase-level gap left.</p>
+<p><strong>D5. No project-level CI/nightly layer.</strong>
+<code>AgentSystemLabs/core</code> has real CI on <em>itself</em> — <code>scripts/check-skill-routing.mjs</code> lints that every reviewer declares the severity scale and an <code>auto-fixable</code> field (<code>findings-contract.md:7</code>). That is Bob&#39;s &quot;constrain, don&#39;t steer&quot; applied one level up, and it&#39;s the most Bob-like thing in the whole stack.
+None of it points at your project. <code>make-aron</code> ends at <code>git push -u origin HEAD</code>, <code>PR: no unless asked</code>. No trend, no number that can&#39;t be bypassed, nothing that outlives the run.</p>
+<p><strong>D6. No determinism prerequisite.</strong>
+Bob: pin the clock, seed the PRNG, <code>TZ=UTC</code>, isolate DB state — <em>before</em> the hardener, because a flaky suite makes a random failure read as a kill and a random pass read as a survivor. Nothing in either layer requires a deterministic suite. Blocks adopting <code>D2</code>.</p>
+<h3>Structure</h3>
+<p><strong>D7. Planning weight — still a direct contradiction, now with an ally on both sides.</strong>
+Bob: heavy up-front spec = waterfall = <em>&quot;always a disaster&quot;</em>; agents <em>love</em> writing gorgeous plans that fall apart; do a story or two, <strong>look at the architecture, intervene manually</strong>, do a few more.
+<code>make-aron</code>: full ticket DAG + mermaid + HTML plan + ADRs up front, then <em>&quot;Never re-open the plan for approval. No mid-run check-in.&quot;</em>
+<code>ship</code> sides with you on one half — <code>add-feature</code> Phase 4 is a <strong>mandatory plan-approval gate</strong> and <code>plan-red-team</code> adversarially challenges production plans before approval. It sides with Bob on the other half: those gates exist to let a human look mid-flight, which <code>make-aron</code> then suppresses (see <code>F3</code>).
+Also note the agreement Bob would like: your plan artifacts are <strong>deleted</strong> at End cleanup. He says specs are ephemeral; you implement that literally.</p>
+<p><strong>D8. Cleaner/hardener ordering — Bob&#39;s rule half-followed.</strong>
+Bob: cleaner first, hardener second, always, because their trajectories oppose.
+<code>ship</code>: <code>simplify</code> at 7b → tests at 8 → <code>reviewer-test-quality</code> → <strong><code>simplify</code> again as post-step</strong> → final gate. The tail runs the cleaner <em>after</em> the hardener, re-entering the &quot;reduce branching&quot; trajectory on top of freshly-strengthened tests.
+Mostly defused by the final gate&#39;s <code>add-feature/PLAYBOOK.md:349</code> — <em>&quot;If any final-gate fix changes code, repeat this gate from step 1. A fix is not allowed to certify itself.&quot;</em> Worth knowing you diverge, not worth changing.</p>
+<p><strong>D9. Two ledgers per run.</strong>
+<code>ship</code> writes <code>&lt;session-scratch&gt;/agentsystem/runs/&lt;run-id&gt;.md</code> — durable control plane, survives compaction, base-SHA validated before trust. <code>make-aron</code> writes <code>./.tmp/MAKE_PROGRESS_{slug}.md</code> — ticket state truth. Neither knows about the other. The parent reads worker reports, not ship ledgers, so ship&#39;s per-phase evidence is compressed to one <code>Ship terminal:</code> line and then discarded.
+Bob has neither; this is a place your stack is ahead of him and is throwing away the advantage.</p>
+<p><strong>D10. Two incompatible severity vocabularies.</strong>
+<code>findings-contract.md</code> is a declared pack-wide <strong>API</strong> — <code>CRITICAL/HIGH/MEDIUM/LOW</code> + <code>auto-fixable: true|false</code>, CI-linted, consumed mechanically by the parent playbook.
+<code>roles/reviewer.md</code> uses <code>blocker | should-fix | note</code>, and only <code>blocker</code> earns a fix pass.
+Both run in one <code>make-aron</code> job — ship&#39;s reviewers inside each worker, yours on the final diff. Nothing maps <code>HIGH</code> onto <code>blocker</code>. Nothing merges the two finding sets.</p>
+<p><strong>D11. Evidence, measured vs asserted.</strong></p>
+<ul>
+<li><code>ship</code>: benchmarked. 5 briefs × 3 arms on a real Laravel/Inertia/React app, blind-graded by a stronger model: <strong>47.0/50 vs 43.2 plain / 41.0 persona</strong>, 5/5 features won, 0 crashes vs 2 crash classes, invariant tests in 5/5 vs 1/10 raw branches, <strong>+81% tokens</strong>. Limitations documented (n=5, LLM judge, conflict of interest).</li>
+<li>Bob: 4–5× productivity, self-reported, no data, and he says himself he debated the CRAP threshold <em>with the agents</em> and <em>&quot;you can&#39;t trust a debate with an agent.&quot;</em></li>
+<li><code>make-aron</code>&#39;s own additions (deep planning, ticket DAG, Opus-5-xhigh-everywhere, reviewer fanout): <strong>unmeasured</strong>. You inherited a benchmarked engine and wrapped it in an unbenchmarked orchestrator.</li>
+</ul>
+<p><strong>D12. Cost lever.</strong>
+Bob: cheap agents + expensive deterministic rechecks, ~1h/task.
+You: <code>ship</code> costs +81% tokens over plain prompting, and <code>make-aron</code> stacks <code>Opus 5 xhigh</code> on <strong>every</strong> ticket plus <code>deep</code> planning plus <code>deep</code> reviewer fanout on top of that. Same total budget, spent on model capability rather than on tools. His side of the trade is the one that doesn&#39;t regress when the model changes.</p>
+<hr>
+<h2>Defects found</h2>
+<p><strong>F1. <code>make-aron</code> never passes <code>headless=true</code> — and its workers are subagents.</strong>
+<code>ship/SKILL.md:81</code> defines <code>headless=true</code> as the sanctioned way to run without user interaction: <em>&quot;Headless removes user interaction, NOT rigor — it skips QUESTIONS, never QUALITY gates.&quot;</em> It auto-resolves the production confirm, forwards to the playbook, converts Phase 4 approval to log-and-proceed, and records every assumption.
+<code>make-aron</code> instead does this (<code>SKILL.md:127</code>): <em>&quot;Any implementation special action/tool confirmation → auto-approve inside this skill. Includes production ship confirmation.&quot;</em> — against <code>ship/SKILL.md</code> NEVER: <em>&quot;NEVER bypass a routed core skill&#39;s own approval gate.&quot;</em>
+Concrete failure: the worker is a <strong>subagent</strong>. <code>ship</code> mandates <code>AskUserQuestion</code> at Phase 4, the mode-conflict prompt, and intent disambiguation. A subagent calling <code>AskUserQuestion</code> cannot reach the user. So every production-mode ticket either stalls or the model improvises past a gate that was designed to be converted, not skipped — and the assumptions <code>headless</code> would have logged are lost.
+Fix is one word: add <code>headless=true</code> to the ship invocation in <code>make-aron/SKILL.md:102-106</code>. <code>grep -n headless make-aron/SKILL.md</code> → no match.</p>
+<p><strong>F2. Tier contradiction, <code>make-aron</code> vs <code>impl-worker</code>.</strong>
+<code>orchestration.md</code> and <code>roles/impl-worker.md</code> say worker default <code>standard</code>, and <em>&quot;<code>Tier: deep</code> in your prompt → risky surface or a repair after failure&quot;</em>. <code>make-aron</code> overrides to <em>&quot;Opus 5, effort <code>xhigh</code>, always&quot;</em>. Legal (caller wins), but every worker now reads a role file whose explanation of its own tier is false, and the escalation row admits it buys no model change.</p>
+<p><strong>F3. Branch name conflict.</strong> <code>plan/{slug}</code> in Auto-decide + Git rules; <code>feat/{slug}</code> in Pre-flight step 3. Same file.</p>
+<p><strong>F4. Severity vocabularies unmapped</strong> (<code>D10</code>). Ship findings the worker chose not to auto-fix surface in its report as prose; your parent&#39;s <code>blocker</code>-only fix pass has no rule for consuming them.</p>
+<p><strong>F5. Ship&#39;s ledger is discarded</strong> (<code>D9</code>). Per-phase evidence, reviewer coverage, and finding dispositions exist in a structured file the parent never reads.</p>
+<hr>
+<h2>Revised adoptions — cheapest first</h2>
+<ul>
+<li><strong>X1. Add <code>headless=true</code></strong> (<code>F1</code>). One word. Fixes a live gate-bypass, not a nice-to-have. Do this first.</li>
+<li><strong>X2. <code>PostToolUse</code> hook for lint+typecheck</strong> (<code>D3</code>). Hours. Converts ship&#39;s most-repeated prose rule into something that can&#39;t be forgotten. Highest ratio in the list.</li>
+<li><strong>X3. Map <code>CRITICAL/HIGH</code> → <code>blocker</code></strong> (<code>D10</code>/<code>F4</code>), and have the parent read the ship run-ledger path from the worker report (<code>F5</code>). Small, closes two leaks.</li>
+<li><strong>X4. CRAP script as a <code>ship</code> gate</strong> (<code>D1</code>). ~40 lines of Python + <code>lizard</code> + lcov. Run it <em>inside</em> <code>simplify</code> Phase 5 alongside the existing typecheck, threshold 6. Keeps ship&#39;s escape hatches for the prose smells while making one dimension non-negotiable.</li>
+<li><strong>X5. Dependency-rule checker</strong> (<code>D4</code>). Emit a machine-readable layer spec from <code>make-plan-aron</code>&#39;s architecture step; check it in <code>make-aron</code>&#39;s final validation. The only fully-missing Bob phase.</li>
+<li><strong>X6. Mutation on the diff</strong> (<code>D2</code>). Highest value, highest cost, gated on <code>D6</code> (pin clock/PRNG/TZ first). <code>cargo-mutants --in-diff</code> / <code>stryker --since=main</code>. Feed the score to <code>reviewer-test-quality</code> as <em>input</em> rather than replacing it — its Detector F catches something mutation can&#39;t.</li>
+<li><strong>X7. Benchmark your wrapper</strong> (<code>D11</code>). <code>ship</code> shipped a 3-arm benchmark with its own limitations section. Run <code>make-aron</code>-over-<code>ship</code> vs bare <code>ship</code> on the same briefs, or you&#39;re asserting the same way Bob does.</li>
+<li><strong>X8. Reconsider the one-way autonomy boundary</strong> (<code>D7</code>). Policy, not tooling. You now have two independent sources — Bob&#39;s <em>&quot;always a disaster&quot;</em> and <code>ship</code>&#39;s mandatory Phase 4 gate + <code>plan-red-team</code> — arguing that the mid-flight human look is load-bearing. Deliberate disagreement is fine; unexamined isn&#39;t.</li>
+</ul>
+
+<footer class="artifact-footer">source: /home/aron/config/nix-aron/dotfiles/agents/skills</footer>
+</article>
+
+<script>
+(function () {
+  var slug = "make-aron-vs-uncle-bob-loop-engineering";
+  var es = new EventSource("/events");
+  es.addEventListener("reload", function (e) {
+    try { if (e.data === slug || e.data === "*") location.reload(); } catch (_) {}
+  });
+})();
+</script>
+</body>
+</html>

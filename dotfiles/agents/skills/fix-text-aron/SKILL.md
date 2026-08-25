@@ -6,6 +6,8 @@ description: >
 
 # Fix Text
 
+Rule ids `A1`-`L4` → `~/.agents/GLOBAL_RULES.md` (pi appends it to the system prompt; other harnesses read it).
+
 ## 1. Inputs
 
 Required:
@@ -100,16 +102,14 @@ For mixed-language text, translate prose into target language. Preserve code, id
 - Public URL: fetch readable text; revise relevant main text. If scope is unclear, ask which section.
 - Preserve Markdown structure, YAML frontmatter, links, tables, code fences, inline code, and embedded HTML. Revise prose only unless Aron explicitly includes structured fields.
 - Always write final text to a file, even when revision produces no changes.
-- With writable local source plus `overwrite=true`, replace source.
-- With writable local source without `overwrite=true`, write beside source as `<stem>_fixed<ext>`.
-- Never replace an existing sibling output. Use `<stem>_fixed_2<ext>`, incrementing number until path is unused.
+- Sibling / increment naming per H4: `<stem>_fixed<ext>`, then `<stem>_fixed_2<ext>` until path is unused. `overwrite=true` replaces source instead.
 - When source has no usable writable location, including pasted text, selection, or public URL, write under repository-root `.tmp/fix-text-aron/`. Create directory when missing. Derive safe descriptive filename from source; use `fixed-text.md` when no useful name exists. Add numeric suffix to avoid replacement.
 
 ## 6. Overwrite mode
 
-`overwrite=true` means replace local source file with final text and do not create a backup, copy, diff file, or temp artifact intentionally.
+`overwrite=true` is the explicit request H4 requires. It means: replace local source file with final text, no backup, copy, diff file, or temp artifact.
 
-Before writing, state concise warning: overwrite is irreversible from this skill. Git history, filesystem snapshots, editor history, sync history, logs, or storage recovery may still retain prior content; “no trace” cannot be guaranteed.
+Warning to state before writing (H4): overwrite is irreversible from this skill. Git history, filesystem snapshots, editor history, sync history, logs, or storage recovery may still retain prior content; “no trace” cannot be guaranteed.
 
 If source is pasted text, selection, URL, read-only file, or source path is ambiguous, do not overwrite. Write under `.tmp/fix-text-aron/` instead.
 
