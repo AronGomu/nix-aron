@@ -322,6 +322,7 @@ in
         hl.bind("SUPER + O", hl.dsp.exec_cmd("rofi -matching fuzzy -sorting-method fzf -drun-match-fields name -show drun"), { description = "Rofi: Launch new app window" })
         hl.bind("SUPER + P", hl.dsp.exec_cmd("rofi -matching fuzzy -sorting-method fzf -show smart -modi 'smart:${smartRofi}/bin/rofi-smart-apps'"), { description = "Rofi: Focus existing app or launch" })
         hl.bind("CTRL + Space", hl.dsp.exec_cmd("dbus-send --session --type=method_call --dest=com.openwhispr.App /com/openwhispr/App com.openwhispr.App.Toggle"), { description = "OpenWhispr: Toggle dictation" })
+        hl.bind("Escape", hl.dsp.exec_cmd("dbus-send --session --type=method_call --dest=com.openwhispr.App /com/openwhispr/App com.openwhispr.App.Cancel"), { description = "OpenWhispr: Stop dictation" })
       '';
       "quickshell" = {
         source = end4QuickshellConfig;
