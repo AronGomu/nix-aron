@@ -34,7 +34,6 @@ Read now, both:
 | Bootstrap          | `{skill dir}/bootstrap/detect.py`                                                      |
 | Project config     | `./.make-aron/gates.json` — committed                                                  |
 | Layer rules        | `./.make-aron/layers.json` — committed, optional                                       |
-| Equivalent mutants | `./.make-aron/equivalent-mutants.json` — committed                                     |
 | Ledger             | `./.make-aron/runs/{run-id}.md` — gitignored                                           |
 | Branch             | `feat/{first-ticket-slug}`                                                             |
 
@@ -42,7 +41,7 @@ Read now, both:
 
 1. **Bootstrap** — `./.make-aron/gates.json` absent -> `python3 {skill dir}/bootstrap/detect.py`. Every resolved cmd verified by running it once. Any cmd unresolvable -> **STOP**, print missing tool + install cmd. Never proceed with a gate disabled.
 2. **Ledger** — write `./.make-aron/runs/{ISO}-{rand}.md` per `GATES-FORMAT.md#ledger`. Record base SHA. Update at every role and gate transition. Never reconstruct from memory.
-3. **Flake guard** — `gates/run.sh G10`. Fail -> **STOP**. Suite non-deterministic -> mutation is noise and every downstream gate lies. This stops on first run against most existing repos. Correct, not a bug.
+3. **Flake guard** — `gates/run.sh G10`. Fail -> **STOP**. Suite non-deterministic -> every downstream gate lies: a random failure reads as a real failure, a random pass as real coverage. This stops on first run against most existing repos. Correct, not a bug.
 4. **Branch** — clean tree check, `git checkout -b feat/{slug}`, `git push -u origin HEAD`.
 5. **Per ticket, in order** — run the chain in `## Chain` below. One writer at a time, never parallel.
 6. **Final report** — per `## Output`.
@@ -61,28 +60,28 @@ Model + effort are **hard-set in each role file frontmatter**. Set them on the s
 
 | #   | Step                 | Role file                   | Model          | Writes            | Exit gate            |
 | --- | -------------------- | --------------------------- | -------------- | ----------------- | -------------------- |
-| 1   | specifier            | `roles/specifier.md`        | opus / high    | tests + QA script | `G0` spec is RED     |
+| 1   | specifier            | `roles/specifier.md`        | sonnet / xhigh | tests + QA script | `G0` spec is RED     |
 | 2   | coder                | `roles/coder.md`            | sonnet / xhigh | source            | `G1` `G2` `G8`       |
-| 3   | cleaner              | `roles/cleaner.md`          | sonnet / xhigh | source            | `G3` `G4`            |
-| 4   | hardener-auditor     | `roles/hardener-auditor.md` | opus / high    | **nothing**       | report only          |
-| 5   | test-writer          | `roles/test-writer.md`      | sonnet / xhigh | tests             | `G5` `G11`           |
+| 3   | cleaner              | `roles/cleaner.md`          | sonnet / xhigh | source            | `G3`                 |
+| 4   | hardener-auditor     | `roles/hardener-auditor.md` | opus / high   | **nothing**       | report only          |
+| 5   | test-writer          | `roles/test-writer.md`      | sonnet / xhigh | tests             | `G11`                |
 | 6   | qa                   | `roles/qa.md`               | sonnet / high  | nothing           | `G9`                 |
 | 7   | final candidate gate | parent                      | —              | —                 | `G1`-`G9`, recursive |
 | 8   | advisor fanout       | `advisors/*.md`             | see file       | **nothing**       | findings ledger      |
-| 9   | fixer                | `roles/fixer.md`            | opus / high    | source + tests    | back to step 7       |
+| 9   | fixer                | `roles/fixer.md`            | opus / high   | source + tests    | back to step 7       |
 | 10  | commit + push        | parent                      | —              | git only          | —                    |
 
-**Step 3 and steps 4-5 never share a context.** Cleaner's goal is fewer branches; cheapest way to kill a mutant is often to add one. One agent holding both oscillates or satisfies neither. Cleaner first, always, including at the tail.
+**Step 3 and steps 4-5 never share a context.** Cleaner's goal is fewer branches; the cheapest way to close a test gap is often to add one. One agent holding both oscillates or satisfies neither. Cleaner first, always, including at the tail.
 
-**Step 4 writes nothing.** Read-only auditor is the guard against killing a mutant by deleting the mutable construct or asserting on the mutated line.
+**Step 4 writes nothing.** Read-only auditor is the guard against closing a gap by deleting the construct under test or asserting on the very line the case was meant to pin.
 
 **Step 7 is recursive.** Any fix that mutates code -> re-run from `G1`. A fix may not certify itself. Budget `B4` = 3 recursions.
 
 ## Gates
 
-11 gates, all scripts, `exit 0` pass / `exit 1` fail / `exit 2` cannot run. Full contract + thresholds in `GATES-FORMAT.md`.
+9 gates, all scripts, `exit 0` pass / `exit 1` fail / `exit 2` cannot run. Full contract + thresholds in `GATES-FORMAT.md`.
 
-`exit 2` is never a pass. Missing mutation engine reads as blocked, not clean.
+`exit 2` is never a pass. A missing tool reads as blocked, not clean.
 
 | id    | checks                                    | blocks           |
 | ----- | ----------------------------------------- | ---------------- |
@@ -90,8 +89,6 @@ Model + effort are **hard-set in each role file frontmatter**. Set them on the s
 | `G1`  | typecheck + lint + build                  | all              |
 | `G2`  | full suite green                          | all              |
 | `G3`  | coverage on changed lines                 | cleaner exit     |
-| `G4`  | CRAP per changed function                 | cleaner exit     |
-| `G5`  | mutation, diff-scoped                     | test-writer exit |
 | `G6`  | dep-rules / module layering               | commit           |
 | `G7`  | secrets, merge markers, debug residue     | commit           |
 | `G8`  | the `G0` test now passes                  | commit           |
@@ -105,7 +102,7 @@ Model + effort are **hard-set in each role file frontmatter**. Set them on the s
 - **Zero user question.** Hard stop list only: secret/credential only user has · irreversible or prod action · gate `exit 2` · budget exhausted · push rejected on protected branch.
 - Ambiguity -> safest in-scope default -> log in ledger `## Assumptions`.
 - Every threshold is a number in `./.make-aron/gates.json`. Zero numeric thresholds in prose anywhere in this skill.
-- `.make-aron/gates.json`, `layers.json`, `equivalent-mutants.json` are **committed**. Thresholds are code, reviewed like code. Only `runs/` is gitignored.
+- `.make-aron/gates.json` and `layers.json` are **committed**. Thresholds are code, reviewed like code. Only `runs/` is gitignored.
 - Never `--no-verify`, never `# type: ignore`, never skipped test, never commented assertion to pass a gate. Root cause or stop.
 - Ticket missing a fact -> **plan defect**. Step reports `failed: plan defect — {fact}`. Parent inlines it into the ticket file, retries once.
 - Commit only after step 7 green **and** ticket Validation pass. 1 commit per ticket minimum.
@@ -118,8 +115,8 @@ Per ticket, appended to ledger and to the final report:
 ```
 T{n} {slug}  {done | blocked_gate:{id} | blocked_user | blocked_dep}
   G0  pass   `pytest tests/acceptance/test_t3.py` -> 1 failed (expected)
-  G4  pass   crap max 5.0 (threshold 6) over 7 changed fns
-  G5  fail   mutation 0.94 — 3 survivors src/pricing.py:42,55,61
+  G3  pass   changed-line coverage 1.0 over 7 changed fns
+  G11 fail   2 new tests still pass against the reverted impl
   ...
   SHA: {sha}
   advisors: {n} run, {c} CRITICAL, {h} HIGH -> fixed | logged

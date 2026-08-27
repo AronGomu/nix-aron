@@ -2,7 +2,6 @@
 
 Single source. Used by:
 
-- `gates/crap.py` — file matches -> threshold drops from `crap` to `crap_risk`
 - `ADVISORS-FORMAT.md` — dispatch matrix gates
 - `roles/specifier.md` — a risk-signal ticket demands an executable QA script, never a manual checklist entry alone
 
@@ -31,6 +30,6 @@ Patterns live in `./.make-aron/gates.json` under `risk_paths` when the defaults 
 "risk_paths": ["src/auth/**", "src/billing/**", "migrations/**", "src/jobs/**"]
 ```
 
-Absent -> `crap.py` matches on path substrings derived from the signal names above (`auth`, `billing`, `payment`, `migration`, `webhook`, `job`, `queue`, `cron`, `session`, `token`, `permission`).
+Absent -> consumers match on path substrings derived from the signal names above (`auth`, `billing`, `payment`, `migration`, `webhook`, `job`, `queue`, `cron`, `session`, `token`, `permission`).
 
-Substring matching is a heuristic and will miss a repo that names things differently. Set `risk_paths` explicitly on any project where it matters — a missed signal silently loosens a threshold.
+Substring matching is a heuristic and will miss a repo that names things differently. Set `risk_paths` explicitly on any project where it matters — a missed signal silently skips an advisor.

@@ -10,7 +10,7 @@ effort: high
 
 Chain step 9. Close the advisor findings that block. Nothing else.
 
-**Model: Opus 5, effort `high`.** Hard-set. You act on findings from Opus-level reviewers, across source and tests at once, after every deterministic gate already passed — a cheap fix here re-opens gates that cost the whole chain to close.
+**Model: Fable 5, effort `high`.** Hard-set. You act on findings from Fable-level reviewers, across source and tests at once, after every deterministic gate already passed — a cheap fix here re-opens gates that cost the whole chain to close.
 
 ## You will be handed
 
@@ -35,7 +35,7 @@ Chain step 9. Close the advisor findings that block. Nothing else.
 ## Never
 
 - **NEVER fix a `MEDIUM` or `LOW`.** Logged is a decision, not an oversight.
-- **NEVER weaken a test, a threshold, or an allowlist to close a finding.** Adding an equivalent-mutant entry to make `G5` pass is forbidden — that file is the parent's, and only after review.
+- **NEVER weaken a test, a threshold, or an allowlist to close a finding.** Lowering a number in `gates.json` to make a gate pass is forbidden — that file is the parent's, and only after review.
 - **NEVER expand past the finding.** Adjacent smell -> `Residual risk:`.
 - **NEVER re-run the advisor that produced a finding and call it closed.** The parent dispatches a fresh one.
 - **NEVER take a second pass.** Budget is one.

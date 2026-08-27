@@ -2,8 +2,8 @@
 # G10 flake guard — run the suite twice with identical determinism env and
 # compare. Runs once per invocation, before any ticket.
 #
-# A mutation run on a flaky suite reads a random failure as a kill and a random
-# pass as a survivor. Every downstream gate then reports a number that means
+# Every downstream gate misreads a flaky suite: a random failure reads as a real
+# failure, a random pass as real coverage. They then report numbers that mean
 # nothing. This gate stops that, and it will fail on most existing repos the
 # first time. That is correct, not a bug.
 #
@@ -66,7 +66,7 @@ if [ "$N1" != "$N2" ]; then
   echo "FAIL(G10): suite output differs between identical runs (exit code $RC1 both times)"
   echo "--- diff (normalized) ---"
   diff <(printf '%s\n' "$N1") <(printf '%s\n' "$N2") | head -40
-  echo "Nondeterministic output means test selection or results vary. Fix before any mutation run."
+  echo "Nondeterministic output means test selection or results vary. Fix before any gate is trusted."
   exit 1
 fi
 

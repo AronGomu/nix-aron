@@ -2,12 +2,12 @@
 
 Read by `roles/cleaner.md` and `advisors/reviewer-code.md`.
 
-`G4` (CRAP) owns the number. This file owns everything the number cannot see. It never overrides `G4` — a function under the CRAP threshold can still carry a smell here, and a function over it fails regardless of how clean it reads.
+No gate scores complexity. This file is the whole standard, and it is read by a person or an agent exercising judgment — there is no number to hide behind and none to game.
 
 ## Structure
 
-- **Long file / long function** — files over `max_file_lines`, functions the CRAP gate flags. Split **at a seam**: an independent concern, a separately-tested unit, a separately-imported export. A cohesive 400-line file with one concern is fine; an incoherent 200-line file is not.
-- **Nested conditionals 3+ deep** — ternary chains, nested if/else, nested switch. Flatten with early returns, guard clauses, or a lookup table. This is usually the same defect `G4` is counting.
+- **Long file / long function** — files over `max_file_lines`, and any function you cannot hold in your head at once. Split **at a seam**: an independent concern, a separately-tested unit, a separately-imported export. A cohesive 400-line file with one concern is fine; an incoherent 200-line file is not.
+- **Nested conditionals 3+ deep** — ternary chains, nested if/else, nested switch. Flatten with early returns, guard clauses, or a lookup table.
 - **Flag argument** — a boolean parameter that selects between two behaviors. Two functions.
 - **Tight coupling** — repeated cross-module logic, a module reaching into another's internals, an import that crosses a layer (`G6` catches the layer part).
 - **Feature envy** — a function that uses another object's data more than its own.
@@ -32,15 +32,15 @@ Read by `roles/cleaner.md` and `advisors/reviewer-code.md`.
 - **Hot-path bloat** — blocking work added to startup, per-render, or per-request paths.
 - **Unbounded growth** — a structure that only ever grows, a listener never removed, a cache without eviction.
 
-## Anti-Goodhart — the smells a complexity gate creates
+## Anti-Goodhart — the smells a cleanup pass creates
 
-`G4` pushes toward extraction. Extraction taken too far is worse than the branching it removed. These are findings **against** the refactor:
+Every rule above pushes toward extraction. Extraction taken too far is worse than the branching it removed. These are findings **against** the refactor:
 
-- **Shredded function** — helper used exactly once, named after its call site, carrying no independent meaning. Eight of these with CC 3 each is worse code and a green dashboard.
+- **Shredded function** — helper used exactly once, named after its call site, carrying no independent meaning. Eight tiny helpers is worse code that merely looks tidier.
 - **Not nameable without "and"** — an extracted function whose honest name contains "and" was cut at the wrong seam.
 - **Split that scatters context** — a file split that forces the reader to hold two files open to understand one flow.
 
-Cleaner must revert its own extraction when it hits one of these, and `G4` must still pass afterward. A ticket where both cannot hold is a signal the ticket is too big — report it as a plan defect rather than shredding.
+Cleaner must revert its own extraction when it hits one of these, and `G3` must still pass afterward. A ticket where both cannot hold is a signal the ticket is too big — report it as a plan defect rather than shredding.
 
 ## Never
 

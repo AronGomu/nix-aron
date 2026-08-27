@@ -29,11 +29,8 @@ STACKS = [
         "test": "npx vitest run",
         "test_one": "npx vitest run {file}",
         "coverage": "npx vitest run --coverage --coverage.reporter=lcov",
-        "complexity": "lizard {src} --csv",
-        "mutation": "npx stryker run --since={base} --reporters json",
-    }, {"src": "src", "lcov": "coverage/lcov.info",
-        "mutation_json": "reports/mutation/mutation.json"},
-     {"lizard": "pip install lizard", "npx": "install node"}),
+    }, {"src": "src", "lcov": "coverage/lcov.info"},
+     {"npx": "install node"}),
 
     ("python", ["pyproject.toml", "setup.py", "setup.cfg"], {
         "typecheck": "mypy .",
@@ -42,12 +39,8 @@ STACKS = [
         "test": "pytest -q",
         "test_one": "pytest -q {file}",
         "coverage": "pytest -q --cov={src} --cov-report=lcov:coverage/lcov.info",
-        "complexity": "lizard {src} --csv",
-        "mutation": "mutmut run --paths-to-mutate {src}",
-    }, {"src": "src", "lcov": "coverage/lcov.info",
-        "mutation_json": ".mutmut-cache.json"},
-     {"lizard": "pip install lizard", "mutmut": "pip install mutmut",
-      "ruff": "pip install ruff", "mypy": "pip install mypy"}),
+    }, {"src": "src", "lcov": "coverage/lcov.info"},
+     {"ruff": "pip install ruff", "mypy": "pip install mypy"}),
 
     ("go", ["go.mod"], {
         "typecheck": "go vet ./...",
@@ -56,11 +49,8 @@ STACKS = [
         "test": "go test ./...",
         "test_one": "go test ./... -run {file}",
         "coverage": "go test ./... -coverprofile=coverage.out && gcov2lcov -infile=coverage.out -outfile=coverage/lcov.info",
-        "complexity": "lizard {src} --csv",
-        "mutation": "go-mutesting ./...",
-    }, {"src": ".", "lcov": "coverage/lcov.info", "mutation_json": ""},
-     {"gcov2lcov": "go install github.com/jandelgado/gcov2lcov@latest",
-      "go-mutesting": "go install github.com/zimmski/go-mutesting/cmd/go-mutesting@latest"}),
+    }, {"src": ".", "lcov": "coverage/lcov.info"},
+     {"gcov2lcov": "go install github.com/jandelgado/gcov2lcov@latest"}),
 
     ("rust", ["Cargo.toml"], {
         "typecheck": "cargo check --all-targets",
@@ -69,12 +59,8 @@ STACKS = [
         "test": "cargo test",
         "test_one": "cargo test --test {file}",
         "coverage": "cargo llvm-cov --lcov --output-path coverage/lcov.info",
-        "complexity": "lizard {src} --csv",
-        "mutation": "cargo mutants --in-diff <(git diff {base}) --json",
-    }, {"src": "src", "lcov": "coverage/lcov.info",
-        "mutation_json": "mutants.out/outcomes.json"},
-     {"cargo-mutants": "cargo install cargo-mutants",
-      "cargo-llvm-cov": "cargo install cargo-llvm-cov"}),
+    }, {"src": "src", "lcov": "coverage/lcov.info"},
+     {"cargo-llvm-cov": "cargo install cargo-llvm-cov"}),
 
     ("php", ["composer.json"], {
         "typecheck": "./vendor/bin/phpstan analyse",
@@ -83,11 +69,8 @@ STACKS = [
         "test": "./vendor/bin/phpunit",
         "test_one": "./vendor/bin/phpunit {file}",
         "coverage": "./vendor/bin/phpunit --coverage-clover coverage/clover.xml",
-        "complexity": "lizard {src} --csv",
-        "mutation": "./vendor/bin/infection --git-diff-filter=AM",
-    }, {"src": "src", "lcov": "coverage/lcov.info",
-        "mutation_json": "infection.json"},
-     {"infection": "composer require --dev infection/infection"}),
+    }, {"src": "src", "lcov": "coverage/lcov.info"},
+     {}),
 
     ("java", ["pom.xml", "build.gradle", "build.gradle.kts"], {
         "typecheck": "mvn -q compile",
@@ -96,20 +79,13 @@ STACKS = [
         "test": "mvn -q test",
         "test_one": "mvn -q test -Dtest={file}",
         "coverage": "mvn -q jacoco:report",
-        "complexity": "lizard {src} --csv",
-        "mutation": "mvn -q org.pitest:pitest-maven:mutationCoverage -DchangedSinceLastCommit",
-    }, {"src": "src/main", "lcov": "target/site/jacoco/lcov.info",
-        "mutation_json": "target/pit-reports/mutations.json"},
-     {"lizard": "pip install lizard"}),
+    }, {"src": "src/main", "lcov": "target/site/jacoco/lcov.info"},
+     {}),
 ]
 
 DEFAULT_THRESHOLDS = {
-    "crap": 6,
-    "crap_risk": 4,
     "coverage": 1.0,
-    "mutation": 1.0,
     "max_file_lines": 400,
-    "max_equivalents_per_ticket": 3,
 }
 
 
@@ -161,7 +137,7 @@ def main():
 
     if not args.skip_verify:
         problems = []
-        for key in ("typecheck", "lint", "test", "coverage", "complexity", "mutation"):
+        for key in ("typecheck", "lint", "test", "coverage"):
             c = cmd.get(key, "")
             ok, why = verify(c, hints)
             if not ok:
@@ -205,7 +181,7 @@ def main():
     gi = ".make-aron/.gitignore"
     if not os.path.exists(gi):
         with open(gi, "w") as fh:
-            fh.write("runs/\n.complexity.csv\n")
+            fh.write("runs/\n")
     print(f"wrote {OUT} (stack: {stack}, detected from {', '.join(found)})")
     print("Set qa.cmd before the first risk-signal ticket — G9 is required there.")
     return 0

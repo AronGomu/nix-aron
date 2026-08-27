@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # make-aron-v2 gate runner.
-#   usage: run.sh <G0|G1|G2|G3|G4|G5|G6|G7|G8|G9|G10|G11>
+#   usage: run.sh <G0|G1|G2|G3|G6|G7|G8|G9|G10|G11>
 #   exit 0 pass | 1 fail | 2 cannot run (never treat 2 as a pass)
 #
 # env:
@@ -14,7 +14,7 @@ HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CFG=".make-aron/gates.json"
 
 die2() { echo "CANNOT RUN: $*" >&2; exit 2; }
-[ -n "$GATE" ] || die2 "no gate id. usage: run.sh <G0..G11>"
+[ -n "$GATE" ] || die2 "no gate id. usage: run.sh <G0|G1|G2|G3|G6|G7|G8|G9|G10|G11>"
 [ -f "$CFG" ] || die2 "$CFG missing — run bootstrap/detect.py first"
 command -v python3 >/dev/null || die2 "python3 not found"
 
@@ -81,24 +81,7 @@ case "$GATE" in
     runcfg coverage >/dev/null 2>&1
     LCOV="$(cfg paths.lcov coverage/lcov.info)"
     [ -f "$LCOV" ] || die2 "lcov report not produced at $LCOV"
-    python3 "$HERE/crap.py" --coverage-only --base "$BASE" --lcov "$LCOV" ;;
-
-  G4) # CRAP per changed function
-    runcfg coverage >/dev/null 2>&1
-    LCOV="$(cfg paths.lcov coverage/lcov.info)"
-    [ -f "$LCOV" ] || die2 "lcov report not produced at $LCOV"
-    CX="$(expand "$(cfg cmd.complexity)")"
-    [ -n "$CX" ] || die2 "cmd.complexity not set"
-    echo "\$ $CX"
-    bash -c "$CX" > .make-aron/.complexity.csv || die2 "complexity command failed"
-    python3 "$HERE/crap.py" --base "$BASE" --lcov "$LCOV" --complexity .make-aron/.complexity.csv ;;
-
-  G5) # mutation, diff-scoped
-    [ -n "$(cfg cmd.mutation)" ] || die2 "cmd.mutation not set — no mutation engine configured"
-    runcfg mutation >/dev/null 2>&1
-    MJ="$(cfg paths.mutation_json)"
-    [ -f "$MJ" ] || die2 "mutation report not produced at $MJ"
-    python3 "$HERE/crap.py" --mutation-score "$MJ" --threshold-key mutation ;;
+    python3 "$HERE/coverage.py" --coverage-only --base "$BASE" --lcov "$LCOV" ;;
 
   G6) python3 "$HERE/deprules.py" --base "$BASE" ;;
 

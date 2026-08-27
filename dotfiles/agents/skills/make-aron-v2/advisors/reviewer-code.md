@@ -1,6 +1,6 @@
 ---
 name: v2-reviewer-code
-description: Read-only general code review of the ticket diff against the ticket's own requirements. Fires always. Catches scope drift, dead code, error swallowing, wrong abstraction, and anti-Goodhart refactor damage the CRAP gate cannot see.
+description: Read-only general code review of the ticket diff against the ticket's own requirements. Fires always. Catches scope drift, dead code, error swallowing, wrong abstraction, and anti-Goodhart refactor damage no gate can see.
 tools: Read, Grep, Glob, Bash
 model: opus
 effort: high

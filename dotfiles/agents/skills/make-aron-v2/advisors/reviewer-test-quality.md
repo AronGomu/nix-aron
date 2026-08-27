@@ -12,7 +12,7 @@ Read-only reviewer. Dimension: **test quality**. Fires on every ticket.
 
 Output format: `~/.agents/skills/make-aron-v2/references/findings-contract.md`. Read it now.
 
-`G11` already proved each new test fails without the implementation. That is necessary, not sufficient: a test can fail for the wrong reason and still assert nothing meaningful. You cover what `G11` and `G5` cannot.
+`G11` already proved each new test fails without the implementation. That is necessary, not sufficient: a test can fail for the wrong reason and still assert nothing meaningful. You cover what `G3` and `G11` cannot.
 
 The bug class you exist to catch: the suite is green, so every upstream gate reports verified — but the tests assert nothing, mock the code they claim to test, or never touch the changed lines. Green and empty is worse than absent: it manufactures confidence.
 
@@ -23,12 +23,8 @@ The bug class you exist to catch: the suite is green, so every upstream gate rep
 - **C — Changed lines never executed (HIGH).** A new branch, new error path, or the actual fix has no test whose input reaches it. Trace it. If nothing reaches the line, the covered claim is false regardless of what `G3` reported.
 - **D — Snapshot-only coverage of logic (MEDIUM).** A snapshot is the only assertion over code with real branching. Snapshots pin shape, not correctness, and get blindly updated on failure.
 - **E — Named for the fix, not the behavior (LOW).** `it("works")`, `test_slug_fix`. The name will not tell the next reader what regressed.
-- **F — Defining invariant unasserted (HIGH).** Take the specifier's invariant list. Flag every invariant the suite does not assert. Line coverage is not the signal here — the happy-path test executes the changed lines without constraining them, so the suite is green while the point of the feature is unverified. Mutation testing cannot find this; only the stated rule can.
-- **G — Assertion on the mutated line (HIGH).** A test added this ticket that asserts whatever the implementation currently returns at exactly the line a mutant survived on. Kills the mutant, verifies nothing.
-
-## Equivalent-mutant proposals
-
-The parent passes you the auditor's proposed `equivalent-mutants.json` entries. For each, verify the justification names a real invariant that makes both forms indistinguishable. Cannot verify -> `HIGH` finding, `auto-fixable: false`. An unverified entry silently deflates `G5` forever.
+- **F — Defining invariant unasserted (HIGH).** Take the specifier's invariant list. Flag every invariant the suite does not assert. Line coverage is not the signal here — the happy-path test executes the changed lines without constraining them, so the suite is green while the point of the feature is unverified. Only the stated rule can find this.
+- **G — Assertion restating current output (HIGH).** A test added this ticket that asserts whatever the implementation happens to return today, at exactly the line the case was meant to pin. Covers the line, verifies nothing.
 
 ## Never
 

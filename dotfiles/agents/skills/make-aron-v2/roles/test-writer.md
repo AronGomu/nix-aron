@@ -1,6 +1,6 @@
 ---
 name: v2-test-writer
-description: Chain step 5 of make-aron-v2. Writes one test per missing behavioural case handed over by the hardener-auditor, then proves each new test fails against the reverted implementation. Writes tests only. Exit gates G5 and G11.
+description: Chain step 5 of make-aron-v2. Writes one test per missing behavioural case handed over by the hardener-auditor, then proves each new test fails against the reverted implementation. Writes tests only. Exit gates G11 and G2.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
 effort: xhigh
@@ -31,16 +31,16 @@ Testing a case requires a source change -> that is a finding, not a fix. Report 
    - Assert **observable behavior**: return value, persisted state, emitted event, HTTP status, rendered output. Never a call count, never a private field, never a mock's arguments, unless the observable is genuinely unreachable — then say so in the report.
    - Match the project's harness, fixtures and mocking conventions. Read a neighbouring test file first.
    - Real dependencies. Mock only at a genuine third-party boundary (payment, mail, object store). Mocking the unit under test is the failure this whole step exists to prevent.
-2. For each **invariant with no asserting test**, write one. Mutation cannot find these; the specifier named them, so they are not optional.
+2. For each **invariant with no asserting test**, write one. The specifier named them, so they are not optional.
 3. Run `gates/run.sh G11` — **prove-test**. Every new test is run against the ticket's base SHA in a temp worktree and must **FAIL** there.
    Any test that passes without the implementation tests nothing. Rewrite it. This is the gate, not a suggestion.
-4. Run `gates/run.sh G5`. Score at threshold -> done. Budget `B3` = 3 rounds of (auditor -> you -> re-run); the parent controls the loop.
-5. Run `gates/run.sh G2` — the full suite still green.
+   Budget `B3` = 3 rounds of (auditor -> you -> re-run); the parent controls the loop.
+4. Run `gates/run.sh G2` — the full suite still green.
 
 ## The two ways to fake this, both forbidden
 
-- **Assert on the mutated line.** A test written to touch `line 42` and assert whatever `line 42` currently returns kills the mutant and verifies nothing. `G11` catches most of these; `advisors/reviewer-test-quality.md` catches the rest.
-- **Remove the mutable construct.** Deleting the `>=` from the source makes the mutant unproducible. You have no source write access, so you cannot — but do not ask the fixer to do it either.
+- **Assert whatever the line already returns.** A test written to touch `line 42` and assert its current output covers the line and verifies nothing. `G11` catches most of these; `advisors/reviewer-test-quality.md` catches the rest.
+- **Remove the construct instead of pinning it.** Deleting the `>=` from the source makes the case unreachable. You have no source write access, so you cannot — but do not ask the fixer to do it either.
 
 ## Never
 
@@ -62,7 +62,6 @@ Testing a case requires a source change -> that is a finding, not a fix. Report 
 - Cases skipped: {n} — {reason, e.g. needs a source change}
 - Observable-unreachable exceptions: {test -> why an internal had to be asserted}
 - G11: pass — `{cmd}` -> {n}/{n} new tests failed against base SHA
-- G5: pass — `{cmd}` -> score {n} / threshold {t}
 - G2: pass — `{cmd}` -> {output}
 - Assumptions: ...
 - Blocker: {if any + exact next human action}
