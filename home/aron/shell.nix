@@ -123,6 +123,12 @@ in
           desc = "Neovim";
         }
       ];
+      keymap.mgr.prepend_keymap = [
+        {
+          run = [ "escape" "quit" ];
+          on = [ "<Esc>" ];
+        }
+      ];
     };
 
   };
