@@ -44,6 +44,10 @@ let
             url = "http://erpcloud.siinergy.net/";
           }
           {
+            name = "Siinergy Portail";
+            url = "https://monportail.siinergy.net/";
+          }
+          {
             name = "Outlook";
             url = "https://outlook.live.com/mail/";
           }
