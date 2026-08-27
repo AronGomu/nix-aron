@@ -23,7 +23,13 @@
     # sessionPath writes it into hm-session-vars.sh, the same file the rest of
     # the session variables above come from, so login shells and the shells
     # agent harnesses spawn both inherit it.
-    sessionPath = [ "$HOME/.local/bin" ];
+    # `dotnet tool install -g` (dotnet-stryker and friends) drops its shims in
+    # ~/.dotnet/tools and is not packaged in nixpkgs, so that directory has to
+    # be on PATH for the tools to resolve by name.
+    sessionPath = [
+      "$HOME/.local/bin"
+      "$HOME/.dotnet/tools"
+    ];
   };
 
   programs.home-manager.enable = true;

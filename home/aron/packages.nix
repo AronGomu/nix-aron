@@ -360,6 +360,10 @@ in
       neovim
       netcoredbg
       nodejs_24
+      # Cyclomatic-complexity/CCN reporting for the code audits. Upstream tells
+      # you to `pip install lizard`, which has nowhere to write here; the
+      # nixpkgs python package ships the same `lizard` CLI.
+      python3Packages.lizard
       pythonEnv
       ripgrep
       rofi
