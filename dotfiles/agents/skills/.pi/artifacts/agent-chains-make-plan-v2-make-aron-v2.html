@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="artifact-kind" content="markdown">
+<meta name="artifact-generated" content="1787779759807">
+<meta name="artifact-project" content="/home/aron/config/nix-aron/dotfiles/agents/skills">
+<title>Agent Chains: make-plan-v2 + make-aron-v2</title>
+<style data-base>:root { color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #1c1c1a;
+  --muted: #6b6862;
+  --border: #e7e5e0;
+  --code-bg: #f7f6f4;
+  --accent: #b95730;
+  --add-bg: #e9f7ee;
+  --add-word-bg: #c8ecd3;
+  --add-fg: #1a7f37;
+  --del-bg: #feeff1;
+  --del-word-bg: #f8d2d7;
+  --del-fg: #c93c4c;
+  --hl-comment: #6e7781;
+  --hl-keyword: #cf222e;
+  --hl-string: #0a3069;
+  --hl-number: #0550ae;
+  --hl-title: #8250df;
+  --hl-type: #953800;
+  --hl-attr: #0550ae;
+}
+@media (prefers-color-scheme: dark) { :root {
+  --bg: #171614;
+  --fg: #e6e3de;
+  --muted: #94918a;
+  --border: #2e2d29;
+  --code-bg: #201f1c;
+  --accent: #d67858;
+  --add-bg: #1d2a20;
+  --add-word-bg: #2b4232;
+  --add-fg: #85c793;
+  --del-bg: #2e1c1e;
+  --del-word-bg: #4a292c;
+  --del-fg: #e28a91;
+  --hl-comment: #8b949e;
+  --hl-keyword: #ff7b72;
+  --hl-string: #a5d6ff;
+  --hl-number: #79c0ff;
+  --hl-title: #d2a8ff;
+  --hl-type: #ffa657;
+  --hl-attr: #79c0ff;
+} }
+
+* { box-sizing: border-box; }
+html { font-size: 15px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+article { max-width: 860px; margin: 0 auto; padding: 2.75rem 1.5rem 4rem; }
+h1, h2, h3, h4 { line-height: 1.3; letter-spacing: -0.01em; color: var(--fg); }
+h1 { font-size: 1.45rem; font-weight: 650; margin: 0 0 1rem; }
+h2 { font-size: 1.15rem; font-weight: 650; margin: 2.2em 0 .7em; padding-bottom: .35em; border-bottom: 1px solid var(--border); }
+h3 { font-size: 1rem; font-weight: 600; margin: 1.8em 0 .5em; }
+h4 { font-size: .9rem; font-weight: 600; margin: 1.5em 0 .4em; }
+p { margin: .8em 0; }
+a { color: var(--accent); text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 35%, transparent); text-underline-offset: 2px; }
+a:hover { text-decoration-color: var(--accent); }
+strong { font-weight: 600; }
+ul, ol { margin: .8em 0; padding-left: 1.5em; }
+li { margin: .3em 0; }
+li > ul, li > ol { margin: .2em 0; }
+hr { border: none; border-top: 1px solid var(--border); margin: 2.5em 0; }
+img, svg, video { max-width: 100%; }
+::selection { background: color-mix(in srgb, var(--accent) 25%, transparent); }
+
+blockquote {
+  margin: 1.2em 0;
+  padding: .1em 1.1em;
+  border-left: 3px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  color: var(--muted);
+}
+blockquote > :first-child { margin-top: .4em; }
+blockquote > :last-child { margin-bottom: .4em; }
+
+table { border-collapse: collapse; width: 100%; margin: 1.2em 0; font-size: .9rem; }
+th {
+  text-align: left; font-weight: 600; font-size: .74rem;
+  text-transform: uppercase; letter-spacing: .06em; color: var(--muted);
+  padding: .5em .75em; border-bottom: 1px solid var(--border);
+}
+td { padding: .55em .75em; border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+
+code, kbd, samp { font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+code { font-size: .85em; background: var(--code-bg); padding: .15em .4em; border-radius: 4px; }
+pre {
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1em 1.2em;
+  overflow-x: auto;
+  font-size: .82rem;
+  line-height: 1.55;
+  margin: 1.2em 0;
+}
+pre code { background: transparent; padding: 0; font-size: inherit; }
+
+input[type="checkbox"] { accent-color: var(--accent); margin-right: .4em; }
+
+
+.artifact-header {
+  display: flex; align-items: baseline; gap: .75rem; flex-wrap: wrap;
+  margin-bottom: 2rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border);
+}
+.artifact-header h1 { margin: 0; }
+.artifact-badge {
+  font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; font-size: .66rem; text-transform: uppercase;
+  letter-spacing: .08em; color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  border-radius: 999px; padding: .2em .7em; white-space: nowrap;
+}
+.artifact-meta { margin-left: auto; color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace; }
+.artifact-footer {
+  margin-top: 4rem; padding-top: 1rem; border-top: 1px solid var(--border);
+  color: var(--muted); font-size: .72rem; font-family: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, "Liberation Mono", monospace;
+}
+.artifact-mermaid { text-align: center; margin: 1.5rem 0; }
+</style>
+</head>
+<body>
+<article>
+<header class="artifact-header">
+<h1>Agent Chains: make-plan-v2 + make-aron-v2</h1>
+<span class="artifact-badge">markdown</span>
+<span class="artifact-meta">2026-08-26 21:29:19</span>
+</header>
+<h1>Agent / subagent chains</h1>
+<p>Skills: <code>make-plan-v2</code> (planning) + <code>make-aron-v2</code> (implementation). <code>make-plan-v2</code> output (tickets) feeds <code>make-aron-v2</code> input.</p>
+<h2>make-plan-v2 — planning chain</h2>
+<p>Orchestrator never writes ticket bodies. Fans out per-ticket, gates on 2 review passes.</p>
+<div class="artifact-mermaid"><pre class="mermaid">flowchart TD
+  U[Caller: goal] --&gt; O[Orchestrator: make-plan-v2&lt;br/&gt;Fable, thinking: high]
+
+  O --&gt;|ambiguous, not autonomous| G[grill-me-aron child&lt;br/&gt;target spec lvl 5&lt;br/&gt;Fable, thinking: high]
+  G --&gt; O
+
+  O --&gt;|step2 decompose, probe trigger| SC[scout child&lt;br/&gt;read-only repo fact&lt;br/&gt;Sonnet, thinking: high]
+  SC --&gt; O
+
+  O --&gt;|step4 write| IDX[Index md: goal/scope/flowchart/order]
+
+  IDX --&gt;|step4.5 gate: migration/authz/ext-API/&amp;gt;6 tickets| RT[red-team reviewer child&lt;br/&gt;fresh, read-only&lt;br/&gt;dimension: plan-red-team&lt;br/&gt;Fable, thinking: high]
+  RT --&gt;|KILL/MERGE/AMEND/BLOCKED| O
+
+  O --&gt;|step5 fanout, 1 per ticket, parallel| TW1[ticket-writer child T1&lt;br/&gt;Fable, thinking: low]
+  O --&gt; TW2[ticket-writer child T2&lt;br/&gt;Fable, thinking: low]
+  O --&gt; TW3[ticket-writer child Tn&lt;br/&gt;Fable, thinking: low]
+
+  TW1 --&gt; TSET[Ticket files T1..Tn&lt;br/&gt;spec level 5]
+  TW2 --&gt; TSET
+  TW3 --&gt; TSET
+
+  TSET --&gt;|step6| CR[coherence reviewer child&lt;br/&gt;fresh, read-only, whole set&lt;br/&gt;1 child, not fanout&lt;br/&gt;Fable, thinking: medium]
+  CR --&gt;|blockers, max 1 re-review| O
+
+  O --&gt;|step7/9| HTML[make-html-aron&lt;br/&gt;html plan + arch docs&lt;br/&gt;Sonnet, thinking: medium&lt;br/&gt;effort: high, verbosity: lite]
+  O --&gt;|step8| ADR[ADR docs&lt;br/&gt;_shared/ADR.md&lt;br/&gt;Sonnet, thinking: medium]
+
+  HTML --&gt; DONE[artifacts/PLAN_*.md + .html&lt;br/&gt;docs/ADR/*.md]
+  ADR --&gt; DONE
+  TSET --&gt; DONE</pre></div><p>Roles used: <code>grill-me-aron</code>, <code>scout.md</code>, <code>reviewer.md</code> (x2, different dimensions), <code>ticket-writer.md</code> (xN), <code>make-html-aron</code>.</p>
+<p>Model/thinking set explicitly in <code>SKILL.md</code> frontmatter + per-step. <code>ticket-writer.md</code> role file itself still says &quot;Opus, thinking extra-high&quot; under <code>## Tier</code>; not edited this pass, flagging as residual drift between SKILL.md and role file.</p>
+<hr>
+<h2>make-aron-v2 — implementation chain</h2>
+<p>One writer at a time per ticket, strictly sequential, gate-blocked, recursive fix loop. Every model+thinking pair below is <strong>hard-set in the role file frontmatter</strong> per SKILL.md — parent restates it on spawn, never downgrades.</p>
+<div class="artifact-mermaid"><pre class="mermaid">flowchart TD
+  T[Ticket/plan path in] --&gt; BOOT[Bootstrap: detect.py&lt;br/&gt;parent]
+  BOOT --&gt; FLAKE[G10 flake guard]
+  FLAKE --&gt;|fail| STOP1[STOP]
+  FLAKE --&gt;|pass| BR[branch: feat/slug]
+
+  BR --&gt; S1[1. specifier&lt;br/&gt;Sonnet, thinking: xhigh&lt;br/&gt;writes: tests + QA script]
+  S1 --&gt; G0{G0: acceptance&lt;br/&gt;test is RED}
+  G0 --&gt;|fail| STOP2[STOP]
+  G0 --&gt;|pass| S2[2. coder&lt;br/&gt;Sonnet, thinking: xhigh&lt;br/&gt;writes: source]
+
+  S2 --&gt; G128{G1 typecheck/lint/build&lt;br/&gt;G2 suite green&lt;br/&gt;G8 G0 test now passes}
+  G128 --&gt;|fail| STOP3[STOP]
+  G128 --&gt;|pass| S3[3. cleaner&lt;br/&gt;Sonnet, thinking: xhigh&lt;br/&gt;writes: source]
+
+  S3 --&gt; G34{G3 coverage&lt;br/&gt;G4 CRAP}
+  G34 --&gt;|fail| STOP4[STOP]
+  G34 --&gt;|pass| S4[4. hardener-auditor&lt;br/&gt;Fable, thinking: high&lt;br/&gt;writes: nothing, read-only]
+
+  S4 --&gt; S5[5. test-writer&lt;br/&gt;Sonnet, thinking: xhigh&lt;br/&gt;writes: tests]
+  S5 --&gt; G511{G5 mutation&lt;br/&gt;G11 new tests fail on reverted impl}
+  G511 --&gt;|fail| STOP5[STOP]
+  G511 --&gt;|pass| S6[6. qa&lt;br/&gt;Sonnet, thinking: high&lt;br/&gt;writes: nothing]
+
+  S6 --&gt; G9{G9 executable&lt;br/&gt;system test}
+  G9 --&gt;|fail| STOP6[STOP]
+  G9 --&gt;|pass| S7[7. final candidate gate&lt;br/&gt;parent, recursive G1-G9&lt;br/&gt;no model — parent logic]
+
+  S7 --&gt; S8[8. advisor fanout&lt;br/&gt;18 advisors, read-only&lt;br/&gt;no model set here — per advisor file&lt;br/&gt;findings ledger]
+  S8 --&gt;|CRITICAL/HIGH found| S9[9. fixer&lt;br/&gt;Fable, thinking: high&lt;br/&gt;writes: source + tests]
+  S9 --&gt;|any code mutation| S7
+  S8 --&gt;|no CRITICAL/HIGH,&lt;br/&gt;or MEDIUM/LOW only| S10
+
+  S7 --&gt;|clean, budget B4=3 recursions| S10[10. commit + push&lt;br/&gt;parent, git only]
+  S10 --&gt; NEXT{more tickets?}
+  NEXT --&gt;|yes| S1
+  NEXT --&gt;|no| DONE2[Final report&lt;br/&gt;STATUS + per-ticket table]</pre></div><p>Roles used: <code>specifier.md</code>, <code>coder.md</code>, <code>cleaner.md</code>, <code>hardener-auditor.md</code>, <code>test-writer.md</code>, <code>qa.md</code>, <code>fixer.md</code>, <code>advisors/*.md</code> (18 files, each carries own model+thinking — not enumerated here).</p>
+<p>Model note: <code>specifier</code> and <code>hardener-auditor</code>/<code>fixer</code> moved off Opus this pass — <code>specifier</code> -&gt; Sonnet xhigh, <code>hardener-auditor</code> + <code>fixer</code> -&gt; Fable high, per SKILL.md frontmatter table and role file <code>## Tier</code> sections. <code>coder</code>/<code>cleaner</code> (Sonnet xhigh) and <code>test-writer</code>/<code>qa</code> (Sonnet xhigh / Sonnet high) unchanged — already matched requested values.</p>
+<hr>
+<h2>Cross-skill relation</h2>
+<div class="artifact-mermaid"><pre class="mermaid">flowchart LR
+  PLAN[make-plan-v2&lt;br/&gt;orchestrator] --&gt;|writes ticket files&lt;br/&gt;PLAN_*/T{n}_*.md| TICKETS[(Ticket files,&lt;br/&gt;spec level 5)]
+  TICKETS --&gt; IMPL[make-aron-v2&lt;br/&gt;orchestrator, per ticket]
+  IMPL --&gt; COMMIT[(verified commits&lt;br/&gt;on feat branch)]</pre></div>
+<footer class="artifact-footer">source: /home/aron/config/nix-aron/dotfiles/agents/skills</footer>
+</article>
+
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script>
+(function () {
+  var mode = "auto";
+  function init() {
+    try {
+      var dark = mode === "dark" || (mode === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+      var css = getComputedStyle(document.documentElement);
+      var t = function (name) { return css.getPropertyValue(name).trim(); };
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "base",
+        themeVariables: {
+          darkMode: dark,
+          background: t("--bg"),
+          mainBkg: t("--code-bg"),
+          primaryColor: t("--code-bg"),
+          primaryTextColor: t("--fg"),
+          primaryBorderColor: t("--border"),
+          secondaryColor: t("--code-bg"),
+          tertiaryColor: t("--bg"),
+          lineColor: t("--muted"),
+          textColor: t("--fg"),
+          noteBkgColor: t("--code-bg"),
+          noteTextColor: t("--fg"),
+          noteBorderColor: t("--border"),
+          edgeLabelBackground: t("--code-bg"),
+          clusterBkg: t("--bg"),
+          clusterBorder: t("--border"),
+          actorLineColor: t("--muted"),
+          signalTextColor: t("--fg"),
+          labelTextColor: t("--fg"),
+          fontFamily: getComputedStyle(document.body).fontFamily
+        }
+      });
+      mermaid.run({ querySelector: "pre.mermaid" });
+    } catch (e) { console.warn("mermaid init failed", e); }
+  }
+  if (typeof mermaid !== "undefined") init();
+  else window.addEventListener("load", init);
+})();
+</script>
+
+<script>
+(function () {
+  var slug = "agent-chains-make-plan-v2-make-aron-v2";
+  var es = new EventSource("/events");
+  es.addEventListener("reload", function (e) {
+    try { if (e.data === slug || e.data === "*") location.reload(); } catch (_) {}
+  });
+})();
+</script>
+</body>
+</html>

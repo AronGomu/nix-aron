@@ -1,7 +1,9 @@
 ---
 name: make-plan-v2
-description: Break goal into Markdown TDD ticket flowchart, then 1 dedicated Opus-xhigh writer child per ticket writes each ticket at spec level 5 (interface contract) with atomic main-step/sub-step impl plan.
+description: Break goal into Markdown TDD ticket flowchart, then 1 dedicated Fable-low writer child per ticket writes each ticket at spec level 5 (interface contract) with atomic main-step/sub-step impl plan.
 disable-model-invocation: true
+model: opus
+thinking: high
 ---
 
 # make-plan-v2
@@ -21,17 +23,17 @@ Lazy — read only when needed :
 
 ## Job
 
-1. Parse goal. Scope clear. Ambiguity → grill (load grill-me-aron) with **target spec level 5** — grill-me-aron owns that bar, this skill only sets N. Caller said autonomous → safest in-scope default + log under `## Assumptions`. No silent assume either way.
+1. Parse goal. Scope clear. Ambiguity → grill (load grill-me-aron, model **Fable, thinking high**) with **target spec level 5** — grill-me-aron owns that bar, this skill only sets N. Caller said autonomous → safest in-scope default + log under `## Assumptions`. No silent assume either way.
 2. Decompose goal → sequential tickets that build onto predecessors.
-   Probe triggers hit here → read `~/.agents/skills/_shared/probes.md`, spawn the scout child, fold the result into the affected rows. Trigger absent → no probe.
+   Probe triggers hit here → read `~/.agents/skills/_shared/probes.md`, spawn the scout child (model **Sonnet, thinking high**), fold the result into the affected rows. Trigger absent → no probe.
 3. Each ticket = **1 commit-sized functional slice**. App **must compile successfuly** after ticket implementation.
 4. Write **1 markdown plan index**. Caveman Ultra. Save `./artifacts/PLAN_{YYYY_MM_DD}_{title}.md`. Index holds **no ticket body** — only links.
    **Step 4.5 — plan red-team pass**, risk-gated (see `## Step 4.5 — plan red-team`). Attacks the decomposition against the real repo **before** you spend a writer child per row. Gate: no `BLOCKED` open, every `KILL` / `MERGE` / `AMEND` folded into the index before step 5.
-5. **Ticket write pass**. Spawn **1 Opus-xhigh ticket-writer child per ticket** (see `## Step 5 — ticket write pass`). Orchestrator writes **no ticket body**. Each child creates + writes its own `./artifacts/PLAN_{YYYY_MM_DD}_{title}/T{n}_{ticket-slug}.md`, whole file, spec level 5.
+5. **Ticket write pass**. Spawn **1 Fable-low ticket-writer child per ticket** (see `## Step 5 — ticket write pass`). Orchestrator writes **no ticket body**. Each child creates + writes its own `./artifacts/PLAN_{YYYY_MM_DD}_{title}/T{n}_{ticket-slug}.md`, whole file, spec level 5.
    Ticket dir = plan filename minus `.md`. Zero-pad nothing: `T1_`, `T2_`, … `T10_`.
 6. **Coherence review pass**. Every ticket written → spawn **1 fresh-context reviewer child** over the whole set (see `## Step 6 — coherence review pass`). It proves the tickets chain. Findings → **you** arbitrate + patch. Gate: no `blocker` open before step 7.
-7. Write **1 html plan**. Use **make-html-aron** effort=high verbosity=lite. Save `./artifacts/PLAN_{YYYY_MM_DD}_{title}.html`.
-8. Write **X ADR Records markdown doc** about decisions from investigation. Caveman Lite. Save `./docs/ADR/XXX_ADR_{title}.md`.
+7. Write **1 html plan**. Use **make-html-aron** (model **Sonnet, thinking medium**) effort=high verbosity=lite. Save `./artifacts/PLAN_{YYYY_MM_DD}_{title}.html`.
+8. Write **X ADR Records markdown doc** (model **Sonnet, thinking medium**) about decisions from investigation. Caveman Lite. Save `./docs/ADR/XXX_ADR_{title}.md`.
    Read `~/.agents/skills/_shared/ADR.md` now and follow it fully.
    **Durable never links to ephemeral.** ADR must not link `./artifacts/**`, `./.tmp/**`, plan, ticket, progress or feedback file — implementation deletes them. Cite commit SHA, tag, or tracked file, and inline the cited fact.
 9. Write, update, delete **X Architecture Design HTML Documents**. Caveman Lite. Save `./docs/{title}.html`.
@@ -43,12 +45,13 @@ Lazy — read only when needed :
 
 Step 6 checks the tickets against **each other** — closed world. This checks the plan against the **repo and reality** — open world. A ticket set can chain perfectly and still build a thing that already exists, break an unchanged consumer, or land a migration in the wrong order. Nothing else in this skill catches that.
 
-Runs **here**, not after step 5, because `KILL` and `MERGE` delete rows and every deleted row is one Opus-xhigh child never spawned. The gate pays for itself in the most expensive phase.
+Runs **here**, not after step 5, because `KILL` and `MERGE` delete rows and every deleted row is one Fable-low child never spawned. The gate pays for itself in the most expensive phase.
 
 **Gate — run it when any holds:** data migration or schema change · authz / auth surface · external API or paid service · touches more than one subsystem · deploys to prod · more than 6 tickets · caller asked for it. None hold → skip, log the skip under `## Assumptions`. A 4-ticket local plan does not need an adversary.
 
 Spawn **1 reviewer child**: `Read ~/.agents/roles/reviewer.md. Follow it.` + dimension `plan-red-team` + target = index + repo root.
 
+- Model: **Fable, thinking high**.
 - **Fresh context, never fork.** Your reasoning for the decomposition is the thing under test.
 - **Read-only.** Reports; never patches the index.
 - Hand it: index, goal + success def, Scope In / Out, assumptions, locked user decisions, every repo fact you already found, base SHA if available. Missing input → it reports a coverage gap, it does not invent.
@@ -63,12 +66,12 @@ After it returns, **you** arbitrate:
 
 No re-review. One pass, arbitrate, move on — the index is cheap to fix and step 6 backstops the result. Verdicts that change a contract must reach the writer briefs in step 5; that is the whole point of running before the fanout.
 
-## Step 5 — ticket write pass (Opus xhigh, 1 child per ticket)
+## Step 5 — ticket write pass (Fable low, 1 child per ticket)
 
 Once decomposition is done (index order table written, step 4), spawn **1 ticket-writer child per row**. One ticket = one dedicated child, from blank file to finished spec. No draft-then-detail two-pass.
 
 - Prompt: `Read ~/.agents/roles/ticket-writer.md. Follow it.` + target ticket file path + ticket row + ticket file template + repo root + orchestrator brief (below).
-- Model: **Opus, thinking xhigh** (e.g. `claude-opus-5:xhigh`). Unavailable → strongest frontier at xhigh or high thinking, tell user.
+- Model: **Fable, thinking low** (e.g. `claude-opus-5:low`). Unavailable → strongest frontier at low thinking, tell user.
 - Fresh context each child. Parallel OK — each child writes **its own ticket file only**.
 - Child inspects codebase itself: exact paths, symbols, signatures, test harness, build cmds by **inspection**, never memory.
 - Child fills **every** template section, `## Interface contract` at level 5, `## Impl steps` = main steps + atomic sub-steps.
@@ -94,7 +97,7 @@ Spawn **1 reviewer child**: `Read ~/.agents/roles/reviewer.md. Follow it.` + dim
 
 - **Fresh context, never fork.** A fork inherits your belief that you already ruled correctly — that belief is the thing under test. Child re-derives every contract from the files.
 - **Read-only.** Reports; never patches a ticket.
-- Model: strong frontier, thinking high+. **One** child, not a fanout — findings are relational, so the whole set must sit in one head.
+- Model: **Fable, thinking medium**. **One** child, not a fanout — findings are relational, so the whole set must sit in one head.
 
 Child proves all six. Each failure is a `blocker`:
 
