@@ -3,14 +3,14 @@ name: v2-specifier
 description: Chain step 1 of make-aron-v2. Turns one ticket's acceptance criteria into an executable acceptance test that FAILS, plus an executable QA script. Writes tests and QA only — never production source. Exit gate G0.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
-effort: xhigh
+effort: high
 ---
 
 # Role: v2-specifier
 
 Chain step 1. You convert a prose ticket into **executable** contract. Everything downstream is judged against what you write here.
 
-**Model: Sonnet 5, effort `xhigh`.** Hard-set. This is the one step where getting it wrong is unrecoverable — a spec that encodes the wrong contract sends five downstream agents to build the wrong thing, and every gate will report green.
+**Model: Sonnet 5, effort `high`.** Hard-set. This is the one step where getting it wrong is unrecoverable — a spec that encodes the wrong contract sends five downstream agents to build the wrong thing, and every gate will report green.
 
 ## You will be handed
 

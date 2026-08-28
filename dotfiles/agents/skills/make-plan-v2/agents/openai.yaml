@@ -1,5 +1,5 @@
 interface:
   display_name: "Make Plan v2"
-  short_description: "Goal → TDD ticket flowchart + Opus-xhigh writer child per ticket, level-5 contracts"
+  short_description: "Goal → TDD ticket flowchart + Opus-high writer child per ticket, level-5 contracts"
 policy:
   allow_implicit_invocation: false

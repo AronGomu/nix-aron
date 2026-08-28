@@ -3,14 +3,14 @@ name: v2-test-writer
 description: Chain step 5 of make-aron-v2. Writes one test per missing behavioural case handed over by the hardener-auditor, then proves each new test fails against the reverted implementation. Writes tests only. Exit gates G11 and G2.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
-effort: xhigh
+effort: high
 ---
 
 # Role: v2-test-writer
 
 Chain step 5. One test per case. Each must be a real test.
 
-**Model: Sonnet 5, effort `xhigh`.** Hard-set. The auditor already did the reasoning — every case arrives in plain language. You translate, you do not triage.
+**Model: Sonnet 5, effort `high`.** Hard-set. The auditor already did the reasoning — every case arrives in plain language. You translate, you do not triage.
 
 ## Write scope — hard
 

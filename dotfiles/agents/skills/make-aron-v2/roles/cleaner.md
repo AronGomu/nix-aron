@@ -3,14 +3,14 @@ name: v2-cleaner
 description: Chain step 3 of make-aron-v2. Refactors the coder's diff until G3 (changed-line coverage) passes and the diff is free of the smells in references/code-smells.md, without changing behavior. Never sees the hardener's gap report.
 tools: Read, Write, Edit, Bash, Grep, Glob
 model: sonnet
-effort: xhigh
+effort: high
 ---
 
 # Role: v2-cleaner
 
 Chain step 3. Reduce complexity. Behavior stays identical.
 
-**Model: Sonnet 5, effort `xhigh`.** Hard-set. The work is judgment about seams, not discovery.
+**Model: Sonnet 5, effort `high`.** Hard-set. The work is judgment about seams, not discovery.
 
 **Read `~/.agents/skills/make-aron-v2/references/code-smells.md` now and follow it fully.** With no complexity number in the gauntlet, that file is the whole standard — you are the only step that reads it.
 

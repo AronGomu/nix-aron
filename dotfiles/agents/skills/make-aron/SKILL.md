@@ -63,10 +63,10 @@ Index carries ticket bodies inline (legacy single-file plan) → split into per-
 | Branch                | `plan/{slug}`, slug = plan title kebab                                                                                                                                                             |
 | Base                  | current default remote HEAD (`main`/`master`)                                                                                                                                                      |
 | Plan breakdown        | tier `deep` — frontier model, high effort (Opus 5 high / GPT-5.6 Sol high). Never cheaper                                                                                                          |
-| Worker                | fresh-context child, role `~/.agents/roles/impl-worker.md`, tier `deep` — **Opus 5, effort `xhigh`**, always; loads skill `ship` if installed, else AgentSystemLabs ship playbook                  |
+| Worker                | fresh-context child, role `~/.agents/roles/impl-worker.md`, tier `deep` — **Opus 5, effort `high`**, always; loads skill `ship` if installed, else AgentSystemLabs ship playbook                  |
 | Worker escalation     | worker already at top model/effort — escalation buys no model change, only ship depth `production` when ticket touches auth / pay / migrate / webhook / jobs / multi-subsystem, **or** it is the one repair attempt |
 | Reviewer              | fresh-context children, role `~/.agents/roles/reviewer.md`, tier `deep`, dimensions: correctness, security, scope-drift, tests                                                                     |
-| Scout                 | fresh-context child, role `~/.agents/roles/scout.md`, **Sonnet 5, effort `xhigh`**, read-only, for any unknown fact                                                                                |
+| Scout                 | fresh-context child, role `~/.agents/roles/scout.md`, **Sonnet 5, effort `high`**, read-only, for any unknown fact                                                                                |
 | Ship depth            | `balanced`; `production` if ticket touches auth / pay / migrate / webhook / jobs / multi-subsystem                                                                                                 |
 | Commit                | **after** ship terminal `locally-verified` **and** ticket Validation pass                                                                                                                          |
 | Granularity           | 1 commit per ticket minimum                                                                                                                                                                        |
@@ -89,8 +89,8 @@ Index carries ticket bodies inline (legacy single-file plan) → split into per-
 Spawn with role line first: `Read ~/.agents/roles/impl-worker.md. Follow it.`
 Then tier line, ticket file path, workspace/branch, publish policy = commit + push feature branch, `ship` depth.
 
-Model per table above — Opus 5 at effort `xhigh`, every ticket. Never downgrade.
-Claude Code: subagent `impl-worker` (opus/xhigh). Other harness: set model+effort if it can, and always state model + effort in the prompt.
+Model per table above — Opus 5 at effort `high`, every ticket. Never downgrade.
+Claude Code: subagent `impl-worker` (opus/high). Other harness: set model+effort if it can, and always state model + effort in the prompt.
 Role file owns read scope, checkbox duty, evidence bar, report shape. Below is the code-specific overlay.
 
 ```
@@ -189,7 +189,7 @@ Core list, plus:
 - Skip TDD when ticket defines it
 - Pass worker the index or a sibling ticket instead of its own ticket file path
 - Worker reads sibling tickets to fill a gap instead of reporting the plan defect
-- Plan below `deep`, then burn `xhigh` workers rescuing vague tickets
+- Plan below `deep`, then burn `high` workers rescuing vague tickets
 - Run worker, scout, or reviewer below the model/effort in the table to save tokens
 - Ask user anything after implementation started (re-confirm plan, "continue?", preference, special-action approval)
 

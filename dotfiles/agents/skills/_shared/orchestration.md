@@ -145,7 +145,7 @@ Rules:
 Applying the tier — harness support varies, use the best available:
 
 1. Harness exposes per-spawn model **and** effort → set both.
-   Claude Code: subagent frontmatter `model:` (`opus`/`sonnet`/`haiku`/`opus`/full id/`inherit`) + `effort:` (`low`/`medium`/`high`/`xhigh`/`max`, levels vary by model). Also `agent(p, {model, effort})` in Workflow scripts.
+   Claude Code: subagent frontmatter `model:` (`opus`/`sonnet`/`haiku`/`opus`/full id/`inherit`) + `effort:` (`low`/`medium`/`high`/`high`/`max`, levels vary by model). Also `agent(p, {model, effort})` in Workflow scripts.
 2. Harness exposes model only → set model to match the tier.
 3. Harness exposes neither → state the tier in the prompt: `Tier: deep — frontier reasoning, high effort. Budget thoroughness accordingly.`
 

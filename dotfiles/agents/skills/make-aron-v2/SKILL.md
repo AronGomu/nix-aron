@@ -25,17 +25,17 @@ Read now, both:
 
 ## Const
 
-| name               | value                                                                                  |
-| ------------------ | -------------------------------------------------------------------------------------- |
-| Skill dir          | `~/.agents/skills/make-aron-v2/`                                                       |
-| Roles              | `{skill dir}/roles/{specifier,coder,cleaner,hardener-auditor,test-writer,qa,fixer}.md` |
-| Advisors           | `{skill dir}/advisors/*.md` — 18 files                                                 |
-| Gate runner        | `{skill dir}/gates/run.sh <gate-id>`                                                   |
-| Bootstrap          | `{skill dir}/bootstrap/detect.py`                                                      |
-| Project config     | `./.make-aron/gates.json` — committed                                                  |
-| Layer rules        | `./.make-aron/layers.json` — committed, optional                                       |
-| Ledger             | `./.make-aron/runs/{run-id}.md` — gitignored                                           |
-| Branch             | `feat/{first-ticket-slug}`                                                             |
+| name           | value                                                                                  |
+| -------------- | -------------------------------------------------------------------------------------- |
+| Skill dir      | `~/.agents/skills/make-aron-v2/`                                                       |
+| Roles          | `{skill dir}/roles/{specifier,coder,cleaner,hardener-auditor,test-writer,qa,fixer}.md` |
+| Advisors       | `{skill dir}/advisors/*.md` — 18 files                                                 |
+| Gate runner    | `{skill dir}/gates/run.sh <gate-id>`                                                   |
+| Bootstrap      | `{skill dir}/bootstrap/detect.py`                                                      |
+| Project config | `./.make-aron/gates.json` — committed                                                  |
+| Layer rules    | `./.make-aron/layers.json` — committed, optional                                       |
+| Ledger         | `./.make-aron/runs/{run-id}.md` — gitignored                                           |
+| Branch         | `feat/{first-ticket-slug}`                                                             |
 
 ## Process
 
@@ -58,18 +58,18 @@ Read ~/.agents/skills/make-aron-v2/roles/{role}.md. Follow it fully.
 
 Model + effort are **hard-set in each role file frontmatter**. Set them on the spawn when the harness allows; always restate them in the prompt. Never downgrade to save tokens.
 
-| #   | Step                 | Role file                   | Model          | Writes            | Exit gate            |
-| --- | -------------------- | --------------------------- | -------------- | ----------------- | -------------------- |
-| 1   | specifier            | `roles/specifier.md`        | sonnet / xhigh | tests + QA script | `G0` spec is RED     |
-| 2   | coder                | `roles/coder.md`            | sonnet / xhigh | source            | `G1` `G2` `G8`       |
-| 3   | cleaner              | `roles/cleaner.md`          | sonnet / xhigh | source            | `G3`                 |
+| #   | Step                 | Role file                   | Model         | Writes            | Exit gate            |
+| --- | -------------------- | --------------------------- | ------------- | ----------------- | -------------------- |
+| 1   | specifier            | `roles/specifier.md`        | sonnet / high | tests + QA script | `G0` spec is RED     |
+| 2   | coder                | `roles/coder.md`            | sonnet / high | source            | `G1` `G2` `G8`       |
+| 3   | cleaner              | `roles/cleaner.md`          | sonnet / high | source            | `G3`                 |
 | 4   | hardener-auditor     | `roles/hardener-auditor.md` | opus / high   | **nothing**       | report only          |
-| 5   | test-writer          | `roles/test-writer.md`      | sonnet / xhigh | tests             | `G11`                |
-| 6   | qa                   | `roles/qa.md`               | sonnet / high  | nothing           | `G9`                 |
-| 7   | final candidate gate | parent                      | —              | —                 | `G1`-`G9`, recursive |
-| 8   | advisor fanout       | `advisors/*.md`             | see file       | **nothing**       | findings ledger      |
+| 5   | test-writer          | `roles/test-writer.md`      | sonnet / high | tests             | `G11`                |
+| 6   | qa                   | `roles/qa.md`               | sonnet / high | nothing           | `G9`                 |
+| 7   | final candidate gate | parent                      | —             | —                 | `G1`-`G9`, recursive |
+| 8   | advisor fanout       | `advisors/*.md`             | see file      | **nothing**       | findings ledger      |
 | 9   | fixer                | `roles/fixer.md`            | opus / high   | source + tests    | back to step 7       |
-| 10  | commit + push        | parent                      | —              | git only          | —                    |
+| 10  | commit + push        | parent                      | —             | git only          | —                    |
 
 **Step 3 and steps 4-5 never share a context.** Cleaner's goal is fewer branches; the cheapest way to close a test gap is often to add one. One agent holding both oscillates or satisfies neither. Cleaner first, always, including at the tail.
 
