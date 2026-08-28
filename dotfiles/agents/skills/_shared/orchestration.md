@@ -1,7 +1,5 @@
 # Orchestration core
 
-Rule ids `A1`-`L4` → `~/.agents/GLOBAL_RULES.md` (pi appends it to the system prompt; other harnesses read it).
-
 Shared machinery for `make-aron`.
 Caller own: domain gate, artifact shape, publish rule, pre-flight.
 This file own: stance, loop, state, checkboxes, evidence, stop rules.
@@ -75,20 +73,20 @@ Shape:
 
 ## Auto-decide — no ask
 
-| Choice | Default |
-| --- | --- |
-| Ambiguity | safest in-scope; log under Assumptions |
-| Order | plan Depends hard. Never skip dep |
-| Parallel writers | **Off** same cwd. Read-only fanout OK |
-| Worker | fresh-context subagent, role `impl-worker`, tier `standard`, one at a time |
-| Fact lookup | fresh-context subagent, role `scout`, tier `cheap`, read-only, parallel OK |
-| Final review | fresh-context fanout, role `reviewer`, tier `deep`, one dimension each |
-| Repair | 1 repair loop per step, tier `deep`, then blocked |
-| Scope creep | drop. Stay Scope In only |
-| Resume | read progress; skip `done`; retry `failed` once; halt `blocked_user` |
-| Missing plan | generate via caller Step 0, **interactive** — grill, confirm, then autonomous |
-| User ping | plan phase: as needed. Implementation: never, except hard stop |
-| Docs | update only if plan needs it or contract changed |
+| Choice           | Default                                                                       |
+| ---------------- | ----------------------------------------------------------------------------- |
+| Ambiguity        | safest in-scope; log under Assumptions                                        |
+| Order            | plan Depends hard. Never skip dep                                             |
+| Parallel writers | **Off** same cwd. Read-only fanout OK                                         |
+| Worker           | fresh-context subagent, role `impl-worker`, tier `standard`, one at a time    |
+| Fact lookup      | fresh-context subagent, role `scout`, tier `cheap`, read-only, parallel OK    |
+| Final review     | fresh-context fanout, role `reviewer`, tier `deep`, one dimension each        |
+| Repair           | 1 repair loop per step, tier `deep`, then blocked                             |
+| Scope creep      | drop. Stay Scope In only                                                      |
+| Resume           | read progress; skip `done`; retry `failed` once; halt `blocked_user`          |
+| Missing plan     | generate via caller Step 0, **interactive** — grill, confirm, then autonomous |
+| User ping        | plan phase: as needed. Implementation: never, except hard stop                |
+| Docs             | update only if plan needs it or contract changed                              |
 
 Caller adds: branch, commit, push, PR, gate depth, artifact paths.
 
@@ -129,11 +127,11 @@ Parent never edits the work product while in this loop.
 
 Planning and judging get the **frontier model at high effort**. Executing a plan does not — the plan already did the thinking.
 
-| Tier | Model + effort | Used for |
-| --- | --- | --- |
-| `deep` | frontier model, **high** effort — e.g. Opus 5 high, GPT-5.6 Sol high | plan breakdown, ticket decomposition, all reviews, repair after a failed ticket |
-| `standard` | mid model or frontier at low effort — e.g. Sonnet 5 medium, Opus 5 low, GPT Terra medium | implementing a ticket that is already granular |
-| `cheap` | small/fast model, low effort | fact lookup, mechanical edits, formatting |
+| Tier       | Model + effort                                                                           | Used for                                                                        |
+| ---------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `deep`     | frontier model, **high** effort — e.g. Opus 5 high, GPT-5.6 Sol high                     | plan breakdown, ticket decomposition, all reviews, repair after a failed ticket |
+| `standard` | mid model or frontier at low effort — e.g. Sonnet 5 medium, Opus 5 low, GPT Terra medium | implementing a ticket that is already granular                                  |
+| `cheap`    | small/fast model, low effort                                                             | fact lookup, mechanical edits, formatting                                       |
 
 Rules:
 
@@ -153,12 +151,12 @@ Always include the tier line in the prompt **even when the knob exists**. It cos
 
 Every child gets a **role** from `~/.agents/roles/`:
 
-| Role | File | Tier | Use |
-| --- | --- | --- | --- |
-| planner | `~/.agents/roles/planner.md` | `deep` | writes plan artifacts; never app code |
-| impl-worker | `~/.agents/roles/impl-worker.md` | `standard` (`deep` if escalated) | executes one ticket, writes |
-| reviewer | `~/.agents/roles/reviewer.md` | `deep` | read-only, one dimension, loop step 6 |
-| scout | `~/.agents/roles/scout.md` | `cheap` | read-only fact finding, never asks user |
+| Role        | File                             | Tier                             | Use                                     |
+| ----------- | -------------------------------- | -------------------------------- | --------------------------------------- |
+| planner     | `~/.agents/roles/planner.md`     | `deep`                           | writes plan artifacts; never app code   |
+| impl-worker | `~/.agents/roles/impl-worker.md` | `standard` (`deep` if escalated) | executes one ticket, writes             |
+| reviewer    | `~/.agents/roles/reviewer.md`    | `deep`                           | read-only, one dimension, loop step 6   |
+| scout       | `~/.agents/roles/scout.md`       | `cheap`                          | read-only fact finding, never asks user |
 
 Pass the role **by path**, first line of the prompt: `Read ~/.agents/roles/{role}.md. Follow it.`
 Never inline the role body. Harness with a native subagent registry → use its adapter, which is itself a one-line `Read …` pointing at the same file. Harness without one → the prompt line alone is enough.
@@ -214,9 +212,9 @@ Caller may add fields (e.g. `SHA:`, `Ship terminal:`).
 
 ## Status
 
-| ID | Title | File | State | Evidence | Note |
-| --- | --- | --- | --- | --- | --- |
-| T1 | ... | `.../T1_slug.md` | done | `pytest` 12 pass | ... |
+| ID  | Title | File             | State | Evidence         | Note |
+| --- | ----- | ---------------- | ----- | ---------------- | ---- |
+| T1  | ...   | `.../T1_slug.md` | done  | `pytest` 12 pass | ...  |
 
 States: pending|running|done|failed|blocked_user|blocked_dep|skipped
 
