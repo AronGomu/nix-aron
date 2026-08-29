@@ -8,8 +8,8 @@ const ANTHROPIC = "anthropic";
 const CLAUDE_BRIDGE = "claude-bridge";
 
 // `thinking` is deliberately absent on the xai/openai-codex entries: those keep
-// whatever shift+tab left the session on. The Claude entries pin xhigh —
-// reaching for Claude here is always the "think hard" case.
+// whatever shift+tab left the session on. The Claude entries pin low —
+// reaching for Claude here should default to fast, cheap thinking.
 const SWITCHES = [
   {
     command: "grok",
@@ -25,24 +25,24 @@ const SWITCHES = [
   },
   {
     command: "opus",
-    description: "Switch to Claude Opus 5.0 (claude-bridge, xhigh thinking)",
+    description: "Switch to Claude Opus 5.0 (claude-bridge, low thinking)",
     provider: CLAUDE_BRIDGE,
     model: "claude-opus-5",
-    thinking: "xhigh",
+    thinking: "low",
   },
   {
     command: "sonnet",
-    description: "Switch to Claude Sonnet 5.0 (claude-bridge, xhigh thinking)",
+    description: "Switch to Claude Sonnet 5.0 (claude-bridge, low thinking)",
     provider: CLAUDE_BRIDGE,
     model: "claude-sonnet-5",
-    thinking: "xhigh",
+    thinking: "low",
   },
   {
     command: "fable",
-    description: "Switch to Claude Fable 5 (claude-bridge, xhigh thinking)",
+    description: "Switch to Claude Fable 5 (claude-bridge, low thinking)",
     provider: CLAUDE_BRIDGE,
     model: "claude-fable-5",
-    thinking: "xhigh",
+    thinking: "low",
   },
 ] as const;
 
