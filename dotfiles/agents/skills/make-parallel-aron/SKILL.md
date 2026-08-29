@@ -39,7 +39,7 @@ END = All tickets are implemented and merged into main.
 
 ## Impl Agent
 
-Model & Thinking = Same as orchestrator.
+Refer to `./Coding-Task-Model-&-Reasonning-Routing-Guide.md` to set Model and Thinking Level based on Ticket.
 
 ### Input
 
@@ -53,7 +53,7 @@ Add **NO USER INTERACTION**. Follow `Fully Autonomous` rule.
 ## Scout Agent
 
 Model = Luna
-Thinking = Medium
+Thinking = High
 **READ-ONLY**
 
 ### Input

@@ -22,6 +22,12 @@ const SWITCHES = [
     model: "gpt-5.6-sol",
   },
   {
+    command: "luna",
+    description: "Switch to GPT-5.6 Luna (openai-codex)",
+    provider: "openai-codex",
+    model: "gpt-5.6-luna",
+  },
+  {
     command: "opus",
     description: "Switch to Claude Opus 5.0 (claude-bridge, low thinking)",
     provider: CLAUDE_BRIDGE,
