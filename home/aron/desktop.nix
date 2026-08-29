@@ -115,7 +115,7 @@ in
         "image/png" = [ "org.gnome.Loupe.desktop" ];
         "inode/directory" = [ "org.kde.dolphin.desktop" ];
         "message/rfc822" = [ "thunderbird.desktop" ];
-        "text/html" = [ "brave-browser.desktop" ];
+        "text/html" = [ "brave-origin.desktop" ];
         "video/3gpp" = [ "mpv.desktop" ];
         "video/mp2t" = [ "mpv.desktop" ];
         "video/mp4" = [ "mpv.desktop" ];
@@ -129,8 +129,8 @@ in
         "video/x-matroska" = [ "mpv.desktop" ];
         "video/x-ms-wmv" = [ "mpv.desktop" ];
         "video/x-msvideo" = [ "mpv.desktop" ];
-        "x-scheme-handler/http" = [ "brave-browser.desktop" ];
-        "x-scheme-handler/https" = [ "brave-browser.desktop" ];
+        "x-scheme-handler/http" = [ "brave-origin.desktop" ];
+        "x-scheme-handler/https" = [ "brave-origin.desktop" ];
         "x-scheme-handler/mailto" = [ "thunderbird.desktop" ];
       };
     };

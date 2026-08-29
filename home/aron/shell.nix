@@ -27,8 +27,8 @@ let
     hm = "echo 'no standalone HM output — HM applies via nixos-rebuild; run: rebuild' >&2";
     update-system = "nix flake update --flake ~/config/nix-aron";
 
-    brave-personal = "brave --profile-directory=Default";
-    brave-mtgones = "brave --profile-directory='Profile 1'";
+    brave-personal = "brave-origin --profile-directory=Default";
+    brave-mtgones = "brave-origin --profile-directory='Profile 1'";
   };
 
   # Loads agent secrets for:
@@ -52,7 +52,7 @@ let
 in
 {
   home.sessionVariables = {
-    BROWSER = "brave";
+    BROWSER = "brave-origin";
     EDITOR = "nvim";
     TERMINAL = "ghostty";
     VISUAL = "nvim";

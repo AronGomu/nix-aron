@@ -263,7 +263,7 @@ in
       "hypr/custom/variables.lua".text = ''
         terminal = "ghostty"
         fileManager = "dolphin"
-        browser = "brave"
+        browser = "brave-origin"
       '';
       "hypr/custom/env.lua".text = ''
         hl.env("ILLOGICAL_IMPULSE_VIRTUAL_ENV", "${pythonEnv}")
@@ -307,7 +307,7 @@ in
       "hypr/custom/execs.lua".text = ''
         hl.on("hyprland.start", function ()
             hl.exec_cmd("ghostty -e herdr", { workspace = "1 silent" })
-            hl.exec_cmd("brave --new-window", { workspace = "2 silent" })
+            hl.exec_cmd("brave-origin --new-window", { workspace = "2 silent" })
             hl.exec_cmd("openwhispr")
         end)
       '';
@@ -333,127 +333,127 @@ in
     xdg.desktopEntries = {
       youtube = {
         name = "YouTube";
-        icon = "brave-browser";
-        exec = "brave https://www.youtube.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://www.youtube.com/";
         terminal = false;
         categories = [ "Network" ];
       };
       linkedin = {
         name = "link - LinkedIn";
-        icon = "brave-browser";
-        exec = "brave https://www.linkedin.com/feed/";
+        icon = "brave-origin";
+        exec = "brave-origin https://www.linkedin.com/feed/";
         terminal = false;
         categories = [ "Network" ];
       };
       instagram = {
         name = "Instagram";
-        icon = "brave-browser";
-        exec = "brave https://www.instagram.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://www.instagram.com/";
         terminal = false;
         categories = [ "Network" ];
       };
       x-twitter = {
         name = "X";
-        icon = "brave-browser";
-        exec = "brave https://x.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://x.com/";
         terminal = false;
         categories = [ "Network" ];
       };
       youtube-music = {
         name = "YouTube Music";
-        icon = "brave-browser";
-        exec = "brave https://music.youtube.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://music.youtube.com/";
         terminal = false;
         categories = [ "AudioVideo" "Network" ];
       };
       youtube-studio = {
         name = "YouTube Studio";
-        icon = "brave-browser";
-        exec = "brave https://studio.youtube.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://studio.youtube.com/";
         terminal = false;
         categories = [ "Network" ];
       };
       canva = {
         name = "can - Canva";
-        icon = "brave-browser";
-        exec = "brave https://www.canva.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://www.canva.com/";
         terminal = false;
         categories = [ "Graphics" "Network" ];
       };
       grok = {
         name = "Grok";
-        icon = "brave-browser";
-        exec = "brave https://grok.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://grok.com/";
         terminal = false;
         categories = [ "Network" ];
       };
       chatgpt = {
         name = "ChatGPT";
-        icon = "brave-browser";
-        exec = "brave https://chatgpt.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://chatgpt.com/";
         terminal = false;
         categories = [ "Network" ];
       };
       scryfall = {
         name = "Scryfall";
-        icon = "brave-browser";
-        exec = "brave https://scryfall.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://scryfall.com/";
         terminal = false;
         categories = [ "Network" ];
       };
       siinergy-erp = {
         name = "Siinergy ERP";
-        icon = "brave-browser";
-        exec = "brave http://erpcloud.siinergy.net/";
+        icon = "brave-origin";
+        exec = "brave-origin http://erpcloud.siinergy.net/";
         terminal = false;
         categories = [ "Network" ];
       };
       siinergy-portail = {
         name = "Siinergy Portail";
-        icon = "brave-browser";
-        exec = "brave https://monportail.siinergy.net/";
+        icon = "brave-origin";
+        exec = "brave-origin https://monportail.siinergy.net/";
         terminal = false;
         categories = [ "Network" ];
       };
       outlook = {
         name = "Outlook";
-        icon = "brave-browser";
-        exec = "brave https://outlook.live.com/mail/";
+        icon = "brave-origin";
+        exec = "brave-origin https://outlook.live.com/mail/";
         terminal = false;
         categories = [ "Network" ];
       };
       discord = {
         name = "Discord";
-        icon = "brave-browser";
-        exec = "brave https://discord.com/channels/@me";
+        icon = "brave-origin";
+        exec = "brave-origin https://discord.com/channels/@me";
         terminal = false;
         categories = [ "Network" ];
       };
       messenger = {
         name = "Messenger";
-        icon = "brave-browser";
-        exec = "brave https://www.facebook.com/messages/e2ee/t/8160697540693740/";
+        icon = "brave-origin";
+        exec = "brave-origin https://www.facebook.com/messages/e2ee/t/8160697540693740/";
         terminal = false;
         categories = [ "Network" ];
       };
       mtgtop8-legacy = {
         name = "MTGTop8 - Legacy";
-        icon = "brave-browser";
-        exec = ''brave "https://mtgtop8.com/format?f=LE"'';
+        icon = "brave-origin";
+        exec = ''brave-origin "https://mtgtop8.com/format?f=LE"'';
         terminal = false;
         categories = [ "Network" ];
       };
       facebook = {
         name = "Facebook";
-        icon = "brave-browser";
-        exec = "brave https://facebook.com/";
+        icon = "brave-origin";
+        exec = "brave-origin https://facebook.com/";
         terminal = false;
         categories = [ "Network" ];
       };
       maps = {
         name = "Maps";
-        icon = "brave-browser";
-        exec = "brave https://www.google.com/maps";
+        icon = "brave-origin";
+        exec = "brave-origin https://www.google.com/maps";
         terminal = false;
         categories = [ "Network" ];
       };
@@ -497,120 +497,120 @@ in
       };
       github-repos = {
         name = "github-repos";
-        icon = "brave-browser";
-        exec = "brave \"https://github.com/AronGomu?tab=repositories\"";
+        icon = "brave-origin";
+        exec = "brave-origin \"https://github.com/AronGomu?tab=repositories\"";
         terminal = false;
         categories = [ "Network" ];
       };
       github-nix-aron = {
         name = "github-nix-aron";
-        icon = "brave-browser";
-        exec = "brave https://github.com/AronGomu/nix-aron";
+        icon = "brave-origin";
+        exec = "brave-origin https://github.com/AronGomu/nix-aron";
         terminal = false;
         categories = [ "Network" ];
       };
       impeccable = {
         name = "Impeccable";
-        icon = "brave-browser";
-        exec = "brave https://github.com/pbakaus/impeccable";
+        icon = "brave-origin";
+        exec = "brave-origin https://github.com/pbakaus/impeccable";
         terminal = false;
         categories = [ "Network" ];
       };
       ascencio-duel-simulator = {
         name = "ASCENCIO - Duel Simulator";
-        icon = "brave-browser";
-        exec = "brave http://localhost:4300/";
+        icon = "brave-origin";
+        exec = "brave-origin http://localhost:4300/";
         terminal = false;
         categories = [ "Network" ];
       };
       ascencio-deckbuilder = {
         name = "ASCENCIO - Deckbuilder";
-        icon = "brave-browser";
-        exec = "brave http://localhost:4301/";
+        icon = "brave-origin";
+        exec = "brave-origin http://localhost:4301/";
         terminal = false;
         categories = [ "Network" ];
       };
       ascencio-vn = {
         name = "ASCENCIO - VN";
-        icon = "brave-browser";
-        exec = "brave http://localhost:4302/";
+        icon = "brave-origin";
+        exec = "brave-origin http://localhost:4302/";
         terminal = false;
         categories = [ "Network" ];
       };
       github-brain = {
         name = "github-brain";
-        icon = "brave-browser";
-        exec = "brave https://github.com/AronGomu/brain";
+        icon = "brave-origin";
+        exec = "brave-origin https://github.com/AronGomu/brain";
         terminal = false;
         categories = [ "Network" ];
       };
       github-ygo-story = {
         name = "github-ygo-story";
-        icon = "brave-browser";
-        exec = "brave https://github.com/AronGomu/ygo-story-duel-simulator";
+        icon = "brave-origin";
+        exec = "brave-origin https://github.com/AronGomu/ygo-story-duel-simulator";
         terminal = false;
         categories = [ "Network" ];
       };
       github-gones = {
         name = "github-gones";
-        icon = "brave-browser";
-        exec = "brave https://github.com/AronGomu/gones";
+        icon = "brave-origin";
+        exec = "brave-origin https://github.com/AronGomu/gones";
         terminal = false;
         categories = [ "Network" ];
       };
       github-matt-pocock = {
         name = "github-matt-pocock";
-        icon = "brave-browser";
-        exec = "brave https://github.com/mattpocock/skills";
+        icon = "brave-origin";
+        exec = "brave-origin https://github.com/mattpocock/skills";
         terminal = false;
         categories = [ "Network" ];
       };
       github-agentsystemlabs-core = {
         name = "github-agentsystemlabs-core";
-        icon = "brave-browser";
-        exec = "brave https://github.com/AgentSystemLabs/core";
+        icon = "brave-origin";
+        exec = "brave-origin https://github.com/AgentSystemLabs/core";
         terminal = false;
         categories = [ "Network" ];
       };
       github-essentia-page = {
         name = "github - Essentia";
-        icon = "brave-browser";
-        exec = "brave https://github.com/AronGomu/Essentia";
+        icon = "brave-origin";
+        exec = "brave-origin https://github.com/AronGomu/Essentia";
         terminal = false;
         categories = [ "Network" ];
       };
       google-drive = {
         name = "Google Drive";
-        icon = "brave-browser";
-        exec = "brave https://drive.google.com/drive/my-drive";
+        icon = "brave-origin";
+        exec = "brave-origin https://drive.google.com/drive/my-drive";
         terminal = false;
         categories = [ "Network" ];
       };
       claude-ai = {
         name = "Claude";
-        icon = "brave-browser";
-        exec = "brave https://claude.ai/";
+        icon = "brave-origin";
+        exec = "brave-origin https://claude.ai/";
         terminal = false;
         categories = [ "Network" ];
       };
       gones-local = {
         name = "Gones - http://localhost:4200";
-        icon = "brave-browser";
-        exec = "brave http://localhost:4200";
+        icon = "brave-origin";
+        exec = "brave-origin http://localhost:4200";
         terminal = false;
         categories = [ "Development" "Network" ];
       };
       essentia-local = {
         name = "Essentia - http://localhost:4201";
-        icon = "brave-browser";
-        exec = "brave http://localhost:4201";
+        icon = "brave-origin";
+        exec = "brave-origin http://localhost:4201";
         terminal = false;
         categories = [ "Development" "Network" ];
       };
       ascensio-local = {
         name = "Ascensio - http://localhost:4202";
-        icon = "brave-browser";
-        exec = "brave http://localhost:4202";
+        icon = "brave-origin";
+        exec = "brave-origin http://localhost:4202";
         terminal = false;
         categories = [ "Development" "Network" ];
       };

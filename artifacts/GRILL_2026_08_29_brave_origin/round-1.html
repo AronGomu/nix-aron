@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brave Origin as default browser</title>
+  <style>
+    :root { color-scheme: dark; --bg:#0b0a08; --panel:#17130d; --panel-2:#1f190f; --text:#fff7ed; --muted:#c9b99f; --line:#4a3b25; --accent:#fbbf24; --accent-2:#fb923c; --focus:#facc15; }
+    * { box-sizing:border-box; }
+    body { margin:0; background:var(--bg); color:var(--text); font:16px/1.55 ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(960px,calc(100% - 32px)); margin:0 auto; padding:48px 0 96px; }
+    header { display:grid; gap:12px; margin-bottom:32px; }
+    .eyebrow { color:var(--accent); font-size:.75rem; font-weight:800; letter-spacing:.12em; text-transform:uppercase; }
+    h1,h2,p { margin:0; } h1 { font-size:clamp(2rem,5vw,3.5rem); line-height:1.08; letter-spacing:-.035em; }
+    .lede { max-width:70ch; color:var(--muted); }
+    .tree { display:flex; align-items:center; gap:8px; overflow:auto; padding:16px; margin:24px 0 32px; border:1px solid var(--line); border-radius:12px; background:var(--panel); color:var(--muted); white-space:nowrap; }
+    .tree b { color:var(--text); } .node { padding:6px 10px; border:1px solid var(--line); border-radius:999px; } .node.active { border-color:var(--accent); color:var(--accent); } .arrow { color:var(--line); }
+    .visuals { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; margin:0 0 32px; }
+    figure { min-width:0; margin:0; padding:18px; border:1px solid var(--line); border-radius:14px; background:var(--panel); }
+    figcaption { margin-bottom:14px; color:var(--muted); font-size:.85rem; } figcaption b { display:block; color:var(--text); font-size:1rem; }
+    svg { display:block; width:100%; height:auto; } svg text { font-family:ui-sans-serif,system-ui,sans-serif; }
+    .svg-node { fill:var(--panel-2); stroke:var(--line); stroke-width:2; } .svg-node.active { stroke:var(--accent); } .svg-line { fill:none; stroke:var(--line); stroke-width:2; } .svg-arrow { fill:var(--line); } .svg-label { fill:var(--text); font-size:12px; } .svg-note { fill:var(--muted); font-size:10px; } .svg-accent { fill:var(--accent); }
+    form { display:grid; gap:20px; }
+    fieldset { min-width:0; margin:0; padding:24px; border:1px solid var(--line); border-radius:16px; background:var(--panel); }
+    legend { max-width:100%; padding:0 8px; font-size:1.15rem; font-weight:750; }
+    .why { margin:0 0 18px; color:var(--muted); font-size:.925rem; }
+    .why code, .fact code { background:#100d08; border:1px solid var(--line); border-radius:5px; padding:1px 5px; font-size:.85em; }
+    .facts { margin:0 0 32px; padding:18px 22px; border:1px solid var(--line); border-left:3px solid var(--accent); border-radius:12px; background:var(--panel); }
+    .facts h2 { font-size:1rem; margin-bottom:10px; color:var(--accent); letter-spacing:.04em; text-transform:uppercase; }
+    .facts ul { margin:0; padding-left:20px; color:var(--muted); font-size:.9rem; display:grid; gap:6px; }
+    .facts b { color:var(--text); }
+    .choices { display:grid; gap:10px; }
+    .choice { display:grid; grid-template-columns:auto 1fr; gap:12px; align-items:start; padding:14px; border:1px solid var(--line); border-radius:10px; background:var(--panel-2); cursor:pointer; }
+    .choice:has(input:checked) { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent) inset; }
+    input { width:18px; height:18px; margin-top:3px; accent-color:var(--accent); }
+    .rank { display:inline-block; margin-left:7px; color:var(--accent-2); font-size:.72rem; font-weight:800; letter-spacing:.06em; text-transform:uppercase; }
+    .detail { display:block; margin-top:3px; color:var(--muted); font-size:.875rem; }
+    label.precision { display:block; margin-top:18px; font-size:.85rem; font-weight:700; color:var(--muted); }
+    textarea { width:100%; min-height:90px; margin-top:7px; padding:12px; resize:vertical; border:1px solid var(--line); border-radius:10px; background:#100d08; color:var(--text); font:inherit; }
+    input:focus-visible,textarea:focus-visible,button:focus-visible { outline:3px solid var(--focus); outline-offset:2px; }
+    .actions { position:sticky; bottom:16px; display:flex; gap:12px; align-items:center; justify-content:space-between; padding:14px; border:1px solid var(--line); border-radius:14px; background:rgba(19,23,28,.96); box-shadow:0 16px 40px #0008; backdrop-filter:blur(10px); }
+    button { padding:11px 16px; border:0; border-radius:9px; background:var(--accent); color:#211500; font:inherit; font-weight:800; cursor:pointer; }
+    #status { color:var(--muted); font-size:.875rem; }
+    @media (max-width:700px) { .visuals { grid-template-columns:1fr; } }
+    @media (max-width:600px) { main { width:min(100% - 20px,960px); padding-top:28px; } fieldset { padding:18px 14px; } .actions { align-items:flex-start; flex-direction:column; } button { width:100%; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <span class="eyebrow">Grill me · Round 1 · Install source, default wiring, profile migration</span>
+    <h1>Brave Origin as default browser</h1>
+    <p class="lede">Origin is packaged in nixpkgs and free on Linux, so the goal is reachable — but seven decisions branch differently. Pick a checkbox per question (or write your own in the textarea), then hit <b>Copy answer summary</b> and paste it back to me.</p>
+  </header>
+
+  <nav class="tree" aria-label="Design tree progress">
+    <span class="node active">Install source</span><span class="arrow">→</span>
+    <span class="node active">Coexist vs replace</span><span class="arrow">→</span>
+    <span class="node active">Default wiring</span><span class="arrow">→</span>
+    <span class="node active">Extensions</span><span class="arrow">→</span>
+    <span class="node active">Profile migration</span><span class="arrow">→</span>
+    <span class="node">Commit + rebuild</span>
+  </nav>
+
+  <section class="facts" aria-label="Facts already resolved">
+    <h2>Already resolved — no need to answer these</h2>
+    <ul>
+      <li><b>Origin is free on Linux.</b> brave.com/origin FAQ: "We're making Origin free to all Linux users". Paid license is Windows/macOS only.</li>
+      <li><b>Packaged in nixpkgs:</b> <code>brave-origin</code> 1.93.138, MPL-2.0, not unfree, x86_64-linux supported.</li>
+      <li><b>Not in your locked input.</b> <code>nixpkgs-unstable</code> pin <code>241313f</code> has no <code>brave-origin</code> attr; current <code>nixos-unstable</code> does.</li>
+      <li><b>Version direction is safe.</b> Current Brave <code>150.1.92.141</code> → Origin <code>Chromium 151 / 1.93.138</code>. Profile moves forward, never downgrades.</li>
+      <li><b>Separate data dir:</b> Origin uses <code>~/.config/BraveSoftware/Brave-Origin</code>, Brave uses <code>Brave-Browser</code> (1.8 G, profiles <code>Default</code> + <code>Profile 1</code>).</li>
+      <li><b>Policies dir is shared:</b> Origin binary reads <code>/etc/brave/policies</code> — your <code>modules/nixos/brave-policies.nix</code> managed bookmarks apply to Origin unchanged.</li>
+      <li><b>Binary/desktop names:</b> <code>bin/brave-origin</code>, <code>brave-origin.desktop</code>, icon <code>brave-origin</code>.</li>
+      <li><b>Origin strips features</b> by design: Rewards, Wallet, Leo AI, VPN. Those parts of the copied profile simply go unused.</li>
+    </ul>
+  </section>
+
+  <section class="visuals" aria-label="Technical context">
+    <figure>
+      <figcaption><b>Frontier graph</b>Seven open decisions; every one blocks the edit.</figcaption>
+      <svg viewBox="0 0 420 260" role="img" aria-labelledby="g1t g1d">
+        <title id="g1t">Design tree for the Brave Origin migration</title>
+        <desc id="g1d">Root goal branches into install source, coexistence, default wiring, extensions and profile migration; all five feed the commit and rebuild step.</desc>
+        <rect class="svg-node active" x="140" y="8" width="140" height="30" rx="8"/>
+        <text class="svg-label" x="210" y="27" text-anchor="middle">Origin = default browser</text>
+        <path class="svg-line" d="M210 38 v18 M60 56 h300 M60 56 v18 M135 56 v18 M210 56 v18 M285 56 v18 M360 56 v18"/>
+        <rect class="svg-node active" x="12" y="74" width="96" height="34" rx="8"/>
+        <text class="svg-label" x="60" y="88" text-anchor="middle">Q1 source</text>
+        <text class="svg-note" x="60" y="102" text-anchor="middle">pinned input?</text>
+        <rect class="svg-node active" x="98" y="118" width="88" height="34" rx="8"/>
+        <text class="svg-label" x="142" y="132" text-anchor="middle">Q2 coexist</text>
+        <text class="svg-note" x="142" y="146" text-anchor="middle">keep brave?</text>
+        <rect class="svg-node active" x="166" y="74" width="88" height="34" rx="8"/>
+        <text class="svg-label" x="210" y="88" text-anchor="middle">Q4 wiring</text>
+        <text class="svg-note" x="210" y="102" text-anchor="middle">87 refs</text>
+        <rect class="svg-node active" x="238" y="118" width="92" height="34" rx="8"/>
+        <text class="svg-label" x="284" y="132" text-anchor="middle">Q3 exts</text>
+        <text class="svg-note" x="284" y="146" text-anchor="middle">wrong dir</text>
+        <rect class="svg-node active" x="316" y="74" width="96" height="34" rx="8"/>
+        <text class="svg-label" x="364" y="88" text-anchor="middle">Q5-7 profile</text>
+        <text class="svg-note" x="364" y="102" text-anchor="middle">1.8 G copy</text>
+        <path class="svg-line" d="M60 108 v70 h150 M364 108 v70 h-154 M142 152 v26 M284 152 v26 M210 178 v14"/>
+        <rect class="svg-node" x="140" y="192" width="140" height="34" rx="8"/>
+        <text class="svg-label" x="210" y="206" text-anchor="middle">commit + push</text>
+        <text class="svg-note" x="210" y="220" text-anchor="middle">then you rebuild</text>
+      </svg>
+    </figure>
+    <figure>
+      <figcaption><b>Data dirs</b>Origin starts empty unless you copy.</figcaption>
+      <svg viewBox="0 0 420 260" role="img" aria-labelledby="g2t g2d">
+        <title id="g2t">Brave and Brave Origin profile directories</title>
+        <desc id="g2d">Brave-Browser holds Default and Profile 1 with cookies, logins, history and extensions; Brave-Origin is empty and can be populated by a recursive copy.</desc>
+        <rect class="svg-node" x="10" y="14" width="170" height="200" rx="10"/>
+        <text class="svg-label" x="95" y="36" text-anchor="middle">Brave-Browser</text>
+        <text class="svg-note" x="95" y="50" text-anchor="middle">1.8 G · Chromium 150</text>
+        <rect class="svg-node" x="26" y="62" width="138" height="30" rx="6"/>
+        <text class="svg-label" x="95" y="81" text-anchor="middle">Default</text>
+        <rect class="svg-node" x="26" y="100" width="138" height="30" rx="6"/>
+        <text class="svg-label" x="95" y="119" text-anchor="middle">Profile 1</text>
+        <text class="svg-note" x="95" y="152" text-anchor="middle">cookies · logins · history</text>
+        <text class="svg-note" x="95" y="168" text-anchor="middle">bookmarks · prefs</text>
+        <text class="svg-note" x="95" y="184" text-anchor="middle">installed extensions</text>
+        <text class="svg-note" x="95" y="204" text-anchor="middle">Local State (profile map)</text>
+        <path class="svg-line" d="M186 114 h44"/>
+        <path class="svg-arrow" d="M230 108 l14 6 l-14 6 z"/>
+        <text class="svg-accent" x="208" y="104" text-anchor="middle" font-size="10">cp -a</text>
+        <rect class="svg-node active" x="248" y="14" width="162" height="200" rx="10"/>
+        <text class="svg-label" x="329" y="36" text-anchor="middle">Brave-Origin</text>
+        <text class="svg-note" x="329" y="50" text-anchor="middle">empty · Chromium 151</text>
+        <rect class="svg-node" x="264" y="62" width="130" height="30" rx="6" stroke-dasharray="4 4"/>
+        <text class="svg-note" x="329" y="81" text-anchor="middle">Default?</text>
+        <rect class="svg-node" x="264" y="100" width="130" height="30" rx="6" stroke-dasharray="4 4"/>
+        <text class="svg-note" x="329" y="119" text-anchor="middle">Profile 1?</text>
+        <text class="svg-note" x="329" y="152" text-anchor="middle">unused: Rewards, Wallet,</text>
+        <text class="svg-note" x="329" y="168" text-anchor="middle">Leo AI, VPN</text>
+        <text class="svg-note" x="329" y="192" text-anchor="middle">reads /etc/brave/policies</text>
+        <text class="svg-note" x="329" y="206" text-anchor="middle">→ managed bookmarks work</text>
+      </svg>
+    </figure>
+  </section>
+
+  <form id="questions">
+    <fieldset data-question="Where should the brave-origin package come from?">
+      <legend>1. Where should the <code>brave-origin</code> package come from?</legend>
+      <p class="why">Your locked <code>nixpkgs-unstable</code> (<code>241313f</code>) predates the package, so something must move before Origin can be installed at all.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="New pinned input nixpkgs-brave, like the existing nixpkgs-claude pattern"><span><b>New pinned input <code>nixpkgs-brave</code></b><span class="rank">Recommended</span><span class="detail">Mirrors your existing <code>nixpkgs-claude</code> "surgical: only these packages" pattern. Zero blast radius on other packages.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Bump the nixpkgs-unstable lock"><span><b>Bump <code>nixpkgs-unstable</code></b><span class="rank">Second</span><span class="detail">One input, but it also moves <code>ghostty</code>, <code>obs-studio</code>, <code>claude-code</code>, <code>codex</code>, <code>grok-cli</code>, <code>pi-coding-agent</code> and <code>brave</code> in the same rebuild.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Local overlay in pkgs/ with own fetchurl of the .deb"><span><b>Local overlay in <code>pkgs/</code></b><span class="rank">Third</span><span class="detail">Full control of the version, but you own every hash bump by hand forever.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. pin to a specific nixpkgs rev, or track a channel"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Keep regular Brave installed alongside Origin?">
+      <legend>2. Keep regular Brave installed alongside Origin?</legend>
+      <p class="why">Origin permanently removes Rewards, Wallet, Leo AI and VPN — if you ever need one of those, keeping Brave installed is the only escape hatch, at the cost of two browsers in the menu.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Keep both installed, Origin is default"><span><b>Keep both, Origin is default</b><span class="rank">Recommended</span><span class="detail">Safe rollback: if Origin misses something, old Brave and its untouched profile are still there.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Remove regular Brave entirely, Origin only"><span><b>Origin only, drop Brave</b><span class="rank">Second</span><span class="detail">Clean single browser, no duplicate menu entries — but the 1.8 G old profile becomes dead weight you must delete yourself later.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Keep both, remove Brave in a later commit after Origin proves itself"><span><b>Both now, drop Brave later</b><span class="rank">Third</span><span class="detail">Two-phase: trial period, then a second commit removes Brave. More total work.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. keep brave but hide it from rofi"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="How should Origin get the declarative extensions?">
+      <legend>3. How should Origin get the declarative extensions?</legend>
+      <p class="why">Home Manager's <code>programs.brave</code> hardcodes the config dir per browser <i>name</i>, so pointing <code>package</code> at <code>brave-origin</code> would write the External Extensions JSONs into <code>Brave-Browser</code> — the dir Origin never reads. Your five extensions: Unhook, SponsorBlock, Enhancer for YouTube, Dark Reader, Floccus.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Explicit home.file writes of the same extension JSONs into Brave-Origin/External Extensions"><span><b>Explicit <code>home.file</code> into <code>Brave-Origin/External Extensions</code></b><span class="rank">Recommended</span><span class="detail">Stays declarative, survives a profile wipe, and reuses the same five IDs. ~15 lines of Nix.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Rely on the copied profile carrying the already-installed extensions"><span><b>Let the profile copy carry them</b><span class="rank">Second</span><span class="detail">Zero Nix work, extensions arrive with their settings intact — but nothing reinstalls them if you ever reset the Origin profile.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Drop declarative extensions, install by hand in Origin"><span><b>Install by hand in Origin</b><span class="rank">Third</span><span class="detail">Simplest config, most manual clicking, and Floccus needs its sync config re-entered.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. also add/remove an extension while we are in there"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="How far should the default-browser rewiring go?">
+      <legend>4. How far should the default-browser rewiring go?</legend>
+      <p class="why">"Default browser" spans 87 <code>brave</code> references across 6 files: mime handlers in <code>desktop.nix</code>, <code>BROWSER=brave</code> in <code>shell.nix</code>, <code>browser = "brave"</code> in Hyprland's <code>variables.lua</code>, ~60 rofi launcher entries in <code>end4.nix</code>, and the <code>brave-personal</code> / <code>brave-mtgones</code> aliases.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Full sweep: mime, BROWSER, end4 variables.lua, all rofi entries, icons and aliases all point at brave-origin"><span><b>Full sweep — everything points at Origin</b><span class="rank">Recommended</span><span class="detail">Matches "default browser from now on" literally: one browser opens every link, launcher entry and workspace-2 window.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Core only: mime handlers, BROWSER env and Hyprland browser var; leave the rofi entries on brave"><span><b>Core only — links yes, rofi entries no</b><span class="rank">Second</span><span class="detail">Small diff, but your ~60 site shortcuts would keep opening old Brave, so you'd be running both daily.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Keep every file as-is and add a shim named brave that execs brave-origin"><span><b>Shim <code>brave</code> → <code>brave-origin</code></b><span class="rank">Third</span><span class="detail">Near-zero diff, but the shim hides which browser is really running and the <code>.desktop</code> mime handler still needs a real change.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. keep one rofi entry pinned to old Brave for banking"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="How should the current Brave settings reach Origin?">
+      <legend>5. How should the current Brave settings reach Origin?</legend>
+      <p class="why">"Duplicate all settings" can mean a byte-for-byte profile clone or a sync-level copy — they carry very different things. The copy is one-time and one-way: changes made in Origin afterwards never flow back.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Recursive copy of the profile dirs from Brave-Browser to Brave-Origin"><span><b>Recursive profile copy</b><span class="rank">Recommended</span><span class="detail">Carries cookies, logged-in sessions, saved passwords, history, bookmarks, prefs and installed extensions. Source stays untouched. Origin is the newer Chromium, so the profile upgrades cleanly.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Brave Sync chain between the two browsers"><span><b>Brave Sync chain</b><span class="rank">Second</span><span class="detail">Official path, keeps both in sync going forward — but carries no cookies and no logged-in sessions, so you re-login everywhere.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Copy the profile and also delete the old Brave-Browser dir afterwards"><span><b>Copy, then delete the old dir</b><span class="rank">Third</span><span class="detail">Reclaims 1.8 G — irreversible, and gone if Origin turns out to be a bad fit. Only pick this with question 2 set to "Origin only".</span></span></label>
+        <label class="choice"><input type="checkbox" value="Fresh start, no migration"><span><b>Fresh start</b><span class="rank">Fourth</span><span class="detail">Cleanest profile, but you re-login and re-configure everything by hand.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. copy bookmarks and passwords only, skip history and cache"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Which profiles should be copied?">
+      <legend>6. Which profiles should be copied?</legend>
+      <p class="why">You run two: <code>Default</code> (<code>brave-personal</code>) and <code>Profile 1</code> (<code>brave-mtgones</code>). Copying both keeps the alias flags working unchanged.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="Both Default and Profile 1, plus Local State"><span><b>Both profiles + <code>Local State</code></b><span class="rank">Recommended</span><span class="detail">Whole-dir copy; the profile map comes along so both aliases keep working in Origin.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Default only"><span><b><code>Default</code> only</b><span class="rank">Second</span><span class="detail">Smaller copy; <code>brave-mtgones</code> would then need to stay on the old Brave or be recreated empty.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. copy Profile 1 but strip its cache dirs"></textarea></label>
+    </fieldset>
+
+    <fieldset data-question="Who runs the profile copy, and when?">
+      <legend>7. Who runs the profile copy, and when?</legend>
+      <p class="why">The copy must happen with Brave fully closed, otherwise you clone half-written databases. It writes ~1.8 G into a new directory and never modifies the source — but it is a data operation outside Nix, so I will not start it without your say-so.</p>
+      <div class="choices">
+        <label class="choice"><input type="checkbox" value="I print the exact command, you run it after closing Brave"><span><b>You run the command I print</b><span class="rank">Recommended</span><span class="detail">You control the timing and confirm Brave is closed. Same rule as the rebuild.</span></span></label>
+        <label class="choice"><input type="checkbox" value="I run the copy now after checking no Brave process is alive"><span><b>I run it, after checking no Brave process is alive</b><span class="rank">Second</span><span class="detail">Faster, and I verify with a process check first — but the disk write happens without you watching.</span></span></label>
+        <label class="choice"><input type="checkbox" value="Do the copy only after the rebuild, once Origin is installed and launched once"><span><b>After the rebuild instead</b><span class="rank">Third</span><span class="detail">Copy over a first-run Origin profile; slightly riskier because Origin will have already written files there.</span></span></label>
+      </div>
+      <label class="precision">Precision or custom answer<textarea placeholder="e.g. skip the Cache and Service Worker dirs to shrink the copy"></textarea></label>
+    </fieldset>
+
+    <div class="actions">
+      <span id="status" role="status">Selections stay in this page until copied.</span>
+      <button type="button" id="copy-summary">Copy answer summary</button>
+    </div>
+  </form>
+</main>
+<script>
+  const button = document.querySelector('#copy-summary');
+  const status = document.querySelector('#status');
+
+  function buildSummary() {
+    const sections = [...document.querySelectorAll('fieldset[data-question]')].map((field, index) => {
+      const question = field.dataset.question;
+      const selected = [...field.querySelectorAll('input[type="checkbox"]:checked')].map(input => `- ${input.value}`);
+      const precision = field.querySelector('textarea').value.trim();
+      const answers = selected.length ? selected.join('\n') : '- No recommended answer selected';
+      return `${index + 1}. ${question}\n${answers}${precision ? `\nPrecision: ${precision}` : ''}`;
+    });
+    return `Round 1 · Install source, default wiring, profile migration — Brave Origin as default browser\n\n${sections.join('\n\n')}`;
+  }
+
+  button.addEventListener('click', async () => {
+    try {
+      await navigator.clipboard.writeText(buildSummary());
+      status.textContent = 'Summary copied to clipboard.';
+    } catch (_) {
+      const fallback = document.createElement('textarea');
+      fallback.value = buildSummary();
+      document.body.appendChild(fallback);
+      fallback.select();
+      document.execCommand('copy');
+      fallback.remove();
+      status.textContent = 'Summary copied to clipboard.';
+    }
+  });
+</script>
+</body>
+</html>

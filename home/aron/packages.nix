@@ -1,10 +1,18 @@
 {
   inputs,
+  lib,
   pkgs,
   pkgsUnstable,
   ...
 }:
 let
+  braveExtensionIds = [
+    "khncfooichmfjbepaaaebmommgaepoid" # Unhook — kill YT distractions
+    "mnjggcdmjocbbbhaepdhchncahnbgone" # SponsorBlock
+    "ponfpcnoihfmfllpaingbgckeeldkhle" # Enhancer for YouTube
+    "eimadpbcbfnmbkopoojfekhnkhdbieeh" # Dark Reader
+    "fnaicdffflnofjppbagibeoednhnbjhg" # Floccus — bookmark sync (git/WebDAV)
+  ];
   davinciResolve = pkgs.symlinkJoin {
     name = "davinci-resolve-wrapped";
     paths = [ pkgsUnstable.davinci-resolve ];
@@ -394,6 +402,7 @@ in
       ytmusic-sync
     ]
     ++ (with pkgsUnstable; [
+      brave-origin
       claude-code
       codex
       ghostty
@@ -406,12 +415,19 @@ in
   programs.brave = {
     enable = true;
     package = pkgsUnstable.brave;
-    extensions = [
-      { id = "khncfooichmfjbepaaaebmommgaepoid"; } # Unhook — kill YT distractions
-      { id = "mnjggcdmjocbbbhaepdhchncahnbgone"; } # SponsorBlock
-      { id = "ponfpcnoihfmfllpaingbgckeeldkhle"; } # Enhancer for YouTube
-      { id = "eimadpbcbfnmbkopoojfekhnkhdbieeh"; } # Dark Reader
-      { id = "fnaicdffflnofjppbagibeoednhnbjhg"; } # Floccus — bookmark sync (git/WebDAV)
-    ];
+    extensions = map (id: { inherit id; }) braveExtensionIds;
   };
+
+  # programs.brave writes its extension manifests under Brave-Browser only.
+  # Brave Origin keeps its own data dir, so it needs the same manifests there.
+  home.file = lib.listToAttrs (
+    map (
+      id:
+      lib.nameValuePair ".config/BraveSoftware/Brave-Origin/External Extensions/${id}.json" {
+        text = builtins.toJSON {
+          external_update_url = "https://clients2.google.com/service/update2/crx";
+        };
+      }
+    ) braveExtensionIds
+  );
 }
