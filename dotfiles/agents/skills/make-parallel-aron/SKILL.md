@@ -52,7 +52,7 @@ Add **NO USER INTERACTION**. Follow `Fully Autonomous` rule.
 
 ## Scout Agent
 
-Model = Sonnet
+Model = Luna
 Thinking = Medium
 **READ-ONLY**
 
