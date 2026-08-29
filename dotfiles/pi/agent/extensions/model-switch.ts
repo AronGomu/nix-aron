@@ -1,10 +1,8 @@
 import type {
   ExtensionAPI,
   ExtensionCommandContext,
-  ModelRegistry,
 } from "@earendil-works/pi-coding-agent";
 
-const ANTHROPIC = "anthropic";
 const CLAUDE_BRIDGE = "claude-bridge";
 
 // `thinking` is deliberately absent on the xai/openai-codex entries: those keep
@@ -78,30 +76,11 @@ async function applySwitch(
   ctx.ui.notify(`Model → ${provider}/${modelId}${suffix}`, "info");
 }
 
-function anthropicModelIds(registry: ModelRegistry | undefined): string[] {
-  if (!registry) {
-    return [];
-  }
-  return registry
-    .getAll()
-    .filter((model) => model.provider === ANTHROPIC)
-    .map((model) => model.id)
-    .sort();
-}
-
 export default function modelSwitch(pi: ExtensionAPI) {
-  // getArgumentCompletions runs without a ctx, so hold the registry from the
-  // session that owns this extension instance.
-  let registry: ModelRegistry | undefined;
-  pi.on("session_start", (_event, ctx) => {
-    registry = ctx.modelRegistry;
-  });
-
   for (const entry of SWITCHES) {
     pi.registerCommand(entry.command, {
       description: entry.description,
       handler: async (_args, ctx) => {
-        registry ??= ctx.modelRegistry;
         await applySwitch(
           pi,
           ctx,
@@ -112,45 +91,4 @@ export default function modelSwitch(pi: ExtensionAPI) {
       },
     });
   }
-
-  // Escape hatch for every other Anthropic model the subscription exposes —
-  // /opus and /sonnet only cover the two dailies.
-  pi.registerCommand("claude", {
-    description:
-      "Switch to any Anthropic model: /claude [pattern] (default claude-opus-5)",
-    getArgumentCompletions: (prefix) => {
-      const items = anthropicModelIds(registry)
-        .filter((id) => id.includes(prefix))
-        .map((id) => ({ value: id, label: id, description: ANTHROPIC }));
-      return items.length ? items : null;
-    },
-    handler: async (args, ctx) => {
-      registry ??= ctx.modelRegistry;
-
-      const pattern = args.trim();
-      if (!pattern) {
-        await applySwitch(pi, ctx, ANTHROPIC, "claude-opus-5", "xhigh");
-        return;
-      }
-
-      const ids = anthropicModelIds(registry);
-      const matches = ids.includes(pattern)
-        ? [pattern]
-        : ids.filter((id) => id.includes(pattern));
-
-      if (matches.length === 0) {
-        ctx.ui.notify(`No Anthropic model matches "${pattern}"`, "error");
-        return;
-      }
-      if (matches.length > 1) {
-        ctx.ui.notify(
-          `"${pattern}" is ambiguous: ${matches.join(", ")}`,
-          "warning",
-        );
-        return;
-      }
-
-      await applySwitch(pi, ctx, ANTHROPIC, matches[0], "xhigh");
-    },
-  });
 }
