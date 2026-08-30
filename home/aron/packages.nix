@@ -319,6 +319,7 @@ in
       flameshot
       gimp
       keepassxc
+      qbittorrent
       mediainfo
       mpv
       obsidian
