@@ -54,7 +54,7 @@ Rule id = letter + number. Letter = list, number = item. Cite ids when referring
 
 ## G. Stop rules
 
-- G1. Hard stop only for: secret/cred/account only user has · irreversible prod or data-loss action · external system unreachable after retry · repair budget exhausted · publish rejected with no safe fix.
+- G1. Hard stop only for: secret/cred/account only user has · irreversible prod or data-loss action · external system unreachable after retry · publish rejected with no safe fix.
 - G2. **Not** a stop: unclear naming, style, unknown file layout, flaky first try, lint noise, micro scope gap inside the goal.
 - G3. Irreversible or outward-facing action (send, publish, spend, delete user data, prod write, system apply) → stop, report, wait. Never auto.
 - G4. One writer per cwd/worktree. Read-only fanout parallel OK.
