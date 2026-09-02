@@ -79,6 +79,7 @@ in
       hyprpicker
       hyprsunset
       imagemagick
+      inotify-tools # inotifywait: omarchy-shell plugins dir watcher
       jq
       libnotify
       libxkbcommon # xkbcli: keyboard-layout widget + keybindings menu

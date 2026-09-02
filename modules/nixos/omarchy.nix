@@ -90,6 +90,17 @@ in
       };
     };
 
+    # xdph segfaults when the compositor goes away (upstream, crash in
+    # libwayland-client during exit) and its instant restarts hit the default
+    # start limit, leaving the portal unit failed for the next session until a
+    # manual reset-failed. Pace restarts and drop the limit so a fresh
+    # Hyprland session can always D-Bus-activate it again.
+    systemd.user.services.xdg-desktop-portal-hyprland = {
+      overrideStrategy = "asDropin";
+      serviceConfig.RestartSec = 2;
+      unitConfig.StartLimitIntervalSec = 0;
+    };
+
     environment.sessionVariables = {
       NIXOS_OZONE_WL = "1";
       __GLX_VENDOR_LIBRARY_NAME = "nvidia";
