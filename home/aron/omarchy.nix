@@ -17,6 +17,7 @@ let
   # Omarchy's pacman repo, no public source.
   omawrite = pkgs.callPackage ../../pkgs/omawrite.nix { };
   omacalc = pkgs.callPackage ../../pkgs/omacalc.nix { };
+  ttfx = pkgs.callPackage ../../pkgs/ttfx.nix { };
   # Unstable: cliamp's go.mod requires a Go newer than 26.05 carries.
   cliamp = pkgsUnstable.callPackage ../../pkgs/cliamp.nix { };
 
@@ -130,6 +131,7 @@ in
       slurp
       socat # omarchy-hyprland-monitor-watch (autostarted)
       tesseract
+      ttfx # omarchy-screensaver text effects
       udiskie
       wl-clipboard
       wtype # clipboard paste / emoji insert
