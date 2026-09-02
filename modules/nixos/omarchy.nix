@@ -27,6 +27,14 @@ let
       # its enable-user-units step can never succeed on NixOS, so it would
       # retry every login.
       sed -i '/omarchy-provision-first-run/d' $out/default/hypr/autostart.lua
+      # fit() guards monitor.scale but not monitor.reserved, which is also nil
+      # while an output is going away — every reload/monitor hotplug then
+      # throws "attempt to index a nil value (local 'reserved')" on the error
+      # overlay. Extend the existing guard.
+      substituteInPlace $out/default/hypr/qconsole.lua \
+        --replace-fail \
+          'if not monitor or not monitor.scale or monitor.scale <= 0 then' \
+          'if not monitor or not monitor.scale or monitor.scale <= 0 or not monitor.reserved then'
       runHook postInstall
     '';
   };

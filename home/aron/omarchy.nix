@@ -20,6 +20,48 @@ let
   # Unstable: cliamp's go.mod requires a Go newer than 26.05 carries.
   cliamp = pkgsUnstable.callPackage ../../pkgs/cliamp.nix { };
 
+  # Hyprland's on-screen error overlay is just `hyprctl configerrors` and
+  # vanishes on the next successful reload, so monitor-hotplug Lua errors
+  # were impossible to inspect after the fact. Watch socket2 and persist
+  # every non-empty result.
+  hyprConfigerrorLog = pkgs.writeShellScript "hypr-configerror-log" ''
+    export PATH=${
+      lib.makeBinPath [
+        pkgs.socat
+        pkgs.coreutils
+        pkgs.gnugrep
+        osConfig.programs.hyprland.package
+      ]
+    }:$PATH
+    log="$HOME/.local/state/omarchy/hypr-configerrors.log"
+    mkdir -p "''${log%/*}"
+    while :; do
+      sig=$(ls -t "$XDG_RUNTIME_DIR/hypr" 2>/dev/null | head -n1)
+      sock="$XDG_RUNTIME_DIR/hypr/$sig/.socket2.sock"
+      if [ -z "$sig" ] || [ ! -S "$sock" ]; then
+        sleep 3
+        continue
+      fi
+      export HYPRLAND_INSTANCE_SIGNATURE="$sig"
+      socat -u "UNIX-CONNECT:$sock" - | while IFS= read -r ev; do
+        case "$ev" in
+          configreloaded* | monitoradded* | monitorremoved*)
+            sleep 1 # let the reload finish before asking
+            errs=$(hyprctl configerrors 2>&1)
+            if printf '%s' "$errs" | grep -q '[^[:space:]]' \
+              && ! printf '%s' "$errs" | grep -qi 'no errors'; then
+              {
+                printf '=== %s %s\n' "$(date -Is)" "$ev"
+                printf '%s\n' "$errs"
+              } >>"$log"
+            fi
+            ;;
+        esac
+      done
+      sleep 3 # Hyprland went away; wait for the next instance
+    done
+  '';
+
   # Same wrapping as end4.nix, but Omarchy's scripts invoke both `qs`
   # (omarchy-shell IPC) and `quickshell` (omarchy-launch-shell), so expose
   # both names.
@@ -112,6 +154,20 @@ in
       "hypr/autostart.lua".source = "${omarchy}/config/hypr/autostart.lua";
       "hypr/hyprsunset.conf".source = "${omarchy}/config/hypr/hyprsunset.conf";
       "hypr/xdph.conf".source = "${omarchy}/config/hypr/xdph.conf";
+    };
+
+    systemd.user.services.hypr-configerror-log = {
+      Unit = {
+        Description = "Persist hyprctl configerrors on reload/monitor events";
+        PartOf = [ "graphical-session.target" ];
+        After = [ "graphical-session.target" ];
+      };
+      Service = {
+        ExecStart = "${hyprConfigerrorLog}";
+        Restart = "on-failure";
+        RestartSec = 5;
+      };
+      Install.WantedBy = [ "graphical-session.target" ];
     };
 
     # shell.json is rewritten in place when the bar is edited from the UI, so it
