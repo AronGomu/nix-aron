@@ -1,5 +1,5 @@
 interface:
   display_name: "Make Plan Aron"
-  short_description: "Goal → TDD ticket flowchart markdown plan"
+  short_description: "Goal → TDD ticket flowchart + dedicated writer child per ticket, level-5 contracts"
 policy:
   allow_implicit_invocation: false

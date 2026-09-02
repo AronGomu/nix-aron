@@ -27,6 +27,15 @@ let
       # its enable-user-units step can never succeed on NixOS, so it would
       # retry every login.
       sed -i '/omarchy-provision-first-run/d' $out/default/hypr/autostart.lua
+      cat >> $out/config/hypr/autostart.lua <<'EOF'
+
+-- Personal startup apps.
+o.window("(com\\.mitchellh\\.ghostty|ghostty)", { workspace = "1" })
+o.window("([bB]rave-origin)", { workspace = "2" })
+o.launch_on_start("omarchy-launch-terminal")
+o.launch_on_start("brave-origin --new-window")
+o.exec_on_start("sleep 3 && hyprctl dispatch workspace 1")
+EOF
       # fit() guards monitor.scale but not monitor.reserved, which is also nil
       # while an output is going away — every reload/monitor hotplug then
       # throws "attempt to index a nil value (local 'reserved')" on the error

@@ -83,8 +83,8 @@ Level N implies every level below it. Cost is superlinear — never grill past t
 **Caller conditions :**
 
 - Caller states a level -> use it.
-- Caller is `make-plan-v2` -> **level 5**. Tickets ship as interface contracts, so a naming or shape decision left open here becomes a parallel writer child inventing it. Grill it out now.
-- Caller is `make-plan-aron` or unstated -> level 2.
+- Caller is `make-plan-aron` -> **level 5**. Tickets ship as interface contracts, so a naming or shape decision left open here becomes a parallel writer child inventing it. Grill it out now.
+- Caller unstated -> level 2.
 - Level >= 5 : "backend decides" / "whatever fits" / "standard REST" are **not** settled answers. Push for the actual name, shape, or code. User genuinely has no preference -> you propose the concrete shape as a ranked answer and get it confirmed. Never leave it implicit.
 - Level >= 5 : shape that is lookup-able (existing schema, lib signature, framework convention in the repo) -> **scout it**, do not ask.
 
