@@ -24,6 +24,14 @@
       flake = false;
     };
 
+    # Pinned Omarchy tree (v4 "Quattro": Quickshell shell + Hyprland Lua config).
+    # Pinned to a commit on purpose — Omarchy's own update machinery is
+    # pacman-based and unused here; bump the rev to update.
+    omarchy = {
+      url = "github:omacom/omarchy/7eca64e2683d2a4d4620f36164f001693ae6a5b7";
+      flake = false;
+    };
+
     herdr-src = {
       url = "github:herdrdev/herdr/v0.7.5";
       flake = false;

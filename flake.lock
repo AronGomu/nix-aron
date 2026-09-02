@@ -120,6 +120,23 @@
         "type": "github"
       }
     },
+    "omarchy": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1788320383,
+        "narHash": "sha256-6ZcdRGImiQsuLrBJP3Xu10vjkcKQktpUCvOeSd3efpY=",
+        "owner": "omacom",
+        "repo": "omarchy",
+        "rev": "7eca64e2683d2a4d4620f36164f001693ae6a5b7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "omacom",
+        "repo": "omarchy",
+        "rev": "7eca64e2683d2a4d4620f36164f001693ae6a5b7",
+        "type": "github"
+      }
+    },
     "quickshell": {
       "inputs": {
         "nixpkgs": [
@@ -150,6 +167,7 @@
         "nixpkgs-claude": "nixpkgs-claude",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nvim-config": "nvim-config",
+        "omarchy": "omarchy",
         "quickshell": "quickshell"
       }
     }

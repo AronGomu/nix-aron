@@ -7,6 +7,7 @@
     ./desktop.nix
     ./end4.nix
     ./mullvad.nix
+    ./omarchy.nix
     ./nix.nix
     ./remote-access.nix
   ];

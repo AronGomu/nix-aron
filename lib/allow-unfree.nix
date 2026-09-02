@@ -1,6 +1,8 @@
 { lib }:
 pkg:
 builtins.elem (lib.getName pkg) [
+  "1password"
+  "1password-gui"
   "brave"
   "claude-code"
   "davinci-resolve"

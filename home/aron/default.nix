@@ -7,6 +7,7 @@
     ./herdr.nix
     ./kdenlive.nix
     ./keepassxc.nix
+    ./omarchy.nix
     ./packages.nix
     ./repos.nix
     ./shell.nix
