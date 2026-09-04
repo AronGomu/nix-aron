@@ -19,11 +19,6 @@
       flake = false;
     };
 
-    end4 = {
-      url = "git+https://github.com/end-4/dots-hyprland.git?submodules=1";
-      flake = false;
-    };
-
     # Pinned Omarchy tree (v4 "Quattro": Quickshell shell + Hyprland Lua config).
     # Pinned to a commit on purpose — Omarchy's own update machinery is
     # pacman-based and unused here; bump the rev to update.
@@ -109,13 +104,11 @@
       };
 
       # No homeConfigurations output. Home Manager is wired through the NixOS
-      # module (see mkNixos above), and a standalone HM config gets no
-      # `osConfig`, so home/aron/end4.nix evaluates `enabled = false` and emits
-      # none of the hypr*/quickshell files — while writing the same
-      # ~/.local/state/nix/profiles/home-manager the NixOS module owns. Running
-      # it would wipe the desktop config. Removing the output makes every
-      # spelling of that command fail with "unknown flake output" instead, the
-      # same mechanism that protects the bare `desk-main` system output.
+      # module (see mkNixos above). A standalone HM config gets no `osConfig`
+      # while writing the same ~/.local/state/nix/profiles/home-manager profile
+      # the NixOS module owns, which could wipe system-integrated desktop config.
+      # Removing the output makes every spelling of that command fail with
+      # "unknown flake output", matching the bare `desk-main` protection above.
       # Apply HM changes with `rebuild`.
 
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;

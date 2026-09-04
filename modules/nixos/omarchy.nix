@@ -72,13 +72,6 @@ in
   };
 
   config = lib.mkIf config.desktop.omarchy.enable {
-    assertions = [
-      {
-        assertion = !config.desktop.end4.enable;
-        message = "desktop.omarchy and desktop.end4 both own ~/.config/hypr and the Quickshell session; enable only one.";
-      }
-    ];
-
     programs.hyprland = {
       enable = true;
       # Omarchy assumes a uwsm session: o.launch and the omarchy-launch-*

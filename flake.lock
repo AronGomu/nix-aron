@@ -1,23 +1,5 @@
 {
   "nodes": {
-    "end4": {
-      "flake": false,
-      "locked": {
-        "lastModified": 1785144061,
-        "narHash": "sha256-zRzRiDx21X7xEaBmsdDOAFEJJSNGguP2H532PiTGPbE=",
-        "ref": "refs/heads/main",
-        "rev": "aed4d1ec63f584905c28d2a678db5845579fdafc",
-        "revCount": 6289,
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/end-4/dots-hyprland.git"
-      },
-      "original": {
-        "submodules": true,
-        "type": "git",
-        "url": "https://github.com/end-4/dots-hyprland.git"
-      }
-    },
     "herdr-src": {
       "flake": false,
       "locked": {
@@ -160,7 +142,6 @@
     },
     "root": {
       "inputs": {
-        "end4": "end4",
         "herdr-src": "herdr-src",
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",

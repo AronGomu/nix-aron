@@ -44,8 +44,6 @@ in
 
   networking.hostName = "desk-main";
 
-  desktop.end4.enable = false;
-  # Mutually exclusive with omarchy (assertion enforces it). Flip both to switch.
   desktop.omarchy.enable = true;
 
   environment.systemPackages = [ nixos-host ];

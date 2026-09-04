@@ -63,9 +63,8 @@ let
     done
   '';
 
-  # Same wrapping as end4.nix, but Omarchy's scripts invoke both `qs`
-  # (omarchy-shell IPC) and `quickshell` (omarchy-launch-shell), so expose
-  # both names.
+  # Omarchy's scripts invoke both `qs` (omarchy-shell IPC) and `quickshell`
+  # (omarchy-launch-shell), so expose both names.
   quickshell = pkgs.stdenvNoCC.mkDerivation {
     pname = "omarchy-quickshell";
     version = "unstable";
