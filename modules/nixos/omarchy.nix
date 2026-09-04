@@ -34,6 +34,7 @@ o.window("(com\\.mitchellh\\.ghostty|ghostty)", { workspace = "1" })
 o.window("([bB]rave-origin)", { workspace = "2" })
 o.launch_on_start("omarchy-launch-terminal")
 o.launch_on_start("brave-origin --new-window")
+o.launch_on_start("openwhispr")
 o.exec_on_start("sleep 3 && hyprctl dispatch workspace 1")
 EOF
       # fit() guards monitor.scale but not monitor.reserved, which is also nil
