@@ -39,6 +39,7 @@ let
     '';
   };
   grokImagine = pkgs.callPackage ../../pkgs/grok-imagine.nix { };
+  fileExplorer = pkgs.callPackage ../../pkgs/file-explorer.nix { };
   onekeyWallet = pkgs.callPackage ../../pkgs/onekey-wallet.nix { };
   openwhisprHyprlandCancelPatch = pkgs.writeText "openwhispr-hyprland-cancel.patch" ''
     diff --git a/src/helpers/hotkeyManager.js b/src/helpers/hotkeyManager.js
@@ -393,6 +394,7 @@ in
       # Listing it here too collides in buildEnv once the flake input and
       # nixpkgs ship different versions.
       davinciResolve
+      fileExplorer
       herdr
       openwhispr
       grokImagine
