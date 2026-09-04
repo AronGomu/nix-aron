@@ -37,6 +37,12 @@ o.launch_on_start("brave-origin --new-window")
 o.launch_on_start("openwhispr")
 o.exec_on_start("sleep 3 && hyprctl dispatch workspace 1")
 EOF
+      cat >> $out/config/hypr/bindings.lua <<'EOF'
+
+-- OpenWhispr dictation controls.
+hl.bind("CTRL + Space", hl.dsp.exec_cmd("dbus-send --session --type=method_call --dest=com.openwhispr.App /com/openwhispr/App com.openwhispr.App.Toggle"), { description = "OpenWhispr: Toggle dictation" })
+hl.bind("Escape", hl.dsp.exec_cmd("dbus-send --session --type=method_call --dest=com.openwhispr.App /com/openwhispr/App com.openwhispr.App.Cancel"), { non_consuming = true, description = "OpenWhispr: Cancel dictation" })
+EOF
       # fit() guards monitor.scale but not monitor.reserved, which is also nil
       # while an output is going away — every reload/monitor hotplug then
       # throws "attempt to index a nil value (local 'reserved')" on the error
