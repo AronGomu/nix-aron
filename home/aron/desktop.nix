@@ -177,6 +177,14 @@ in
         terminal = true;
         categories = [ "Development" ];
       };
+      file-explorer-dev = {
+        name = "File Explorer (dev)";
+        comment = "Run FileExplorer feature-build checkout";
+        icon = "file-explorer";
+        exec = "/home/aron/projects/FileExplorer/target/release/src-tauri";
+        terminal = false;
+        categories = [ "Utility" "FileManager" "Development" ];
+      };
       brood-war = {
         name = "StarCraft: Brood War";
         comment = "Retail 1.16.1 client under wine";

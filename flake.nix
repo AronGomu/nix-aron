@@ -111,6 +111,39 @@
       # "unknown flake output", matching the bare `desk-main` protection above.
       # Apply HM changes with `rebuild`.
 
+      devShells.${system}.file-explorer =
+        let
+          pkgs = nixpkgs.legacyPackages.${system};
+        in
+        pkgs.mkShell {
+          packages = with pkgs; [
+            cargo
+            cargo-tauri
+            clippy
+            nodejs
+            rust-analyzer
+            rustc
+            rustfmt
+          ];
+
+          nativeBuildInputs = [
+            pkgs.pkg-config
+          ];
+
+          buildInputs = with pkgs; [
+            atk
+            cairo
+            gdk-pixbuf
+            glib
+            gtk3
+            libayatana-appindicator
+            libsoup_3
+            openssl
+            pango
+            webkitgtk_4_1
+          ];
+        };
+
       formatter.${system} = nixpkgs.legacyPackages.${system}.nixfmt-tree;
     };
 }
