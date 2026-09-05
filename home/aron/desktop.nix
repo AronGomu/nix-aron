@@ -181,7 +181,7 @@ in
         name = "File Explorer (dev)";
         comment = "Run FileExplorer feature-build checkout";
         icon = "file-explorer";
-        exec = "/home/aron/projects/FileExplorer/target/release/src-tauri";
+        exec = "${pkgs.coreutils}/bin/env WEBKIT_DISABLE_DMABUF_RENDERER=1 /home/aron/projects/FileExplorer/target/release/src-tauri";
         terminal = false;
         categories = [ "Utility" "FileManager" "Development" ];
       };
