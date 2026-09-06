@@ -27,6 +27,11 @@ let
       # its enable-user-units step can never succeed on NixOS, so it would
       # retry every login.
       sed -i '/omarchy-provision-first-run/d' $out/default/hypr/autostart.lua
+      # Upstream assumes HiDPI; both active monitors use scale 1. Match GTK/XWayland.
+      substituteInPlace $out/config/hypr/monitors.lua \
+        --replace-fail \
+          'local omarchy_gdk_scale = 2' \
+          'local omarchy_gdk_scale = 1'
       cat >> $out/config/hypr/autostart.lua <<'EOF'
 
 -- Personal startup apps.
