@@ -72,6 +72,7 @@ Pi convenience: prompt template `/add-rofi-floccus <url> [url…]` expands to th
    - new .nix files **must** `git add` (flake ignores untracked)
    - commit message: conventional, why-focused
      e.g. `feat(hm): add foo` / `fix(nixos): ...` / `chore(nix): ...`
+   - before finishing, commit and push all changes made by this process; leave no process-owned changes in the Git tree
    - `git push` to `origin` current branch
 7. **Do not rebuild.** Ask user to rebuild. Offer exact cmd(s).
 ```

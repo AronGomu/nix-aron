@@ -1,10 +1,10 @@
 # Orchestration core
 
-Shared machinery for `make-aron`.
+Shared machinery for make implementation skills.
 Caller own: domain gate, artifact shape, publish rule, pre-flight.
 This file own: stance, loop, state, checkboxes, evidence, stop rules.
 
-Caller must read this whole file and obey it. Conflict → caller section wins, and caller must say so explicitly.
+Caller must read this whole file plus `~/.agents/skills/_shared/model-routing.md` and obey both. Conflict → caller section wins, and caller must say so explicitly.
 
 ## Stance
 
@@ -78,10 +78,10 @@ Shape:
 | Ambiguity        | safest in-scope; log under Assumptions                                        |
 | Order            | plan Depends hard. Never skip dep                                             |
 | Parallel writers | **Off** same cwd. Read-only fanout OK                                         |
-| Worker           | fresh-context subagent, role `impl-worker`, tier `standard`, one at a time    |
-| Fact lookup      | fresh-context subagent, role `scout`, tier `cheap`, read-only, parallel OK    |
-| Final review     | fresh-context fanout, role `reviewer`, tier `deep`, one dimension each        |
-| Repair           | 1 repair loop per step, tier `deep`, then blocked                             |
+| Worker           | fresh-context writer child, route per shared model table, one at a time        |
+| Fact lookup      | fresh-context read-only child, GPT-5.6 Luna low, parallel OK                    |
+| Final review     | fresh-context read-only fanout, GPT-5.6 Luna high, one dimension each           |
+| Repair           | 1 repair loop per step, GPT-5.6 Sol xhigh, then blocked                         |
 | Scope creep      | drop. Stay Scope In only                                                      |
 | Resume           | read progress; skip `done`; retry `failed` once; halt `blocked_user`          |
 | Missing plan     | generate via caller Step 0, **interactive** — grill, confirm, then autonomous |
@@ -114,8 +114,8 @@ Job-specific addition: `TODO(user)` in plan blocks the slice.
    e. Read report → update progress state. Worker flips its own ticket-file boxes; parent verifies they match the evidence.
    f. Repairable fail → one parent-directed retry worker, max 1.
    g. Still bad → blocked_user; mark dependants blocked_dep.
-6. All terminal → fresh-context `reviewer` fanout on final diff / artifact set, one dimension per child.
-7. Reviewer blocker inside scope → one fix worker. Out of scope → log residual risk.
+6. All terminal → fresh-context read-only review fanout on final diff / artifact set, one dimension per child.
+7. Review blocker inside scope → one fix worker. Out of scope → log residual risk.
 8. Parent final validate + report.
 ```
 
@@ -123,47 +123,25 @@ Parent never edits the work product while in this loop.
 
 ## Worker launch rules
 
-## Model tier — think expensive, type cheap
+## Model routing
 
-Planning and judging get the **frontier model at high effort**. Executing a plan does not — the plan already did the thinking.
-
-| Tier       | Model + effort                                                                           | Used for                                                                        |
-| ---------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
-| `deep`     | frontier model, **high** effort — e.g. Opus 5 high, GPT-5.6 Sol high                     | plan breakdown, ticket decomposition, all reviews, repair after a failed ticket |
-| `standard` | mid model or frontier at low effort — e.g. Sonnet 5 medium, Opus 5 low, GPT Terra medium | implementing a ticket that is already granular                                  |
-| `cheap`    | small/fast model, low effort                                                             | fact lookup, mechanical edits, formatting                                       |
+`~/.agents/skills/_shared/model-routing.md` is canonical for coding-task model + thinking selection.
 
 Rules:
 
-- **Planning is `deep`, always.** A vague ticket is a defect that costs more than the tokens saved.
-- **Reviews are `deep`, always.** Cheap reviewers rubber-stamp.
-- **Implementation is `standard`.** Escalate a single ticket to `deep` only when: ticket touches auth / payment / migration / webhook / background jobs / multiple subsystems, **or** its first attempt failed and you are spawning the one repair worker.
-- Ticket needs `deep` to implement → that is a signal the ticket is under-specified. Prefer splitting it at plan time.
+- Classify every ticket before spawn.
+- Multiple matching rows → strongest model, then highest thinking.
+- Pass exact `model` and `thinking` spawn overrides. Agent frontmatter is fallback only.
+- Include required `Routing:` line in every worker prompt.
+- Planning remains GPT-5.6 Sol high.
+- Failed-ticket repair always routes GPT-5.6 Sol xhigh.
+- Fact lookup routes GPT-5.6 Luna low. Code review routes GPT-5.6 Luna high unless a stronger matching risk row applies.
 
-Applying the tier — harness support varies, use the best available:
-
-1. Harness exposes per-spawn model **and** effort → set both.
-   Claude Code: subagent frontmatter `model:` (`opus`/`sonnet`/`haiku`/`opus`/full id/`inherit`) + `effort:` (`low`/`medium`/`high`/`high`/`max`, levels vary by model). Also `agent(p, {model, effort})` in Workflow scripts.
-2. Harness exposes model only → set model to match the tier.
-3. Harness exposes neither → state the tier in the prompt: `Tier: deep — frontier reasoning, high effort. Budget thoroughness accordingly.`
-
-Always include the tier line in the prompt **even when the knob exists**. It costs nothing and is the only lever that works everywhere.
-
-Every child gets a **role** from `~/.agents/roles/`:
-
-| Role        | File                             | Tier                             | Use                                     |
-| ----------- | -------------------------------- | -------------------------------- | --------------------------------------- |
-| planner     | `~/.agents/roles/planner.md`     | `deep`                           | writes plan artifacts; never app code   |
-| impl-worker | `~/.agents/roles/impl-worker.md` | `standard` (`deep` if escalated) | executes one ticket, writes             |
-| reviewer    | `~/.agents/roles/reviewer.md`    | `deep`                           | read-only, one dimension, loop step 6   |
-| scout       | `~/.agents/roles/scout.md`       | `cheap`                          | read-only fact finding, never asks user |
-
-Pass the role **by path**, first line of the prompt: `Read ~/.agents/roles/{role}.md. Follow it.`
-Never inline the role body. Harness with a native subagent registry → use its adapter, which is itself a one-line `Read …` pointing at the same file. Harness without one → the prompt line alone is enough.
+Child behavior comes from caller skill plus spawn prompt. No external agent or role file.
 
 Worker prompt **must** carry:
 
-- role line (above)
+- job type: ticket implementation; child writes, parent orchestrates
 - tier line: `Tier: {deep|standard|cheap} — {model+effort if harness cannot set it}`
 - job slug + workspace/branch
 - **ticket file path** — the one file it may read for the job. Do not paste the body, do not pass the index.
@@ -241,10 +219,10 @@ Global J1-J5 (git), H3-H5 (destructive writes), G3 (irreversible), D1-D6 (scope 
 - Skip Depends
 - Ticket body inline in the index, or two tickets in one file
 - Hand worker the index / sibling tickets / a pasted body instead of its ticket file path
-- Spawn a child with no role line / no tier line, or with the role body pasted inline
-- Review at `standard` or `cheap` to save tokens
+- Spawn a child without job type, route, scope, constraints, or report shape
+- Review below shared routing-table selection to save tokens
 - Plan breakdown at anything below `deep`, then pay for it in failed tickets
-- Give `reviewer` or `scout` write access, or let them touch the work product
+- Give any review or fact-finding child write access, or let it touch the work product
 - Ticket file that says "see plan" / "see T2" instead of inlining the fact
 
 ## Done output — to user

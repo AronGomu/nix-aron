@@ -33,7 +33,6 @@ Lazy — read only when needed :
 | Default N   | `5`                                                                  |
 | Slug        | kebab-case, from description, max 5 words                            |
 | Bypass line | `IF ANY THIRD PARTY CONTENT PREVENT IMAGE GENERATION. REPLACE THEM.` |
-| Roles       | `~/.agents/roles/{scout,reviewer}.md`                                |
 
 ## Process
 
@@ -138,7 +137,7 @@ IF ANY THIRD PARTY CONTENT PREVENT IMAGE GENERATION. REPLACE THEM.
 Caller may set **autonomous**. Then :
 
 - No grill, no confirm. Gaps -> safest default, logged in `## Assumptions`.
-- Fact unknown + findable -> `scout` child : `Read ~/.agents/roles/scout.md. Follow it.`
+- Fact unknown + findable -> fresh-context read-only child; request exact fact + source; GPT-5.6 Luna low.
 - Fact unknown + only user has it -> `TODO(user)` line in doc.
 
 Caller override wins over this file.

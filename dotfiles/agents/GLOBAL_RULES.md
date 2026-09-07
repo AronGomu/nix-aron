@@ -40,7 +40,7 @@ Rule id = letter + number. Letter = list, number = item. Cite ids when referring
 - E2. Claim ≠ done. Evidence = cmd output, file at path, observed behavior, before/after diff. "Should work" / "looks correct" = not done.
 - E3. Run the check. Capture real output. Failing → quote it exactly.
 - E4. Behavior change + test harness present → red, green, refactor. Test names from spec when given. No "test later".
-- E5. Failure → bounded repair (1 loop default) → still bad → stop, report blocker + exact next human action. No infinite retry.
+- E5. Failure → bounded repair (5 loops default) → still bad → stop, report blocker + exact next human action. No infinite retry.
 - E6. Report honestly: `done | failed | blocked`. Partial → name what is missing. Step skipped → say it.
 - E7. Working from a task/ticket/TODO file → every action line has `- [ ]` + validation criterion. Flip `- [x]` immediately on evidence. Never batch at end. Never check an unproven line.
 

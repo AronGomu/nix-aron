@@ -20,8 +20,8 @@ If not -> install it from : https://github.com/AgentSystemLabs/core
 Identify tickets available for implementation. For each ticket :
 
 1. Create new worktree.
-2. Spawn `Impl Agent` to implement ticket in worktree.
-3. Wait for `Impl Agent ` report.
+2. Spawn fresh-context writer child to implement ticket in worktree.
+3. Wait for writer child report.
 4. Merge worktree into main branch. You solve conflicts.
 5. Update following tickets on new understanding.
 6. Identify new tickets available and loop.
@@ -37,9 +37,9 @@ END = All tickets are implemented and merged into main.
 - Fact unknown + findable → `Scout Agent`.
 - Fact unknown + only user can supply (secret, account, business rule) → Add to `## User TODO`
 
-## Impl Agent
+## Implementation child
 
-Refer to `./Coding-Task-Model-&-Reasonning-Routing-Guide.md` to set Model and Thinking Level based on Ticket.
+Read `~/.agents/skills/_shared/model-routing.md` before launch. Classify each ticket from its table, then pass exact `model` and `thinking` spawn overrides plus required `Routing:` prompt line.
 
 ### Input
 
@@ -50,7 +50,7 @@ Refer to `./Coding-Task-Model-&-Reasonning-Routing-Guide.md` to set Model and Th
 Run `ship` skill with `Ticket Markdown Plan` as input.
 Add **NO USER INTERACTION**. Follow `Fully Autonomous` rule.
 
-## Scout Agent
+## Fact-finding child
 
 Model = Luna
 Thinking = High

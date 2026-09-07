@@ -32,10 +32,9 @@ Model goal as **design tree** : every decision branches into related decisions.
 | ----------- | --------------------------------------------------------------- |
 | Template    | `assets/round-template.html` (this skill dir)                   |
 | Reference   | `assets/reference-round.html` (this skill dir)                  |
-| Out dir     | `./artifacts/GRILL_{YYYY_MM_DD}_{title}/`                    |
+| Out dir     | `./artifacts/GRILL_{YYYY_MM_DD}_{title}/`                       |
 | Round doc   | `{out dir}/round-{n}.html` — `round-1`, `round-2`, … `round-10` |
 | Answer log  | `{out dir}/ANSWERS.md`                                          |
-| Scout role  | `~/.agents/roles/scout.md`                                      |
 | Max answers | 4 recommended answers per question, best -> worst               |
 | Spec level  | default **2** — acceptance criteria. Caller may raise           |
 
@@ -48,8 +47,7 @@ Loop steps 2-6 per round. Round `n` starts at `n = 1`.
    Decision depending on another **open** decision belongs to a _later_ round. Drop it from this round.
    Decision "settled" in prose but **not writable at target spec level** -> still open. Ask the missing precision.
    Frontier empty -> jump to step 7.
-3. **Resolve facts, don't ask them** — every frontier question needing environment fact (filesystem, deps, versions, API shape, tool output) -> dispatch `scout` child :
-   `Read ~/.agents/roles/scout.md. Follow it.` Read-only, parallel OK.
+3. **Resolve facts, don't ask them** — every frontier question needing environment fact (filesystem, deps, versions, API shape, tool output) → dispatch fresh-context read-only child. Prompt carries exact question, lookup scope, source requirement, no-write/no-user-question constraints. GPT-5.6 Luna low; parallel OK.
    **Do not block.** Running scout = unsettled prerequisite -> its downstream question waits for next round. Ask rest of frontier now.
 4. **Write round doc** — 1 HTML file, whole frontier, `{out dir}/round-{n}.html`. Shape per [Output](#output).
 5. **Hand off** — give user the absolute path. State how many questions, which tree branches this round covers. Open file in the default browser (`xdg-open {out dir}/round-{n}.html`).
@@ -58,8 +56,9 @@ Loop steps 2-6 per round. Round `n` starts at `n = 1`.
    - fold answers into tree : settled decisions push frontier outward, unblock dependants
    - fold in any scout report that landed
    - `n = n + 1`, back to step 2
-7. **Close** — frontier empty **and** every settled decision writable at target spec level. Every branch visited. Write final `## Shared understanding` block to `ANSWERS.md` : goal, settled decisions, assumptions, out-of-scope.
-   Present it. **Wait for user confirm.**
+7. **Close** —
+   Condition : frontier empty **and** every settled decision writable at target spec level. Every branch visited.
+   Write final `## Shared understanding` block to `ANSWERS.md` : goal, settled decisions, assumptions, out-of-scope.
 
 **DO NOT IMPLEMENT.** This skill produces understanding only.
 
@@ -69,14 +68,14 @@ Stop condition = **"I can now write the spec at level N"**, not question count. 
 
 Detail ladder, vague -> exhaustive : 0 intent · 1 brief · 2 PRD/acceptance criteria · 3 functional spec · 4 tech design (RFC/ADR) · 5 interface contract · 6 executable spec (tests) · 7 formal spec · 8 the code.
 
-| N | Grill must extract | Round stops asking when |
-| --- | --- | --- |
-| 1 | who, pain, why now, success metric | goal + metric agreed |
-| 2 (default) | user stories, Given/When/Then per story, edge cases | every story testable |
-| 3 | screens, flows, states, error copy, permissions | every state reachable + named |
-| 4 | architecture, data model, deps, alternatives rejected, rollout | every component + failure mode named |
-| 5 | every boundary shape : type sigs, API routes + schemas, error codes, invariants, env/CLI names | nothing left where two implementers would pick different names or shapes |
-| 6+ | verification strategy : which behaviors get property/contract/golden tests | every invariant has a check |
+| N           | Grill must extract                                                                             | Round stops asking when                                                  |
+| ----------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 1           | who, pain, why now, success metric                                                             | goal + metric agreed                                                     |
+| 2 (default) | user stories, Given/When/Then per story, edge cases                                            | every story testable                                                     |
+| 3           | screens, flows, states, error copy, permissions                                                | every state reachable + named                                            |
+| 4           | architecture, data model, deps, alternatives rejected, rollout                                 | every component + failure mode named                                     |
+| 5           | every boundary shape : type sigs, API routes + schemas, error codes, invariants, env/CLI names | nothing left where two implementers would pick different names or shapes |
+| 6+          | verification strategy : which behaviors get property/contract/golden tests                     | every invariant has a check                                              |
 
 Level N implies every level below it. Cost is superlinear — never grill past the level the caller asked for.
 
@@ -186,15 +185,6 @@ Keep it working. Never strip the button or the clipboard fallback.
 - Never widen scope past the goal. Interesting-but-out-of-scope branch -> log, don't ask.
 - No question already answered in a previous round. Check `ANSWERS.md` before writing round `n`.
 - Wait for full round answers before recomputing frontier. No partial-round advance.
-
-## Done when
-
-- `{out dir}/round-{n}.html` exists for every round run, each opens standalone, each button copies
-- `{out dir}/ANSWERS.md` holds every round's answers + scout facts
-- frontier empty — every design-tree branch visited or explicitly logged out-of-scope
-- every settled decision writable at target spec level — level >= 5 → `Contracts` block filled, verbatim
-- `## Shared understanding` written, presented, and **user confirmed**
-- caller has out dir path
 
 ## Early Stop
 

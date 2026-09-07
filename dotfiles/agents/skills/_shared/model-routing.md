@@ -1,3 +1,23 @@
+# Shared coding-task model routing
+
+Canonical routing policy for implementation-skill child launches.
+
+## Models
+
+- **Luna** = `openai-codex/gpt-5.6-luna`
+- **Sol** = `openai-codex/gpt-5.6-sol`
+
+## Routing rules
+
+1. Classify each ticket before spawn. Match its dominant task plus every explicit risk signal below.
+2. Multiple matches → choose strongest model, then highest thinking level.
+3. Previous failed attempt always matches `Extremely hard / previously failed task`.
+4. Caller must pass exact `model` and `thinking` spawn overrides. Agent frontmatter is fallback only; prompt text cannot switch an already-started model.
+5. Worker prompt must include: `Routing: {matched row} → {provider/model}, thinking {level}`.
+6. Child verifies routing line against ticket before edits. Mismatch → report `failed: routing mismatch`; do not implement.
+
+## Task table
+
 | Coding task                             | Default model | Thinking |
 | --------------------------------------- | ------------- | -------: |
 | Rename / tiny edit                      | **Luna**      |      Low |

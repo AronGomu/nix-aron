@@ -25,6 +25,7 @@ Parse goal.
 Make scope clear.
 Ambiguity → run `~/.agents/skills/grill-me-aron/SKILL.md`.
 Target level 5 spec understanding.
+Once all cleared. Do not ask confirmation. Start making plan directly.
 
 ### 2 - Tickets Planning
 
@@ -67,8 +68,8 @@ T4 --> T5
 
 If plan is 6 tickets or less -> SKIP to step 4.
 
-Spawn reviewer **read-only** subagent: `~/.agents/roles/reviewer.md.`
-Model = fable. Thinking = high.
+Spawn fresh-context **read-only** review child.
+Model = GPT-5.6 Sol. Thinking = high.
 
 Dimension `plan-red-team` + target = index + repo root.
 Hand it:
@@ -160,8 +161,8 @@ Machine-checkable shapes this slice produces or consumes. Verbatim, copy-pasteab
 
 ## 5 - Coherence Review
 
-Spawn **reviewer subagent**.
-Analyse ticket flow coherence : Matching validation criteria of ticket for follow up ticket.
+Spawn fresh-context **read-only** review child.
+Analyse ticket flow coherence: matching validation criteria of ticket for follow-up ticket.
 Report findings. You arbitrate.
 
 ## 6 - Recording ADR

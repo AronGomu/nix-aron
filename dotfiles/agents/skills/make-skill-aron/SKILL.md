@@ -36,7 +36,6 @@ Lazy — read only when needed :
 | Install rule     | `~/config/nix-aron/home/aron/agents.nix:72` — whole dir, recursive |
 | Live path        | `~/.agents/skills/{name}/` -> symlinked to claude, pi, codex       |
 | Rebuild          | `sudo nixos-rebuild switch --flake .#$(nixos-host)`                |
-| Roles            | `~/.agents/roles/{scout,planner,impl-worker,reviewer}.md`          |
 | Reference skill  | `make-plan-aron` (full shape), `make-setup-aron` (short shape)     |
 
 ## Process
@@ -165,7 +164,7 @@ policy:
 - **Exact over vague.** `./artifacts/PLAN_{YYYY_MM_DD}_{title}.md`, never "an artifacts folder".
 - **Self-contained dir.** Skill needs a template -> ship it in its own `assets/`. Cross-skill asset ref = broken skill.
 - Cross-skill **behavior** ref is fine, by path : `~/.agents/skills/{name}/SKILL.md`. Never inline another skill's body.
-- Subagent spawn -> pass role **by path** : `Read ~/.agents/roles/{role}.md. Follow it.` Never paste role body.
+- Child spawn → prompt carries job type, scope, write policy, exact model/thinking route, validation, report shape. No external agent/role file.
 - Every branch point gets a written default. Choice left to the reader = defect.
 - `disable-model-invocation: true` by default — user's skills are user-triggered.
 - Never edit `agents.nix` to add a skill. Dir is sourced recursively; editing it is noise.
@@ -187,7 +186,7 @@ Caller may set **autonomous**. Then :
 
 - No grill, no user confirm.
 - Ambiguity -> safest default, logged in a `## Assumptions` block at end of the new `SKILL.md`.
-- Fact unknown + findable -> `scout` child : `Read ~/.agents/roles/scout.md. Follow it.`
+- Fact unknown + findable → fresh-context read-only child; request exact fact + source; GPT-5.6 Luna low.
 - Fact unknown + only user has it -> `TODO(user)` line in the new skill.
 - Never rebuild autonomously. System switch stays user-triggered.
 

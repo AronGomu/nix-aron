@@ -37,7 +37,7 @@ in
 
       if [ -e "$settings_file" ]; then
         ${pkgs.jq}/bin/jq -s --arg piVersion ${pkgsUnstable.pi-coding-agent.version} \
-          '.[0] * (.[1] | with_entries(select(.key == "defaultProvider" or .key == "defaultModel" or .key == "defaultThinkingLevel"))) | .lastChangelogVersion = $piVersion' \
+          '.[0] as $managed | .[1] as $runtime | $managed * ($runtime | with_entries(select(.key == "defaultProvider" or .key == "defaultModel" or .key == "defaultThinkingLevel"))) | .enabledModels = ((($runtime.enabledModels // []) + ($managed.enabledModels // [])) | unique) | .lastChangelogVersion = $piVersion' \
           ${../../dotfiles/pi/agent/settings.json} "$settings_file" > "$settings_tmp"
       else
         ${pkgs.jq}/bin/jq --arg piVersion ${pkgsUnstable.pi-coding-agent.version} \
@@ -90,14 +90,6 @@ in
       recursive = true;
     };
 
-    # Harness-neutral subagent roles. Skills reference them by absolute path
-    # (~/.agents/roles/*.md), so any harness that can spawn a child with a
-    # prompt can use them — no per-harness registry required.
-    ".agents/roles" = {
-      source = ../../dotfiles/agents/roles;
-      recursive = true;
-    };
-
     # Harness-neutral global rules (ids A1-L4). Skills cite the ids, so every
     # harness must see the same file: pi appends it to the system prompt
     # automatically, Claude/Codex reach it through a pointer line in
@@ -147,11 +139,5 @@ in
       recursive = true;
     };
 
-    # Claude-native subagent registry. Each file is a one-line adapter that
-    # reads the harness-neutral role in ~/.agents/roles — no duplicated text.
-    ".claude/agents" = {
-      source = ../../dotfiles/claude/agents;
-      recursive = true;
-    };
   };
 }
