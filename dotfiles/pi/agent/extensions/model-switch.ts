@@ -5,9 +5,9 @@ import type {
 
 const CLAUDE_BRIDGE = "claude-bridge";
 
-// `thinking` is deliberately absent on the xai/openai-codex entries: those keep
-// whatever shift+tab left the session on. The Claude entries pin low —
-// reaching for Claude here should default to fast, cheap thinking.
+// `thinking` is absent on Grok/Sol/Luna: those keep whatever shift+tab left
+// the session on. Astra + Claude entries pin low — reaching for them should
+// default to fast, cheap thinking.
 const SWITCHES = [
   {
     command: "grok",
@@ -26,6 +26,13 @@ const SWITCHES = [
     description: "Switch to GPT-5.6 Luna (openai-codex)",
     provider: "openai-codex",
     model: "gpt-5.6-luna",
+  },
+  {
+    command: "astra",
+    description: "Switch to GPT-6 Astra (openai-codex, low thinking)",
+    provider: "openai-codex",
+    model: "gpt-6-astra",
+    thinking: "low",
   },
   {
     command: "opus",
