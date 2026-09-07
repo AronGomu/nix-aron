@@ -108,6 +108,16 @@ let
 in
 {
   config = lib.mkIf enabled {
+    # Standard GNOME arrow cursor across Hyprland, GTK, and XWayland. Omarchy
+    # sets cursor size only, so an old Bibata preference otherwise survives.
+    home.pointerCursor = {
+      package = pkgs.adwaita-icon-theme;
+      name = "Adwaita";
+      size = 24;
+      gtk.enable = true;
+      x11.enable = true;
+    };
+
     home.packages = with pkgs; [
       quickshell
       # Runtime deps of the omarchy-* scripts and shell widgets. envs.lua puts

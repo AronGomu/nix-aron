@@ -24,6 +24,7 @@
       isNormalUser = true;
       description = "AronGomu";
       uid = 1000;
+      linger = true;
       extraGroups = [
         "audio"
         "networkmanager"

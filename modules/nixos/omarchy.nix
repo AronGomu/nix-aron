@@ -61,10 +61,28 @@ EOF
       substituteInPlace $out/default/hypr/looknfeel.lua \
         --replace-fail \
           '    gaps_in = 5,' \
-          '    gaps_in = 2,'
+          '    gaps_in = 2,' \
+        --replace-fail \
+          '  cursor = {' \
+          '  cursor = {
+    no_hardware_cursors = true,'
+      # GDM's hardware cursor plane can remain frozen after its compositor
+      # exits. Software cursors prevent that stale plane in both SDDM and the
+      # user session.
+      substituteInPlace $out/default/sddm/hyprland.lua \
+        --replace-fail \
+          '  animations = {' \
+          '  cursor = { no_hardware_cursors = true },
+
+  animations = {'
       runHook postInstall
     '';
   };
+
+  omarchySddmTheme = pkgs.runCommand "omarchy-sddm-theme" { } ''
+    mkdir -p $out/share/sddm/themes
+    cp -R ${omarchyPkg}/default/sddm/omarchy $out/share/sddm/themes/omarchy
+  '';
 in
 {
   options.desktop.omarchy = {
@@ -87,7 +105,22 @@ in
     };
 
     services = {
-      displayManager.defaultSession = lib.mkForce "hyprland-uwsm";
+      displayManager = {
+        defaultSession = lib.mkForce "hyprland-uwsm";
+        gdm.enable = lib.mkForce false;
+        sddm = {
+          enable = true;
+          theme = "omarchy";
+          wayland.enable = true;
+          settings = {
+            Users = {
+              RememberLastUser = true;
+              RememberLastSession = true;
+            };
+            Wayland.CompositorCommand = "${config.programs.hyprland.package}/bin/start-hyprland -- --config ${config.desktop.omarchy.package}/default/sddm/hyprland.lua";
+          };
+        };
+      };
       gnome.gnome-keyring.enable = true;
       upower.enable = true;
       # omarchy-powerprofiles-init runs from Hyprland autostart.
@@ -105,6 +138,13 @@ in
     # Omarchy's Quickshell lock screen authenticates against this PAM service
     # (shell/plugins/lock/Service.qml reads /etc/pam.d/omarchy-lock-password).
     security.pam.services.omarchy-lock-password = { };
+
+    # Omarchy's password-only SDDM theme reads userModel.lastUser and has no
+    # username field. Seed first boot; SDDM preserves then updates this file.
+    systemd.tmpfiles.rules = [
+      "d /var/lib/sddm 0750 sddm sddm -"
+      "f /var/lib/sddm/state.conf 0644 sddm sddm - [Last]\\nSession=hyprland-uwsm.desktop\\nUser=aron"
+    ];
 
     xdg.portal = {
       enable = true;
@@ -128,6 +168,8 @@ in
       serviceConfig.RestartSec = 2;
       unitConfig.StartLimitIntervalSec = 0;
     };
+
+    environment.systemPackages = [ omarchySddmTheme ];
 
     environment.sessionVariables = {
       NIXOS_OZONE_WL = "1";
