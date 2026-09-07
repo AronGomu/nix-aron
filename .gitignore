@@ -12,3 +12,8 @@ result-*
 **/cache/
 **/log/
 **/tmp/
+
+# Local agent run artifacts.
+/.pi-subagents/
+/dotfiles/agents/skills/.pi-subagents/
+/dotfiles/agents/skills/.pi/
