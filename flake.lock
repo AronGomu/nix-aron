@@ -70,6 +70,22 @@
         "type": "github"
       }
     },
+    "nixpkgs-pi": {
+      "locked": {
+        "lastModified": 1788553672,
+        "narHash": "sha256-xLfX356/zLm4EsC+E6eqlY1oWoDjfZl8lnCp4Yvr6SU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "701a6ce5a63c417830a326037ac8e99d2ae315a4",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "701a6ce5a63c417830a326037ac8e99d2ae315a4",
+        "type": "github"
+      }
+    },
     "nixpkgs-unstable": {
       "locked": {
         "lastModified": 1787736819,
@@ -146,6 +162,7 @@
         "home-manager": "home-manager",
         "nixpkgs": "nixpkgs",
         "nixpkgs-claude": "nixpkgs-claude",
+        "nixpkgs-pi": "nixpkgs-pi",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nvim-config": "nvim-config",
         "omarchy": "omarchy",

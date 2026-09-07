@@ -3,12 +3,14 @@
   "defaultModel": "gpt-5.6-sol",
   "defaultThinkingLevel": "low",
   "hideThinkingBlock": true,
+  "enabledModels": [
+    "openai-codex/gpt-6-astra",
+    "openai-codex/gpt-5.6-sol",
+    "openai-codex/gpt-5.6-luna"
+  ],
   "packages": [
     {
       "source": "npm:pi-subagents@0.38.0"
-    },
-    {
-      "source": "npm:pi-claude-bridge@0.7.0"
     },
     {
       "source": "npm:@adrianapan/pikit@1.1.7",

@@ -5,9 +5,13 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
     nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-    # Pinned to source newer claude-code (2.1.224) and pi-coding-agent (0.84.0)
-    # via the narrow overlay below.
+    # Pinned to source newer claude-code (2.1.224) via the narrow overlay below.
     nixpkgs-claude.url = "github:NixOS/nixpkgs/f13ff45afd1bb73e640eaa08a7066dbed07e3238";
+
+    # Pi has its own pin so updating it cannot move Claude Code too. This
+    # nixpkgs revision supplies the 0.85.0 recipe; the overlay below advances
+    # its source and model catalog to upstream 0.85.1.
+    nixpkgs-pi.url = "github:NixOS/nixpkgs/701a6ce5a63c417830a326037ac8e99d2ae315a4";
 
     home-manager = {
       url = "github:nix-community/home-manager/release-26.05";
@@ -52,7 +56,7 @@
         inherit system;
         config.allowUnfreePredicate = allowUnfree;
         overlays = [
-          # Surgical: only these packages come from the pinned nixpkgs-claude input.
+          # Surgical: source Claude Code and Pi from their independent pins.
           (_final: _prev: {
             claude-code =
               (import inputs.nixpkgs-claude {
@@ -60,10 +64,31 @@
                 config.allowUnfreePredicate = allowUnfree;
               }).claude-code;
             pi-coding-agent =
-              (import inputs.nixpkgs-claude {
-                inherit system;
-                config.allowUnfreePredicate = allowUnfree;
-              }).pi-coding-agent;
+              let
+                piPkgs = import inputs.nixpkgs-pi {
+                  inherit system;
+                  config.allowUnfreePredicate = allowUnfree;
+                };
+              in
+              piPkgs.pi-coding-agent.overrideAttrs (_old: rec {
+                version = "0.85.1";
+                src = piPkgs.fetchFromGitHub {
+                  owner = "earendil-works";
+                  repo = "pi";
+                  tag = "v${version}";
+                  hash = "sha256-gU8BSiqqOYt2RRuQONHHGvZeSM5KFQVrwif9bmuUXUc=";
+                };
+                npmDepsHash = "sha256-jzlsZIQzfl1FCZZ5//dHFWwMfBZQ4nRD6KB4HHifPqE=";
+                npmDeps = piPkgs.fetchNpmDeps {
+                  inherit src;
+                  name = "pi-coding-agent-${version}-npm-deps";
+                  hash = npmDepsHash;
+                };
+                modelData = piPkgs.fetchurl {
+                  url = "https://registry.npmjs.org/@earendil-works/pi-ai/-/pi-ai-${version}.tgz";
+                  hash = "sha256-r30RmGF5RFzm/oizfVfeIvgjwP/TplyuMcVVt/XpklM=";
+                };
+              });
           })
         ];
       };
