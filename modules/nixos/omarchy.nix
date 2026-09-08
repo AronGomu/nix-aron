@@ -66,6 +66,59 @@ EOF
           '  cursor = {' \
           '  cursor = {
     no_hardware_cursors = true,'
+      # Auto-collapse bar after idle, leaving a 2px edge trigger so pointer
+      # entry reveals it again. Manual bar-off still parks it fully off-screen.
+      substituteInPlace $out/shell/plugins/bar/Bar.qml \
+        --replace-fail \
+          '  Component.onCompleted: applyBarConfig()' \
+          '  Component.onCompleted: {
+    applyBarConfig()
+    autoHideTimer.start()
+  }' \
+        --replace-fail \
+          '  property bool barHidden: false' \
+          '  property bool barHidden: false
+  property bool autoHidden: false
+  readonly property bool barParked: barHidden || autoHidden' \
+        --replace-fail \
+          '  function setBarHovered(hovered) {
+    barHoverCount = Math.max(0, barHoverCount + (hovered ? 1 : -1))
+    if (barHoverCount === 0) centerSectionRevealTimer.restart()
+  }' \
+          '  function setBarHovered(hovered) {
+    barHoverCount = Math.max(0, barHoverCount + (hovered ? 1 : -1))
+    if (hovered) {
+      autoHidden = false
+      autoHideTimer.stop()
+    } else {
+      autoHideTimer.restart()
+      centerSectionRevealTimer.restart()
+    }
+  }' \
+        --replace-fail \
+          '  Timer {
+    id: centerSectionRevealTimer' \
+          '  Timer {
+    id: autoHideTimer
+    interval: 1500
+    onTriggered: if (!root.barHovered && !root.barHidden) root.autoHidden = true
+  }
+
+  Timer {
+    id: centerSectionRevealTimer' \
+        --replace-fail \
+          '    exclusionMode: root.barHidden ? ExclusionMode.Ignore : ExclusionMode.Auto' \
+          '    exclusionMode: root.barParked ? ExclusionMode.Ignore : ExclusionMode.Auto' \
+        --replace-fail \
+          '      top: root.barHidden && root.position === "top" ? -root.barSize : 0
+      bottom: root.barHidden && root.position === "bottom" ? -root.barSize : 0
+      left: root.barHidden && root.position === "left" ? -root.barSize : 0
+      right: root.barHidden && root.position === "right" ? -root.barSize : 0' \
+          '      top: root.position === "top" ? (root.barHidden ? -root.barSize : (root.autoHidden ? -root.barSize + 2 : 0)) : 0
+      bottom: root.position === "bottom" ? (root.barHidden ? -root.barSize : (root.autoHidden ? -root.barSize + 2 : 0)) : 0
+      left: root.position === "left" ? (root.barHidden ? -root.barSize : (root.autoHidden ? -root.barSize + 2 : 0)) : 0
+      right: root.position === "right" ? (root.barHidden ? -root.barSize : (root.autoHidden ? -root.barSize + 2 : 0)) : 0'
+
       # GDM's hardware cursor plane can remain frozen after its compositor
       # exits. Software cursors prevent that stale plane in both SDDM and the
       # user session.
