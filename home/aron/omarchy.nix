@@ -190,9 +190,15 @@ in
       if [ ! -e "$HOME/.config/omarchy/shell.json" ]; then
         run mkdir -p "$HOME/.config/omarchy"
         run bash -c '${pkgs.jq}/bin/jq \
-          "del(.bar.layout.center[] | select(.id == \"omarchy.system-update\"))" \
+          "del(.bar.layout.center[] | select(.id == \"omarchy.system-update\")) |
+           (.bar.layout.center[] | select(.id == \"omarchy.indicators\") | .items = [\"NightLight\"] | .alwaysShow = true)" \
           ${omarchy}/config/omarchy/shell.json > "$HOME/.config/omarchy/shell.json"'
       fi
+      run bash -c '${pkgs.jq}/bin/jq \
+        "del(.bar.layout.center[] | select(.id == \"omarchy.system-update\")) |
+         (.bar.layout.center[] | select(.id == \"omarchy.indicators\") | .items = [\"NightLight\"] | .alwaysShow = true)" \
+        "$HOME/.config/omarchy/shell.json" > "$HOME/.config/omarchy/shell.json.tmp" && \
+        mv "$HOME/.config/omarchy/shell.json.tmp" "$HOME/.config/omarchy/shell.json"'
       if [ ! -s "$HOME/.local/state/omarchy/current/theme.name" ]; then
         run env OMARCHY_PATH=${omarchy} OMARCHY_THEME_HEADLESS=1 \
           PATH="${omarchy}/bin:${

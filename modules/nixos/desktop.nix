@@ -3,7 +3,6 @@
   location.provider = "geoclue2";
 
   services = {
-    redshift.enable = true;
     xserver = {
       enable = true;
       xkb.layout = "us";
