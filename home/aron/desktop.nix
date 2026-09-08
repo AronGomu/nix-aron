@@ -114,6 +114,13 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      ascencio-remote = {
+        name = "Ascencio Remote";
+        icon = "brave-origin";
+        exec = "brave-origin https://arongomu.github.io/gones/";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       siinergy-erp = {
         name = "Siinergy ERP";
         icon = "brave-origin";

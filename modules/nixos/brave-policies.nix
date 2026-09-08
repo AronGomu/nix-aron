@@ -28,6 +28,10 @@ let
             url = "https://scryfall.com/";
           }
           {
+            name = "Ascencio Remote";
+            url = "https://arongomu.github.io/gones/";
+          }
+          {
             name = "ASCENCIO - Duel Simulator";
             url = "http://localhost:4300/";
           }
