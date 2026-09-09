@@ -100,6 +100,7 @@ in
       config.lib.file.mkOutOfStoreSymlink "${config.home.homeDirectory}/.agents/skills";
     ".pi/agent/APPEND_SYSTEM.md".source = ../../dotfiles/agents/GLOBAL_RULES.md;
     ".pi/agent/keybindings.json".source = ../../dotfiles/pi/agent/keybindings.json;
+    ".pi/agent/i-have-adhd.json".source = ../../dotfiles/pi/agent/i-have-adhd.json;
     ".pi/agent/claude-bridge.json".source = ../../dotfiles/pi/agent/claude-bridge.json;
     ".pi/agent/configs" = {
       source = ../../dotfiles/pi/agent/configs;
