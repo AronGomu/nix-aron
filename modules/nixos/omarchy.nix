@@ -45,6 +45,7 @@ o.window("([bB]rave-origin)", { workspace = "2" })
 o.launch_on_start("omarchy-launch-terminal")
 o.launch_on_start("brave-origin --new-window")
 o.launch_on_start("openwhispr")
+o.exec_on_start("omarchy-toggle-bar on")
 o.exec_on_start("hyprctl keyword input:sensitivity 0.3")
 o.exec_on_start("sleep 3 && hyprctl dispatch workspace 1")
 EOF
