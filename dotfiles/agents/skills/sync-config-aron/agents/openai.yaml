@@ -1,0 +1,5 @@
+interface:
+  display_name: "Sync Config Aron"
+  short_description: "Validate config changes; sync remote; verify clean state"
+policy:
+  allow_implicit_invocation: true

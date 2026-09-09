@@ -32,6 +32,11 @@ let
         --replace-fail \
           'local omarchy_gdk_scale = 2' \
           'local omarchy_gdk_scale = 1'
+      cat >> $out/config/hypr/input.lua <<'EOF'
+
+-- Personal mouse sensitivity.
+hl.config({ input = { sensitivity = 0.3 } })
+EOF
       cat >> $out/config/hypr/autostart.lua <<'EOF'
 
 -- Personal startup apps.
@@ -40,6 +45,7 @@ o.window("([bB]rave-origin)", { workspace = "2" })
 o.launch_on_start("omarchy-launch-terminal")
 o.launch_on_start("brave-origin --new-window")
 o.launch_on_start("openwhispr")
+o.exec_on_start("hyprctl keyword input:sensitivity 0.3")
 o.exec_on_start("sleep 3 && hyprctl dispatch workspace 1")
 EOF
       cat >> $out/config/hypr/bindings.lua <<'EOF'

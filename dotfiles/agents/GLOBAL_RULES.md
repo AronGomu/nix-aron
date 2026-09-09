@@ -54,9 +54,9 @@ Rule id = letter + number. Letter = list, number = item. Cite ids when referring
 
 ## G. Stop rules
 
-- G1. Hard stop only for: secret/cred/account only user has · irreversible prod or data-loss action · external system unreachable after retry · publish rejected with no safe fix.
+- G1. Hard stop only for: secret/cred/account only user has · irreversible action locally or remotely · external system unreachable after retry · publish rejected with no safe fix.
 - G2. **Not** a stop: unclear naming, style, unknown file layout, flaky first try, lint noise, micro scope gap inside the goal.
-- G3. Irreversible or outward-facing action (send, publish, spend, delete user data, prod write, system apply) → stop, report, wait. Never auto.
+- G3. Irreversible action, locally or remotely → stop, report, wait. Never execute autonomously. Remote effects alone require no confirmation: reversible in-scope actions, including normal config-repo commits/pushes, may proceed. Verify recovery path first; uncertain reversibility → stop. Assess downstream effects too: correcting a commit cannot undo leaked secrets, sent messages, spent funds, or triggered irreversible jobs.
 - G4. One writer per cwd/worktree. Read-only fanout parallel OK.
 
 ## H. Files + workspace
@@ -75,6 +75,13 @@ Rule id = letter + number. Letter = list, number = item. Cite ids when referring
 - J3. Stage only intentional paths. New files need `git add`. Never stage `.env`, `.tmp`, scratch, secrets, unrelated dirty files. Nothing changed → no empty commit.
 - J4. Never print or commit secrets/creds/PII. Scan diff before commit. Secrets never enter plans, issues, reports, handoffs.
 - J5. Conventional why-focused msg: `feat(scope): why`. Honor pre-commit hooks. No `--no-verify` unless user said.
+
+## M. Portable config synchronization
+
+- M1. Any agent update to config owned by portable dev-config repo → invoke `sync-config-aron` before edits, then after completed batch. Scope from owner repo `docs/deployment.md`: editor, agents/skills, shell/tools, desktop/apps, services, scripts/manifests/setup docs. Resolve skill through shared skill discovery; no fixed checkout path.
+- M2. Repo `AGENTS.md` must identify deployment map, validation checks, authoritative bootstrap remote/branch. Missing ownership → report blocker; never assume arbitrary repo owns runtime config. Manual/GUI edits require explicit reconciliation; no watcher implied.
+- M3. Completion requires validated portable sources, whole repo clean including untracked files, approved remote bootstrap branch synchronized with local HEAD. Feature-only push ≠ bootstrap sync. Unrelated dirty work → preserve/report, never discard, hide, stash, or mass-commit.
+- M4. G3/J1–J5/K1 still apply. Reversible config sync to configured authorized remote/branch proceeds without per-push confirmation. Irreversible/uncertain effects, missing auth, branch protection, or divergence → blocked report. Never bypass history, scope, secret, or system-apply safeguards; never claim false clean/synced state.
 
 ## K. System actions
 

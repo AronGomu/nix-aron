@@ -5,9 +5,8 @@ import type {
 
 const CLAUDE_BRIDGE = "claude-bridge";
 
-// `thinking` is absent on Grok/Sol/Luna: those keep whatever shift+tab left
-// the session on. Astra + Claude entries pin low — reaching for them should
-// default to fast, cheap thinking.
+// Sol/Luna/Astra + Claude entries pin low — reaching for them should default
+// to fast, cheap thinking. Grok keeps whatever shift+tab left session on.
 const SWITCHES = [
   {
     command: "grok",
@@ -20,12 +19,14 @@ const SWITCHES = [
     description: "Switch to GPT-5.6 Sol (openai-codex)",
     provider: "openai-codex",
     model: "gpt-5.6-sol",
+    thinking: "low",
   },
   {
     command: "luna",
     description: "Switch to GPT-5.6 Luna (openai-codex)",
     provider: "openai-codex",
     model: "gpt-5.6-luna",
+    thinking: "low",
   },
   {
     command: "astra",

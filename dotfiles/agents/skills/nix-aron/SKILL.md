@@ -74,6 +74,8 @@ Pi convenience: prompt template `/add-rofi-floccus <url> [url…]` expands to th
      e.g. `feat(hm): add foo` / `fix(nixos): ...` / `chore(nix): ...`
    - before finishing, commit and push all changes made by this process; leave no process-owned changes in the Git tree
    - `git push` to `origin` current branch
+   - at end, run `git status --short`; fix `warning: Git tree '/home/aron/config/nix-aron' is dirty` by resolving process-owned dirty files, never discard or alter unrelated user changes
+   - if unrelated dirty files remain, report warning unresolved + exact paths; do not claim clean
 7. **Do not rebuild.** Ask user to rebuild. Offer exact cmd(s).
 ```
 
@@ -162,4 +164,5 @@ Stop + report when:
 
 - Prompt satisfied in config **or** blocked with clear reason
 - If changes: committed + pushed
+- Final `git status --short` run; process-owned dirty files resolved
 - User has exact rebuild command and explicit ask to run it
