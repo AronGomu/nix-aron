@@ -41,6 +41,12 @@ in
     style.name = "breeze";
   };
 
+  home.sessionVariables = {
+    GTK_THEME = "Adwaita:dark";
+    QT_QPA_PLATFORMTHEME = "kde";
+    QT_STYLE_OVERRIDE = "breeze";
+  };
+
   xdg = {
     enable = true;
     desktopEntries = {
