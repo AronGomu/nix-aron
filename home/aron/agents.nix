@@ -37,7 +37,7 @@ in
 
       if [ -e "$settings_file" ]; then
         ${pkgs.jq}/bin/jq -s --arg piVersion ${pkgsUnstable.pi-coding-agent.version} \
-          '.[0] as $managed | .[1] as $runtime | $managed * ($runtime | with_entries(select(.key == "defaultProvider" or .key == "defaultModel" or .key == "defaultThinkingLevel"))) | .enabledModels = ((($runtime.enabledModels // []) + ($managed.enabledModels // [])) | unique) | .lastChangelogVersion = $piVersion' \
+          '.[0] as $managed | .[1] as $runtime | $managed * ($runtime | with_entries(select(.key == "defaultProvider" or .key == "defaultModel" or .key == "defaultThinkingLevel" or .key == "modelThinkingLevels"))) | .enabledModels = ((($runtime.enabledModels // []) + ($managed.enabledModels // [])) | unique) | .lastChangelogVersion = $piVersion' \
           ${../../dotfiles/pi/agent/settings.json} "$settings_file" > "$settings_tmp"
       else
         ${pkgs.jq}/bin/jq --arg piVersion ${pkgsUnstable.pi-coding-agent.version} \
