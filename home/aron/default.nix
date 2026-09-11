@@ -11,6 +11,7 @@
     ./packages.nix
     ./repos.nix
     ./shell.nix
+    ./tailscale.nix
   ];
 
   home = {
