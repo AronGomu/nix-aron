@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 import runpy
 import subprocess
+import threading
 import unittest
 from unittest.mock import patch
 
@@ -28,6 +29,12 @@ class LauncherTests(unittest.TestCase):
         self.proc = unittest.mock.Mock()
         self.proc.poll.return_value = 0
         self.proc.wait.return_value = 0
+        self.browser = unittest.mock.Mock()
+        self.browser.poll.return_value = 0
+        self.browser_reaped = threading.Event()
+        self.browser.wait.side_effect = self.browser_reaped.set
+        self.foreground_browser = False
+        self.elapsed = 0
 
     def command(self, args, **kwargs):
         self.calls.append(args)
@@ -53,18 +60,40 @@ class LauncherTests(unittest.TestCase):
             output = json.dumps({'BackendState': self.state, 'AuthURL': self.auth,
                                  'TailscaleIPs': ['100.64.0.2']})
         elif key[0] == 'xdg-open':
+            if self.foreground_browser:
+                raise subprocess.TimeoutExpired(args, kwargs['timeout'])
             self.auth = ''
             self.state = 'Running'
             self.proc.poll.return_value = 0
         return subprocess.CompletedProcess(args, 0, output, '')
 
+    def spawn(self, args, **kwargs):
+        if args[0] != 'xdg-open':
+            return self.proc
+        self.calls.append(args)
+        self.browser.poll.return_value = 1 if self.fail == 'xdg-open' else 0
+        if self.foreground_browser:
+            self.browser.poll.return_value = None
+        elif not self.fail:
+            self.auth = ''
+            self.state = 'Running'
+            self.proc.poll.return_value = 0
+        return self.browser
+
+    def sleep(self, seconds):
+        self.elapsed += seconds
+        if self.foreground_browser and self.elapsed >= 20:
+            self.auth = ''
+            self.state = 'Running'
+            self.proc.poll.return_value = 0
+
     def launch(self, missing=None, uid=1000):
         output = io.StringIO()
         with patch('subprocess.run', side_effect=self.command), \
-             patch('subprocess.Popen', return_value=self.proc) as popen, \
+             patch('subprocess.Popen', side_effect=self.spawn) as popen, \
              patch('shutil.which', side_effect=lambda name: None if name == missing else '/mock/' + name), \
              patch('os.geteuid', return_value=uid), \
-             patch('time.sleep'), contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
+             patch('time.sleep', side_effect=self.sleep), contextlib.redirect_stdout(output), contextlib.redirect_stderr(output):
             code = self.module['main']([])
         return code, output.getvalue(), popen
 
@@ -137,6 +166,26 @@ class LauncherTests(unittest.TestCase):
         self.assertEqual(code, 0, output)
         self.assertIn(['xdg-open', 'https://login.tailscale.com/a/mock-login'], self.calls)
         self.assertNotIn('mock-login', output)
+
+    def test_foreground_browser_does_not_shorten_login_allowance(self):
+        self.state = 'NeedsLogin'
+        self.auth = 'https://login.tailscale.com/a/mock-login'
+        self.proc.poll.return_value = None
+        self.foreground_browser = True
+        with patch('time.monotonic', side_effect=lambda: self.elapsed):
+            code, output, popen = self.launch()
+        self.assertEqual(code, 0, output)
+        self.assertEqual(self.elapsed, 20)
+        self.proc.terminate.assert_not_called()
+        self.browser.terminate.assert_not_called()
+        self.assertTrue(self.browser_reaped.wait(timeout=1))
+        self.browser.wait.assert_called_once_with()
+        self.assertNotIn('mock-login', output)
+        browser_calls = [call for call in popen.call_args_list if call.args[0][0] == 'xdg-open']
+        self.assertEqual(len(browser_calls), 1)
+        self.assertTrue(browser_calls[0].kwargs['start_new_session'])
+        for stream in ('stdin', 'stdout', 'stderr'):
+            self.assertEqual(browser_calls[0].kwargs[stream], subprocess.DEVNULL)
 
     def test_browser_failure_is_visible_and_stops_login(self):
         self.state = 'NeedsLogin'

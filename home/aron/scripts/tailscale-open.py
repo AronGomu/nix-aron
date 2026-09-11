@@ -7,6 +7,7 @@ import re
 import shutil
 import subprocess
 import sys
+import threading
 import time
 from urllib.parse import urlsplit
 
@@ -89,6 +90,7 @@ def connect():
     proc = subprocess.Popen(['sudo', '-n', 'tailscale', 'up', '--timeout=120s'],
                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     opened = set()
+    browsers = []
     deadline = time.monotonic() + 120
     try:
         while time.monotonic() < deadline:
@@ -99,9 +101,17 @@ def connect():
                 if (parsed.scheme != 'https' or parsed.hostname != 'login.tailscale.com'
                         or parsed.port not in (None, 443) or parsed.username or parsed.password):
                     raise LaunchError('Unsupported login URL; use sudo tailscale up manually for custom login servers.')
-                run(['xdg-open', url], timeout=15)
+                browser = subprocess.Popen(['xdg-open', url], stdin=subprocess.DEVNULL,
+                                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                           start_new_session=True)
+                # xdg-open can stay alive with the browser. Reap it without blocking
+                # login; a still-running browser survives this launcher exiting.
+                threading.Thread(target=browser.wait, daemon=True).start()
+                browsers.append(browser)
                 opened.add(url)
                 print('Browser opened. Complete Tailscale sign-in there.')
+            if any(browser.poll() not in (None, 0) for browser in browsers):
+                raise LaunchError('xdg-open failed; inspect its status in a terminal.')
             code = proc.poll()
             if code is not None:
                 if code != 0:
