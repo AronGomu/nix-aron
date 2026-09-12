@@ -123,7 +123,7 @@ in
       imgflip-memetemplates = {
         name = "Imgflip Templates";
         icon = "brave-origin";
-        exec = "brave-origin https://imgflip.com/memetemplates?page=1";
+        exec = ''brave-origin "https://imgflip.com/memetemplates?page=1"'';
         terminal = false;
         categories = [ "Network" ];
       };
