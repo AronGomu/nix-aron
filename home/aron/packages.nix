@@ -412,6 +412,7 @@ in
       grok-cli
       obs-studio
       pi-coding-agent
+      t3code
     ]);
 
   # Brave + Chrome Web Store extensions (auto-install on launch)
