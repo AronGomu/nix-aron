@@ -120,6 +120,13 @@ in
         terminal = false;
         categories = [ "Network" ];
       };
+      imgflip-memetemplates = {
+        name = "Imgflip Templates";
+        icon = "brave-origin";
+        exec = "brave-origin https://imgflip.com/memetemplates?page=1";
+        terminal = false;
+        categories = [ "Network" ];
+      };
       ascencio-remote = {
         name = "Ascencio Remote";
         icon = "brave-origin";

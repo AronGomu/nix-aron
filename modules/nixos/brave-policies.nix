@@ -28,6 +28,10 @@ let
             url = "https://scryfall.com/";
           }
           {
+            name = "Imgflip Templates";
+            url = "https://imgflip.com/memetemplates?page=1";
+          }
+          {
             name = "Ascencio Remote";
             url = "https://arongomu.github.io/gones/";
           }
