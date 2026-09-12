@@ -48,5 +48,7 @@ in
 
   environment.systemPackages = [ nixos-host ];
 
+  home-manager.users.aron.home.packages = [ pkgs.rustdesk ];
+
   system.stateVersion = "26.05";
 }
