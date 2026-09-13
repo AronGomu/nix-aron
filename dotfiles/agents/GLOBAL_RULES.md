@@ -83,6 +83,12 @@ Rule id = letter + number. Letter = list, number = item. Cite ids when referring
 - M3. Completion requires validated portable sources, whole repo clean including untracked files, approved remote bootstrap branch synchronized with local HEAD. Feature-only push ≠ bootstrap sync. Unrelated dirty work → preserve/report, never discard, hide, stash, or mass-commit.
 - M4. G3/J1–J5/K1 still apply. Reversible config sync to configured authorized remote/branch proceeds without per-push confirmation. Irreversible/uncertain effects, missing auth, branch protection, or divergence → blocked report. Never bypass history, scope, secret, or system-apply safeguards; never claim false clean/synced state.
 
+## N. Pi subagent routing
+
+- N1. Every Pi session using subagents must read `~/.agents/skills/_shared/model-routing.md` before delegation. Its routing policy takes precedence over skill-local model/thinking defaults, including retry overrides. Roles select tools/prompts; tasks select models.
+- N2. Pass explicit `model: "provider/model:thinking"` and `context: "fresh"` for every child, including chain/parallel items. Fork only when inherited history is necessary, with a recorded reason. Never silently inherit the parent model. Verify registered model and supported effort before launch.
+- N3. Failed attempt → new child at the next tier, same reasoning: Luna → Terra → Sol → Astra; Astra stays Astra. Preserve retry limits and failure evidence. No model-changing `resume`, silent fallback, or extra writer in the same worktree. Prompt policy is not runtime enforcement.
+
 ## K. System actions
 
 - K1. Never run a system-wide apply (`nixos-rebuild`, `home-manager switch`, package manager upgrade, prod deploy). Print the exact cmd, user runs it.
