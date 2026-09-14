@@ -53,17 +53,11 @@ Report must include:
 - Presentation: Gantt/timeline with parent-child overlap; sortable/filterable/searchable tables; expandable event log with model/task/agent/tool/error filters; JSON export; local standalone HTML with inline CSS/JS, dark mode, zero network fetch.
 - Security: redact secrets, credentials, PII, provider headers, raw payloads. Keep local-only unless explicit publish.
 
-## Escalation
-
-For architecture decisions, security-sensitive changes, migrations, destructive operations, concurrency, unknown root causes, broad context coupling, or previously failed hard work => Spawn Frontier model subagent to solve task.
-
-Escalate after one cheap repair fails, worker uncertainty affects correctness, scope expands, validation repeatedly fails, worker exceeds assigned scope, or reviewers disagree on a blocker.
-
-Do not repeat cheap attempts without new evidence.
-
 ## Completion
 
 Implementation is complete only when orchestrator-inspected changes satisfy plan validation criteria and independent review is clean or every finding is dispositioned.
+
+Create PR in local forgejo serveur ready for review.
 
 ## Rules
 
@@ -73,3 +67,11 @@ Never run parallel writers in one worktree.
 Never continue optional polish after acceptance criteria pass.
 
 Final report states decisions, changed files, validation evidence, model escalations, residual risks.
+
+### Escalation
+
+For architecture decisions, security-sensitive changes, migrations, destructive operations, concurrency, unknown root causes, broad context coupling, or previously failed hard work => Spawn Frontier model subagent to solve task.
+
+Escalate after one cheap repair fails, worker uncertainty affects correctness, scope expands, validation repeatedly fails, worker exceeds assigned scope, or reviewers disagree on a blocker.
+
+Do not repeat cheap attempts without new evidence.
