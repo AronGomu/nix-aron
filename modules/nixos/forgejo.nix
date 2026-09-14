@@ -10,7 +10,7 @@
         HTTP_PORT = 3000;
         DOMAIN = "localhost";
         ROOT_URL = "http://localhost:3000/";
-        DISABLE_SSH = true;
+        DISABLE_SSH = false;
       };
       service.DISABLE_REGISTRATION = true;
     };
