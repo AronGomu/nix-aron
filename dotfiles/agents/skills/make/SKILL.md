@@ -36,6 +36,21 @@ For each task:
 
 Worker report must include state, changed files, commands with exit codes, validation evidence, assumptions, unresolved risks, and requested parent decision.
 
+### 2. Detailed agentic session log
+
+After implementation, invoke `make-html-aron` to generate then open standalone interactive HTML report via `xdg-open`.
+
+Report must include:
+
+- Summary cards (exactly five): wall time, summed active/compute time, human wait, total tokens split input/output/cache read/cache write, total cost including nested children, parallelism gain. Distinguish wall time from summed compute time.
+- Per-model interactive table: calls, duration, token split, cost, errors, avg latency, captured time-to-first-token, tokens/sec, cost/successful task, retries/fallbacks.
+- Per-task interactive table: task ID/type, agent, model, status, wall time, tokens, cost, tools. Types fixed to research/planning/implementation/review/validation; label inferred classification `inferred`.
+- Agent hierarchy: children/task, nesting depth, peak concurrency, failed/stopped/timed-out tasks, fallback attempts.
+- Efficiency/quality: tool success rate, repeated calls, retries, compactions, peak context, changed files/lines, test status, acceptance status, orphaned work, error timeline.
+- Collection sources: Pi session JSONL, live extension lifecycle events for exact spans/UI wait/concurrency, pi-subagents results/artifacts, git/test evidence. Note post-session parsing limits.
+- Presentation: Gantt/timeline with parent-child overlap; sortable/filterable/searchable tables; expandable event log with model/task/agent/tool/error filters; JSON export; local standalone HTML with inline CSS/JS, dark mode, zero network fetch.
+- Security: redact secrets, credentials, PII, provider headers, raw payloads. Keep local-only unless explicit publish.
+
 ## Escalation
 
 For architecture decisions, security-sensitive changes, migrations, destructive operations, concurrency, unknown root causes, broad context coupling, or previously failed hard work => Spawn Frontier model subagent to solve task.
