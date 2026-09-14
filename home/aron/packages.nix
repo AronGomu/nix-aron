@@ -15,7 +15,7 @@ let
   ];
   davinciResolve = pkgs.symlinkJoin {
     name = "davinci-resolve-wrapped";
-    paths = [ pkgsUnstable.davinci-resolve ];
+    paths = [ pkgs.davinci-resolve ];
     nativeBuildInputs = [ pkgs.makeWrapper ];
     postBuild = ''
       wrapProgram $out/bin/davinci-resolve \
