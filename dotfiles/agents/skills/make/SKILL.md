@@ -29,7 +29,7 @@ For each task:
 
 1. Classify risk and dependencies before spawn.
 2. Give one cheaper worker bounded scope, exact routing, acceptance criteria, validation commands, constraints, and required report shape.
-3. Keep one writer per cwd/worktree. Run tickets sequentially; parallelize read-only research or review only.
+3. Keep one writer per cwd/worktree. Run independent tickets in parallel when plan allows; serialize dependent tickets. Parallelize read-only research or review freely.
 4. Launch implementation asynchronously when supported. Use `steer` for live correction, `interrupt` for clear drift or blockage, and `resume` with narrowed instructions after diagnosis.
 5. Inspect actual diff and validation output. Worker completion claim is not acceptance.
 6. Accept, issue one targeted cheap repair when failure is localized with concrete diagnostics, or escalate.
