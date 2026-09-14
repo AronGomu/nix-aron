@@ -1,8 +1,8 @@
-{ pkgs, ... }:
+{ pkgsUnstable, ... }:
 {
   # GUI + CLI client from https://mullvad.net/
   services.mullvad-vpn = {
     enable = true;
-    package = pkgs.mullvad-vpn;
+    package = pkgsUnstable.mullvad-vpn;
   };
 }

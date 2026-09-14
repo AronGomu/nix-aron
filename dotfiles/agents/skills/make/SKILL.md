@@ -34,9 +34,11 @@ For each task:
 5. Inspect actual diff and validation output. Worker completion claim is not acceptance.
 6. Accept, issue one targeted cheap repair when failure is localized with concrete diagnostics, or escalate.
 
+### 1. Final Implementation Report : `IMPLEMENTATION-REPORT-{name}.md`
+
 Worker report must include state, changed files, commands with exit codes, validation evidence, assumptions, unresolved risks, and requested parent decision.
 
-### 2. Detailed agentic session log
+### 2. Detailed agentic session log : `AGENTIC-REPORT-{name}.html`
 
 After implementation, invoke `make-html-aron` to generate then open standalone interactive HTML report via `xdg-open`.
 

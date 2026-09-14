@@ -1,4 +1,4 @@
-{ pkgs, ... }:
+{ pkgs, pkgsUnstable, ... }:
 let
   tailscale-open = pkgs.writeShellApplication {
     name = "tailscale-open";
@@ -8,7 +8,7 @@ let
       systemd
       xdg-utils
       networkmanager
-      mullvad-vpn
+      pkgsUnstable.mullvad-vpn
     ];
     # sudo must resolve the system's privileged wrapper, not a Nix store binary.
     text = ''
