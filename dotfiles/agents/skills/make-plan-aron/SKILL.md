@@ -69,7 +69,7 @@ T4 --> T5
 If plan is 6 tickets or less -> SKIP to step 4.
 
 Spawn fresh-context **read-only** review child.
-Model = GPT-5.6 Sol. Thinking = high.
+Model = GPT-6.0 Sol. Thinking = low.
 
 Dimension `plan-red-team` + target = index + repo root.
 Hand it:

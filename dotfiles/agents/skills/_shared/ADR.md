@@ -61,7 +61,7 @@ Tense test: an ADR is past and present — "the catalog is fetched, not compiled
 
 ADRs are durable. They are the permanent record, read months later by the person about to change the decision.
 
-Plans, tickets, progress files, grill records, feedback files are **ephemeral** — scratch paper. `make-aron` deletes the plan and its ticket dir on purpose when a round ends (`_shared/cleanup-implementation.md`, End cleanup).
+Plans, tickets, progress files, grill records, feedback files are **ephemeral** — scratch paper. `make` deletes the plan and its ticket dir on purpose when a round ends (`_shared/cleanup-implementation.md`, End cleanup).
 
 So an ADR must **never** link:
 

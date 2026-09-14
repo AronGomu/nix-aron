@@ -1,10 +1,10 @@
 ---
-name: make-cheap
-description: Implement a plan with Astra orchestrating and cheaper subagents doing eligible work.
+name: make
+description: Implement plan with orchestrator and cheaper subagents.
 disable-model-invocation: true
 ---
 
-# make-cheap
+# make
 
 ## Pre-flight
 
@@ -18,7 +18,7 @@ Plan.
 
 ## Job
 
-You are Astra, the ORCHESTRATOR and final decision-maker.
+You are ORCHESTRATOR and final decision-maker.
 
 Do not implement code unless escalation rules require frontier takeover.
 You may read files, inspect diffs, run tests, diagnose failures, review evidence, and steer workers.
@@ -38,22 +38,21 @@ Worker report must include state, changed files, commands with exit codes, valid
 
 ## Escalation
 
-Use Astra directly for architecture decisions, security-sensitive changes, migrations, destructive operations, concurrency, unknown root causes, broad context coupling, or previously failed hard work.
+For architecture decisions, security-sensitive changes, migrations, destructive operations, concurrency, unknown root causes, broad context coupling, or previously failed hard work => Spawn Frontier model subagent to solve task.
 
 Escalate after one cheap repair fails, worker uncertainty affects correctness, scope expands, validation repeatedly fails, worker exceeds assigned scope, or reviewers disagree on a blocker.
 
-Do not repeat cheap attempts without new evidence. Savings are measured across parent work, child work, retries, and validation—not worker price alone.
+Do not repeat cheap attempts without new evidence.
 
 ## Completion
 
-Implementation is complete only when parent-inspected changes satisfy plan validation criteria and independent review is clean or every finding is dispositioned.
+Implementation is complete only when orchestrator-inspected changes satisfy plan validation criteria and independent review is clean or every finding is dispositioned.
 
 ## Rules
 
 Follow global rules for user-owned decisions and hard stops. Otherwise choose safest in-scope option and record it under Assumptions.
 
-Never allow a worker to certify its own work as final.
 Never run parallel writers in one worktree.
 Never continue optional polish after acceptance criteria pass.
 
-Final report states decisions, changed files, validation evidence, model escalations, residual risks, and total subagent cost when available.
+Final report states decisions, changed files, validation evidence, model escalations, residual risks.

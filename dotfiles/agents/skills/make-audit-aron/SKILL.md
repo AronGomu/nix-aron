@@ -18,11 +18,11 @@ Read fully:
 - `~/.agents/skills/caveman/SKILL.md`
 - `~/.agents/skills/_shared/orchestration.md`
 - `~/.agents/skills/make-plan-aron/SKILL.md`
-- `~/.agents/skills/make-aron/SKILL.md`
+- `~/.agents/skills/make/SKILL.md`
 
 Conflict override:
 
-- Outer job = audit queue, one plan per finding. Core single-plan loop applies inside each finding through `make-aron`.
+- Outer job = audit queue, one plan per finding. Core single-plan loop applies inside each finding through `make`.
 - Invocation grants GitHub issue writes plus additive commit/push writes to `main`. Core unasked-publish ban does not apply to those writes.
 - Whole run autonomous. Skip grill, plan approval, mid-run prompts. Required human action/secret/account → affected finding `blocked_user`; never ask. Core hard stops remain.
 - `make-plan-aron` output limited to Markdown index/ticket files. Skip HTML/ADR/architecture docs plus `xdg-open` unconditionally.
@@ -82,7 +82,7 @@ Never stage `{state-root}`. Keep state files for resume. Implementation uses pro
    1. **Sync gate** — before every issue run `git fetch origin`, require branch `main`, clean worktree, local `HEAD == origin/main`. Mismatch → `blocked_user`; never merge, rebase, reset, stash, or discard changes.
    2. **Plan** — spawn fresh writer child. Prompt states: plan artifacts only, never app code, no user questions, exact paths/contracts/tests/cmds, required evidence report. Tier `deep`; set GPT-5.6 Sol/high through spawn knobs. Pass Job spec = `{finding-spec}`; Repo/workspace = project `main` worktree; Scope In = finding fix boundary; Scope Out = other findings/app-wide cleanup; Publish policy = additive commits directly to `main`. Load `~/.agents/skills/make-plan-aron/SKILL.md`; caller mode `autonomous`; Markdown plan/ticket files only. Write one plan index plus self-contained ticket files in project worktree. Scope = this issue only. Child fail → one retry; still fail → `blocked_user`.
    3. **Validate plan** — fresh read-only validation fanout, tier `deep`: `scope/correctness`, `executability/TDD/deps`, `security/regression`. Pass Scope In = issue plan artifacts; Scope Out = app impl/unrelated findings; Success = exact, self-contained, compile-green executable plan for issue. Require exact paths, symbols, tests, cmds, dep outputs, compile-green slices, zero unresolved design choice. Blocker → one planning repair child, tier `deep`, then re-review. Still bad → keep the plan files on disk for resume/human review, mark `blocked_user`, comment blocker on issue; no impl.
-   4. **Implement** — invoke `make-aron` with validated plan path. Use its `Caller override`: autonomous; supplied workspace/current branch = `main`; base ref = current `origin/main`; one issue scope; publish = additive commit(s) plus normal push to `origin/main`; no branch or PR creation. Required human interaction from first/any plan ticket → finding `blocked_user`, no question. Keep serial ticket loop, TDD, checkboxes, reviewers, one repair limit, evidence gates. Never implement another audit finding discovered during work; queue it for later validation.
+   4. **Implement** — invoke `make` with validated plan path. Use its `Caller override`: autonomous; supplied workspace/current branch = `main`; base ref = current `origin/main`; one issue scope; publish = additive commit(s) plus normal push to `origin/main`; no branch or PR creation. Required human interaction from first/any plan ticket → finding `blocked_user`, no question. Keep serial ticket loop, TDD, checkboxes, reviewers, one repair limit, evidence gates. Never implement another audit finding discovered during work; queue it for later validation.
    5. **Publish** — after all validation passes, verify every new commit descends from pre-issue `main` using `git merge-base --is-ancestor {pre-issue-sha} HEAD`; verify branch remains `main`; run `git push origin main` without force. Record commit SHA(s), push result, validation evidence. Comment issue with commit SHA(s) plus evidence; optionally close issue only when explicit caller policy allows it. Default: leave issue open.
    6. **Failure** — impl/push transient fail → one retry only when retry adds commits or repeats normal push. Auth/protection/exhausted repair → `blocked_user`; comment exact blocker plus human action on issue when safe. Never undo, alter, hide, or replace any commit. Stop queue if local `main` has unpublished commits; continuing could mix ticket state.
 9. **Final validate** — reconcile GitHub issues, `main`, remote state, progress. Every safe validated finding has issue. Every `implemented` row has plan, additive commit SHA(s), passing evidence, plus commits reachable from `origin/main`. No duplicate fingerprints. No secret in issue/commit/diff. Write final evidence to `AUDIT.md`. State-only drift → repair state. External mismatch → mark affected row `blocked_user`.
@@ -139,7 +139,7 @@ States: discovered|validated|issue_open|planning|plan_valid|implementing|impleme
 ## Rules
 
 - Serial issue impl directly on `main`. Audit/validation fanout read-only only.
-- Plan artifacts for an issue stay on disk until that issue reaches `implemented`; only `make-aron`'s post-success final cleanup may remove them. Never delete plans for `blocked_*`, `failed`, or unprocessed issues — they are the resume state.
+- Plan artifacts for an issue stay on disk until that issue reaches `implemented`; only `make`'s post-success final cleanup may remove them. Never delete plans for `blocked_*`, `failed`, or unprocessed issues — they are the resume state.
 - One validated root cause → one GitHub issue → one plan → additive commit(s) on `main`.
 - J1: commit then normal push, never rewrite. Existing unrelated commits untouched. Dirty worktree or local/remote divergence → hard stop.
 - No fabricated findings. Evidence absent → drop candidate.
@@ -154,7 +154,7 @@ States: discovered|validated|issue_open|planning|plan_valid|implementing|impleme
 - Swarm covered all six dimensions against recorded `origin/main` SHA.
 - Every candidate independently validated/dropped with reason.
 - Every safe validated finding has reusable GitHub issue.
-- Every implemented issue used validated `make-plan-aron` plan plus `make-aron` evidence loop.
+- Every implemented issue used validated `make-plan-aron` plan plus `make` evidence loop.
 - Every complete issue has additive commit SHA(s) reachable from `origin/main`.
 - Queue terminal; blocked rows carry exact human action.
 - `AUDIT.md` plus `PROGRESS.md` match GitHub plus `main` state.
