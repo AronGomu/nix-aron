@@ -45,7 +45,7 @@ After implementation, invoke `make-html-aron` to generate then open standalone i
 Report must include:
 
 - Summary cards (exactly five): wall time, summed active/compute time, human wait, total tokens split input/output/cache read/cache write, total cost including nested children, parallelism gain. Distinguish wall time from summed compute time.
-- Per-model interactive table: calls, duration, token split, cost, errors, avg latency, captured time-to-first-token, tokens/sec, cost/successful task, retries/fallbacks.
+- Per-model-and-thinking interactive table: resolved model, thinking level, calls, duration, token split, observed cost, errors, avg latency, captured time-to-first-token, tokens/sec, cost/successful task, retries/fallbacks. Group rows by resolved model + thinking level. Observed cost must come from captured billing telemetry for that route and usage; never infer it from thinking level alone.
 - Per-task interactive table: task ID/type, agent, model, status, wall time, tokens, cost, tools. Types fixed to research/planning/implementation/review/validation; label inferred classification `inferred`.
 - Agent hierarchy: children/task, nesting depth, peak concurrency, failed/stopped/timed-out tasks, fallback attempts.
 - Efficiency/quality: tool success rate, repeated calls, retries, compactions, peak context, changed files/lines, test status, acceptance status, orphaned work, error timeline.
