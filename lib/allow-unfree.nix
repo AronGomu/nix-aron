@@ -7,6 +7,7 @@ builtins.elem (lib.getName pkg) [
   "claude-code"
   "davinci-resolve"
   "discord"
+  "google-chrome"
   "nvidia-settings"
   "nvidia-x11"
   "obsidian"

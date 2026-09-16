@@ -311,7 +311,10 @@ in
     with pkgs;
     [
       # Daily desktop
+      chromium
       copyq
+      firefox
+      google-chrome
       evince
       ffmpeg-full
       ffmpegthumbnailer # Nautilus video thumbs via share/thumbnailers
