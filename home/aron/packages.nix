@@ -332,6 +332,7 @@ in
       strawberry
       thunderbird
       unrar
+      xournalpp
 
       # Gaming. StarCraft: Brood War lives in ~/Games/Starcraft and runs from
       # there under wine; winetricks is for prefix surgery when it misbehaves.
