@@ -326,6 +326,7 @@ in
       qbittorrent
       mediainfo
       mpv
+      kdePackages.okular
       obsidian
       p7zip
       pavucontrol
