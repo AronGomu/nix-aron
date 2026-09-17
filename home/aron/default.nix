@@ -7,6 +7,7 @@
     ./herdr.nix
     ./kdenlive.nix
     ./keepassxc.nix
+    ./niri.nix
     ./omarchy.nix
     ./packages.nix
     ./repos.nix

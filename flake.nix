@@ -18,6 +18,16 @@
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
+    niri = {
+      url = "github:sodiboo/niri-flake";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     nvim-config = {
       url = "github:AronGomu/TRULY_CUSTOM_NVIM_WINDOWS_LINUX";
       flake = false;
@@ -103,6 +113,7 @@
           };
           modules = [
             hostPath
+            inputs.niri.nixosModules.niri
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;

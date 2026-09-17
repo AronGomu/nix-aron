@@ -116,11 +116,11 @@ in
 
     services = {
       displayManager = {
-        defaultSession = lib.mkForce "hyprland-uwsm";
+        defaultSession = lib.mkForce "niri";
         gdm.enable = lib.mkForce false;
         sddm = {
           enable = true;
-          theme = "omarchy";
+          theme = "breeze";
           wayland.enable = true;
           settings = {
             Users = {
@@ -149,11 +149,11 @@ in
     # (shell/plugins/lock/Service.qml reads /etc/pam.d/omarchy-lock-password).
     security.pam.services.omarchy-lock-password = { };
 
-    # Omarchy's password-only SDDM theme reads userModel.lastUser and has no
-    # username field. Seed first boot; SDDM preserves then updates this file.
+    # Breeze exposes SDDM's session picker. Seed Niri for first boot; SDDM
+    # preserves then updates this file when a user selects another session.
     systemd.tmpfiles.rules = [
       "d /var/lib/sddm 0750 sddm sddm -"
-      "f /var/lib/sddm/state.conf 0644 sddm sddm - [Last]\\nSession=hyprland-uwsm.desktop\\nUser=aron"
+      "f /var/lib/sddm/state.conf 0644 sddm sddm - [Last]\\nSession=niri.desktop\\nUser=aron"
     ];
 
     xdg.portal = {

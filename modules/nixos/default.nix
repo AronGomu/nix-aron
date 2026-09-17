@@ -7,6 +7,7 @@
     ./desktop.nix
     ./forgejo.nix
     ./mullvad.nix
+    ./niri.nix
     ./omarchy.nix
     ./nix.nix
     ./remote-access.nix
