@@ -1,3 +1,4 @@
+{ lib, pkgs, ... }:
 {
   imports = [
     ./agents.nix
@@ -36,4 +37,12 @@
   };
 
   programs.home-manager.enable = true;
+
+  home.activation.braveOriginTabSwitching = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    prefs="$HOME/.config/BraveSoftware/Brave-Origin/Default/Preferences"
+    if [ -f "$prefs" ]; then
+      ${pkgs.jq}/bin/jq '.brave.mru_cycling_enabled = false' "$prefs" > "$prefs.tmp"
+      mv "$prefs.tmp" "$prefs"
+    fi
+  '';
 }
