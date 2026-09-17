@@ -322,6 +322,7 @@ in
       file-roller
       flameshot
       gimp
+      gtk3 # Okular native file dialog needs org.gtk.Settings.FileChooser schema
       keepassxc
       qbittorrent
       mediainfo
