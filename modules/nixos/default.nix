@@ -7,6 +7,7 @@
     ./desktop.nix
     ./forgejo.nix
     ./mullvad.nix
+    ./midscroll.nix
     ./niri.nix
     ./omarchy.nix
     ./nix.nix

@@ -8,6 +8,7 @@
     ./herdr.nix
     ./kdenlive.nix
     ./keepassxc.nix
+    ./midscroll.nix
     ./niri.nix
     ./omarchy.nix
     ./packages.nix
