@@ -41,6 +41,7 @@ let
   grokImagine = pkgs.callPackage ../../pkgs/grok-imagine.nix { };
   fileExplorer = pkgs.callPackage ../../pkgs/file-explorer.nix { };
   onekeyWallet = pkgs.callPackage ../../pkgs/onekey-wallet.nix { };
+  neo = pkgs.callPackage ../../pkgs/neo.nix { };
   openwhisprHyprlandCancelPatch = pkgs.writeText "openwhispr-hyprland-cancel.patch" ''
     diff --git a/src/helpers/hotkeyManager.js b/src/helpers/hotkeyManager.js
     index 6931e82..abab7d1 100644
@@ -405,6 +406,7 @@ in
       openwhispr
       grokImagine
       onekeyWallet
+      neo
       auto-editor
       remove-silence
       social-square
