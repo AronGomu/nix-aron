@@ -43,10 +43,10 @@ stdenvNoCC.mkDerivation {
   dontBuild = true;
 
   installPhase = ''
-    install -Dm755 midscroll.py $out/libexec/midscroll.py
-    install -Dm755 midscroll-overlay.py $out/libexec/midscroll-overlay.py
-    install -Dm755 midscroll-settings.py $out/libexec/midscroll-settings.py
-    install -Dm755 midscroll-apply.py $out/libexec/midscroll-apply.py
+    install -Dm644 midscroll.py $out/libexec/midscroll.py
+    install -Dm644 midscroll-overlay.py $out/libexec/midscroll-overlay.py
+    install -Dm644 midscroll-settings.py $out/libexec/midscroll-settings.py
+    install -Dm644 midscroll-apply.py $out/libexec/midscroll-apply.py
     install -Dm644 midscroll.conf $out/etc/midscroll.conf
     install -Dm644 io.github.gnhen.midscroll.Settings.desktop \
       $out/share/applications/io.github.gnhen.midscroll.Settings.desktop
