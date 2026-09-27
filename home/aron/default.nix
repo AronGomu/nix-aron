@@ -2,7 +2,6 @@
 {
   imports = [
     ./agents.nix
-    ./cptr.nix
     ./desktop.nix
     ./google-drive.nix
     ./herdr.nix
