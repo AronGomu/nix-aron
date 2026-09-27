@@ -314,6 +314,7 @@ in
       # Daily desktop
       chromium
       copyq
+      dbeaver-bin
       firefox
       google-chrome
       evince
