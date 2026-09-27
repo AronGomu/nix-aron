@@ -333,6 +333,7 @@ in
       p7zip
       pavucontrol
       strawberry
+      tauon
       thunderbird
       unrar
       xournalpp
