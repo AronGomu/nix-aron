@@ -410,6 +410,7 @@ in
       onekeyWallet
       neo
       auto-editor
+      chatgpt
       remove-silence
       social-square
       ytmusic-sync
