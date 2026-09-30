@@ -1,6 +1,6 @@
 ---
 name: make-html-aron
-description: generate html doc from input
+description: generate html doc from input. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 triggers:
   - "make html"
   - "generate doc"

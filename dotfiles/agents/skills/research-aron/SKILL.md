@@ -1,6 +1,6 @@
 ---
 name: research-aron
-description: Investigate question against high-trust primary sources and capture findings in Markdown file and HTML doc in the repo.
+description: Investigate question against high-trust primary sources and capture findings in Markdown file and HTML doc in the repo. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 ---
 

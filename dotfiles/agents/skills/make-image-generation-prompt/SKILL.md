@@ -1,6 +1,6 @@
 ---
 name: make-image-generation-prompt
-description: Generate image generation prompt from image description.
+description: Generate image generation prompt from image description. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 argument-hint: "{image description} [count]"
 ---

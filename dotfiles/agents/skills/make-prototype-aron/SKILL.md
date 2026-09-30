@@ -1,6 +1,6 @@
 ---
 name: make-prototype-aron
-description: Create, iterate, validate throwaway logic/state or visual UI/UX prototypes. Use when user wants to test a state model, data shape, interaction, or UI direction before production implementation.
+description: Create, iterate, validate throwaway logic/state or visual UI/UX prototypes. Use when user wants to test a state model, data shape, interaction, or UI direction before production implementation. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 ---
 

@@ -1,6 +1,6 @@
 ---
 name: make-setup-aron
-description: One time use. Set up project scaffolding.
+description: One time use. Set up project scaffolding. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 ---
 

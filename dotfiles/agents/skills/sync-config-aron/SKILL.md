@@ -6,6 +6,7 @@ description: >
   manifests, scripts, or setup docs. Capture portable changes, validate, commit,
   synchronize the approved remote branch, verify a clean worktree. Also use for
   explicit reconciliation of manual or GUI config changes.
+  CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 argument-hint: "Changed config or config repo (optional)"
 ---

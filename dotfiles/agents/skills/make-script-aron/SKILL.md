@@ -8,6 +8,7 @@ description: >-
   "make-script-aron on <file>", or points at a .md/.txt script and asks for a readable/presentable
   HTML version. Skip for: general docs-to-HTML conversion, blog posts, or slide
   decks.
+  CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 ---
 
 > **User-question protocol:** Whenever this skill needs the user to pick between options or confirm an action, call the `AskUserQuestion` tool rather than printing numbered options as text.

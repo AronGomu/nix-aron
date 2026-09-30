@@ -1,6 +1,6 @@
 ---
 name: make-audit-aron
-description: Audit project code autonomously with read-only agent swarms, open one GitHub issue per validated finding, plan fixes, then implement tickets sequentially on main with additive commits only. Use for full codebase audit-to-main execution.
+description: Audit project code autonomously with read-only agent swarms, open one GitHub issue per validated finding, plan fixes, then implement tickets sequentially on main with additive commits only. Use for full codebase audit-to-main execution. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 argument-hint: "[project-path]"
 ---

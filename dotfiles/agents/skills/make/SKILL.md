@@ -1,6 +1,6 @@
 ---
 name: make
-description: Implement plan with orchestrator and cheaper subagents.
+description: Implement plan with orchestrator and cheaper subagents. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 ---
 

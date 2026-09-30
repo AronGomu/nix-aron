@@ -1,6 +1,6 @@
 ---
 name: make-plan-aron
-description: Break goal into Markdown TDD ticket flowchart then 1 dedicated writer per ticket at interface contract level.
+description: Break goal into Markdown TDD ticket flowchart then 1 dedicated writer per ticket at interface contract level. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 ---
 

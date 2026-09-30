@@ -1,6 +1,6 @@
 ---
 name: make-parallel-aron
-description: Parallelize implementation.
+description: Parallelize implementation. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 ---
 

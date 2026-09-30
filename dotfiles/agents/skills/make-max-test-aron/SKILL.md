@@ -1,6 +1,6 @@
 ---
 name: make-max-test-aron
-description: Implement tickets through a deterministic gate gauntlet
+description: Implement tickets through a deterministic gate gauntlet. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 ---
 

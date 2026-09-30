@@ -1,6 +1,6 @@
 ---
 name: make-skill-aron
-description: Create agent skill.
+description: Create agent skill. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 ---
 

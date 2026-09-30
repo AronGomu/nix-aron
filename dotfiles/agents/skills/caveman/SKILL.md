@@ -3,6 +3,7 @@ name: caveman
 description: >
   Toggle ultra-compressed Caveman response mode. Terse, full technical accuracy.
   Active by default per ~/.claude/CLAUDE.md. Other skills link this file for the style rules.
+  CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 argument-hint: on|off
 disable-model-invocation: false
 ---

@@ -1,6 +1,6 @@
 ---
 name: grill-me-aron
-description: Relentless interview. Map goal as design tree, ask whole frontier per round as 1 HTML doc, loop until frontier empty and shared understanding reached.
+description: Relentless interview. Map goal as design tree, ask whole frontier per round as 1 HTML doc, loop until frontier empty and shared understanding reached. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 triggers:
   - "grill me"
   - "ask questions to user"

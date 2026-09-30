@@ -3,6 +3,7 @@ name: grok-imagine
 description: >
   Generate or edit images with xAI Grok Imagine via the grok-imagine CLI.
   Load when the user asks to generate, create, or edit images with Grok/xAI/Imagine.
+  CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 ---
 
 # grok-imagine

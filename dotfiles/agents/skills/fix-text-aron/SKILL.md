@@ -1,7 +1,7 @@
 ---
 name: fix-text-aron
 description: >
-  Correct orthograph, grammer, syntax of given text or file.
+  Correct orthograph, grammer, syntax of given text or file. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 ---
 
 # Fix Text

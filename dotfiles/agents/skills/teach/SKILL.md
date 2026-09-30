@@ -1,6 +1,6 @@
 ---
 name: teach
-description: Teach user a new skill or concept, within this workspace.
+description: Teach user a new skill or concept, within this workspace. CANNOT BE INVOKED BY AGENTS. ONLY MANUALLY BY USER.
 disable-model-invocation: false
 ---
 
