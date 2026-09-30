@@ -1,7 +1,7 @@
 ---
 name: make-parallel-aron
 description: Parallelize implementation.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # make-parallel-aron

@@ -4,7 +4,7 @@ description: >
   Apply change to NixOS/Home Manager config repo:
   add, remove, or update packages/modules/settings. Grill if unclear.
   When clear: edit, commit, push, then ask user to rebuild.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # nix-aron

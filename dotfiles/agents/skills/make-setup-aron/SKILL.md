@@ -1,7 +1,7 @@
 ---
 name: make-setup-aron
 description: One time use. Set up project scaffolding.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # make-setup-aron

@@ -1,7 +1,7 @@
 ---
 name: make-plan-aron
 description: Break goal into Markdown TDD ticket flowchart then 1 dedicated writer per ticket at interface contract level.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # make-plan-aron

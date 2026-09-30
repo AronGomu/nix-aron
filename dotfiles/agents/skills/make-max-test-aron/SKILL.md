@@ -1,7 +1,7 @@
 ---
 name: make-max-test-aron
 description: Implement tickets through a deterministic gate gauntlet
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # make-max-test-aron

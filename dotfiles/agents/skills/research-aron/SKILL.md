@@ -1,7 +1,7 @@
 ---
 name: research-aron
 description: Investigate question against high-trust primary sources and capture findings in Markdown file and HTML doc in the repo.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 Spin up **background agent** to do research. Keep working while it gathers information.

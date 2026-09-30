@@ -5,7 +5,7 @@ description: >
   transcript, script-anchored retake detection, rendered video. Use when user
   asks to remove retakes / repeated takes / bad takes from a recording, or says
   "cut my video", "montage auto", "retake-cut".
-disable-model-invocation: true
+disable-model-invocation: false
 argument-hint: "{video path} [script path]"
 ---
 

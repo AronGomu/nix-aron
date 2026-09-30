@@ -1,7 +1,7 @@
 ---
 name: make-image-generation-prompt
 description: Generate image generation prompt from image description.
-disable-model-invocation: true
+disable-model-invocation: false
 argument-hint: "{image description} [count]"
 ---
 

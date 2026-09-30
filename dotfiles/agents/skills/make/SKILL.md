@@ -1,7 +1,7 @@
 ---
 name: make
 description: Implement plan with orchestrator and cheaper subagents.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # make

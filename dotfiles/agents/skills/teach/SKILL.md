@@ -1,7 +1,7 @@
 ---
 name: teach
 description: Teach user a new skill or concept, within this workspace.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 The user has asked you to teach them something. This is a stateful request - they intend to learn the topic over multiple sessions.

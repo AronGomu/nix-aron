@@ -1,7 +1,7 @@
 ---
 name: make-skill-aron
 description: Create agent skill.
-disable-model-invocation: true
+disable-model-invocation: false
 ---
 
 # make-skill-aron
