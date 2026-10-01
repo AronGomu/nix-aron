@@ -5,7 +5,6 @@
     ./boot.nix
     ./brave-policies.nix
     ./desktop.nix
-    ./forgejo.nix
     ./mullvad.nix
     ./midscroll.nix
     ./niri.nix
